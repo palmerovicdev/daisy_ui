@@ -27,10 +27,10 @@ abstract class DaisyThemeColor with _$DaisyThemeColor {
 @freezed
 abstract class DaisyThemeColorPair with _$DaisyThemeColorPair {
   const factory DaisyThemeColorPair({
-    required String primary,
-    required String accent,
-    String? secondary,
-    String? tertiary,
+    required RayOklch base,
+    required RayOklch content,
+    RayOklch? base200,
+    RayOklch? base300,
   }) = _DaisyThemeColorPair;
 
   factory DaisyThemeColorPair.fromJson(Map<String, Object?> json) =>

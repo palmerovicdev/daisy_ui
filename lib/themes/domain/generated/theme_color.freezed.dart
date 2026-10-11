@@ -493,7 +493,7 @@ $DaisyThemeColorPairCopyWith<$Res> get danger {
 /// @nodoc
 mixin _$DaisyThemeColorPair {
 
- String get primary; String get accent; String? get secondary; String? get tertiary;
+ RayOklch get base; RayOklch get content; RayOklch? get base200; RayOklch? get base300;
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -507,20 +507,20 @@ $DaisyThemeColorPairCopyWith<DaisyThemeColorPair> get copyWith => _$DaisyThemeCo
 @override
 bool operator ==(Object other) {
   final _this = this as DaisyThemeColorPair;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColorPair&&(identical(other.primary, _this.primary) || other.primary == _this.primary)&&(identical(other.accent, _this.accent) || other.accent == _this.accent)&&(identical(other.secondary, _this.secondary) || other.secondary == _this.secondary)&&(identical(other.tertiary, _this.tertiary) || other.tertiary == _this.tertiary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColorPair&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.content, _this.content) || other.content == _this.content)&&(identical(other.base200, _this.base200) || other.base200 == _this.base200)&&(identical(other.base300, _this.base300) || other.base300 == _this.base300));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as DaisyThemeColorPair;
-  return Object.hash(runtimeType,_this.primary,_this.accent,_this.secondary,_this.tertiary);
+  return Object.hash(runtimeType,_this.base,_this.content,_this.base200,_this.base300);
 }
 
 @override
 String toString() {
   final _this = this as DaisyThemeColorPair;
-  return 'DaisyThemeColorPair(primary: ${_this.primary}, accent: ${_this.accent}, secondary: ${_this.secondary}, tertiary: ${_this.tertiary})';
+  return 'DaisyThemeColorPair(base: ${_this.base}, content: ${_this.content}, base200: ${_this.base200}, base300: ${_this.base300})';
 }
 
 
@@ -531,7 +531,7 @@ abstract mixin class $DaisyThemeColorPairCopyWith<$Res>  {
   factory $DaisyThemeColorPairCopyWith(DaisyThemeColorPair value, $Res Function(DaisyThemeColorPair) _then) = _$DaisyThemeColorPairCopyWithImpl;
 @useResult
 $Res call({
- String primary, String accent, String? secondary, String? tertiary
+ RayOklch base, RayOklch content, RayOklch? base200, RayOklch? base300
 });
 
 
@@ -548,13 +548,13 @@ class _$DaisyThemeColorPairCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? primary = null,Object? accent = null,Object? secondary = freezed,Object? tertiary = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? base = null,Object? content = null,Object? base200 = freezed,Object? base300 = freezed,}) {
   return _then(DaisyThemeColorPair(
-primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
-as String,accent: null == accent ? _self.accent : accent // ignore: cast_nullable_to_non_nullable
-as String,secondary: freezed == secondary ? _self.secondary : secondary // ignore: cast_nullable_to_non_nullable
-as String?,tertiary: freezed == tertiary ? _self.tertiary : tertiary // ignore: cast_nullable_to_non_nullable
-as String?,
+base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
+as RayOklch,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as RayOklch,base200: freezed == base200 ? _self.base200 : base200 // ignore: cast_nullable_to_non_nullable
+as RayOklch?,base300: freezed == base300 ? _self.base300 : base300 // ignore: cast_nullable_to_non_nullable
+as RayOklch?,
   ));
 }
 
@@ -639,10 +639,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String primary,  String accent,  String? secondary,  String? tertiary)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair() when $default != null:
-return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case _:
+return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
   return orElse();
 
 }
@@ -660,10 +660,10 @@ return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String primary,  String accent,  String? secondary,  String? tertiary)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair():
-return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case _:
+return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -680,10 +680,10 @@ return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String primary,  String accent,  String? secondary,  String? tertiary)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)?  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair() when $default != null:
-return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case _:
+return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
   return null;
 
 }
@@ -695,13 +695,13 @@ return $default(_that.primary,_that.accent,_that.secondary,_that.tertiary);case 
 @JsonSerializable()
 
 class _DaisyThemeColorPair implements DaisyThemeColorPair {
-  const _DaisyThemeColorPair({required this.primary, required this.accent, this.secondary, this.tertiary});
+  const _DaisyThemeColorPair({required this.base, required this.content, this.base200, this.base300});
   factory _DaisyThemeColorPair.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorPairFromJson(json);
 
-@override final  String primary;
-@override final  String accent;
-@override final  String? secondary;
-@override final  String? tertiary;
+@override final  RayOklch base;
+@override final  RayOklch content;
+@override final  RayOklch? base200;
+@override final  RayOklch? base300;
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
@@ -716,18 +716,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColorPair&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.secondary, secondary) || other.secondary == secondary)&&(identical(other.tertiary, tertiary) || other.tertiary == tertiary));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColorPair&&(identical(other.base, base) || other.base == base)&&(identical(other.content, content) || other.content == content)&&(identical(other.base200, base200) || other.base200 == base200)&&(identical(other.base300, base300) || other.base300 == base300));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,primary,accent,secondary,tertiary);
+    return Object.hash(runtimeType,base,content,base200,base300);
 }
 
 @override
 String toString() {
-    return 'DaisyThemeColorPair(primary: $primary, accent: $accent, secondary: $secondary, tertiary: $tertiary)';
+    return 'DaisyThemeColorPair(base: $base, content: $content, base200: $base200, base300: $base300)';
 }
 
 
@@ -738,7 +738,7 @@ abstract mixin class _$DaisyThemeColorPairCopyWith<$Res> implements $DaisyThemeC
   factory _$DaisyThemeColorPairCopyWith(_DaisyThemeColorPair value, $Res Function(_DaisyThemeColorPair) _then) = __$DaisyThemeColorPairCopyWithImpl;
 @override @useResult
 $Res call({
- String primary, String accent, String? secondary, String? tertiary
+ RayOklch base, RayOklch content, RayOklch? base200, RayOklch? base300
 });
 
 
@@ -755,13 +755,13 @@ class __$DaisyThemeColorPairCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? primary = null,Object? accent = null,Object? secondary = freezed,Object? tertiary = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? base = null,Object? content = null,Object? base200 = freezed,Object? base300 = freezed,}) {
   return _then(_DaisyThemeColorPair(
-primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
-as String,accent: null == accent ? _self.accent : accent // ignore: cast_nullable_to_non_nullable
-as String,secondary: freezed == secondary ? _self.secondary : secondary // ignore: cast_nullable_to_non_nullable
-as String?,tertiary: freezed == tertiary ? _self.tertiary : tertiary // ignore: cast_nullable_to_non_nullable
-as String?,
+base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
+as RayOklch,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as RayOklch,base200: freezed == base200 ? _self.base200 : base200 // ignore: cast_nullable_to_non_nullable
+as RayOklch?,base300: freezed == base300 ? _self.base300 : base300 // ignore: cast_nullable_to_non_nullable
+as RayOklch?,
   ));
 }
 

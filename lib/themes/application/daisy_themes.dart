@@ -12,52 +12,52 @@ abstract final class DaisyThemes {
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
-        secondary: '',
-        tertiary: '',
+        base: DaisyThemeColorPalette.white, // base-100 (b1)
+        content: DaisyThemeColorPalette.zinc900, // base-content (bc)
+        base200: DaisyThemeColorPalette.zinc50, // base-200 (b2)
+        base300: DaisyThemeColorPalette.zinc100, // base-300 (b3)
       ),
       primary: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.indigo700, // primary (p)
+        content: DaisyThemeColorPalette.indigo100, // primary-content (pc)
       ),
       secondary: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.pink500, // secondary (s)
+        content: DaisyThemeColorPalette.pink100, // secondary-content (sc)
       ),
       accent: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.teal400, // accent (a)
+        content: DaisyThemeColorPalette.teal900, // accent-content (ac)
       ),
       neutral: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.zinc950, // neutral (n)
+        content: DaisyThemeColorPalette.zinc200, // neutral-content (nc)
       ),
       info: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.sky400, // info (in)
+        content: DaisyThemeColorPalette.sky950, // info-content (inc)
       ),
       success: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.emerald400, // success (su)
+        content: DaisyThemeColorPalette.emerald900, // success-content (suc)
       ),
       error: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.rose400, // error (er)
+        content: DaisyThemeColorPalette.rose950, // error-content (erc)
       ),
       warning: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.amber400, // warning (wa)
+        content: DaisyThemeColorPalette.amber900, // warning-content (wac)
       ),
       danger: DaisyThemeColorPair(
-        primary: '',
-        accent: '',
+        base: DaisyThemeColorPalette.rose400, // danger (da)
+        content: DaisyThemeColorPalette.rose950, // danger-content (dac)
       ),
     ),
     radius: DaisyThemeRadius(
-      boxes: DaisyThemeRadiusPreset.full,
-      fields: DaisyThemeRadiusPreset.full,
-      selectors: DaisyThemeRadiusPreset.full,
+      boxes: DaisyThemeRadiusPreset.medium,
+      fields: DaisyThemeRadiusPreset.soft,
+      selectors: DaisyThemeRadiusPreset.medium,
     ),
     size: DaisyThemeSize(
       fields: DaisyThemeSizeConfig(base: 4),

@@ -31,9 +31,15 @@ abstract class DaisyThemeRadius with _$DaisyThemeRadius {
 /// Daisy Theme Radius Preset
 ///
 abstract class DaisyThemeRadiusPreset {
+
+  /// sharp 0rem -> 0px
   static const int sharp = 0;
+  /// soft 0.25rem -> 4px
   static const int soft = 4;
+  /// medium 0.5rem -> 8px
   static const int medium = 8;
+  /// large 1rem -> 16px
   static const int large = 16;
+  /// full 2rem -> 32px
   static const int full = 32;
 }
