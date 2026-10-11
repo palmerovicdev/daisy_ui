@@ -16,8 +16,10 @@ abstract class DaisyThemeRadius with _$DaisyThemeRadius {
   const factory DaisyThemeRadius({
     /// card, modal, alert
     required int boxes,
+
     /// button, input, select, tab
     required int fields,
+
     /// checkbox, toggle, badge
     required int selectors,
   }) = _DaisyThemeRadius;

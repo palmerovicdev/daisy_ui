@@ -1,11 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'generated/theme_colors.freezed.dart';
-part 'generated/theme_colors.g.dart';
+part 'generated/theme_color.freezed.dart';
+
+part 'generated/theme_color.g.dart';
 
 @freezed
-abstract class DaisyThemeColors with _$DaisyThemeColors {
-  const factory DaisyThemeColors({
+abstract class DaisyThemeColor with _$DaisyThemeColor {
+  const factory DaisyThemeColor({
     required DaisyThemeColorPair base,
     required DaisyThemeColorPair primary,
     required DaisyThemeColorPair secondary,
@@ -16,10 +17,10 @@ abstract class DaisyThemeColors with _$DaisyThemeColors {
     required DaisyThemeColorPair error,
     required DaisyThemeColorPair warning,
     required DaisyThemeColorPair danger,
-  }) = _DaisyThemeColors;
+  }) = _DaisyThemeColor;
 
-  factory DaisyThemeColors.fromJson(Map<String, Object?> json) =>
-      _$DaisyThemeColorsFromJson(json);
+  factory DaisyThemeColor.fromJson(Map<String, Object?> json) =>
+      _$DaisyThemeColorFromJson(json);
 }
 
 @freezed

@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyThemeModel {
 
- String get id; String get name; String get description; DaisyThemeColors get colors; DaisyThemeRadius get radius;
+ String get id; String get name; String get description; DaisyThemeColor get colors; DaisyThemeRadius get radius; DaisyThemeSize get size;
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $DaisyThemeModelCopyWith<DaisyThemeModel> get copyWith => _$DaisyThemeModelCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as DaisyThemeModel;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeModel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.colors, _this.colors) || other.colors == _this.colors)&&(identical(other.radius, _this.radius) || other.radius == _this.radius));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeModel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.colors, _this.colors) || other.colors == _this.colors)&&(identical(other.radius, _this.radius) || other.radius == _this.radius)&&(identical(other.size, _this.size) || other.size == _this.size));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as DaisyThemeModel;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.description,_this.colors,_this.radius);
+  return Object.hash(runtimeType,_this.id,_this.name,_this.description,_this.colors,_this.radius,_this.size);
 }
 
 @override
 String toString() {
   final _this = this as DaisyThemeModel;
-  return 'DaisyThemeModel(id: ${_this.id}, name: ${_this.name}, description: ${_this.description}, colors: ${_this.colors}, radius: ${_this.radius})';
+  return 'DaisyThemeModel(id: ${_this.id}, name: ${_this.name}, description: ${_this.description}, colors: ${_this.colors}, radius: ${_this.radius}, size: ${_this.size})';
 }
 
 
@@ -54,11 +54,11 @@ abstract mixin class $DaisyThemeModelCopyWith<$Res>  {
   factory $DaisyThemeModelCopyWith(DaisyThemeModel value, $Res Function(DaisyThemeModel) _then) = _$DaisyThemeModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String description, DaisyThemeColors colors, DaisyThemeRadius radius
+ String id, String name, String description, DaisyThemeColor colors, DaisyThemeRadius radius, DaisyThemeSize size
 });
 
 
-$DaisyThemeColorsCopyWith<$Res> get colors;$DaisyThemeRadiusCopyWith<$Res> get radius;
+$DaisyThemeColorCopyWith<$Res> get colors;$DaisyThemeRadiusCopyWith<$Res> get radius;$DaisyThemeSizeCopyWith<$Res> get size;
 
 }
 /// @nodoc
@@ -71,23 +71,24 @@ class _$DaisyThemeModelCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = null,Object? colors = null,Object? radius = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = null,Object? colors = null,Object? radius = null,Object? size = null,}) {
   return _then(DaisyThemeModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
-as DaisyThemeColors,radius: null == radius ? _self.radius : radius // ignore: cast_nullable_to_non_nullable
-as DaisyThemeRadius,
+as DaisyThemeColor,radius: null == radius ? _self.radius : radius // ignore: cast_nullable_to_non_nullable
+as DaisyThemeRadius,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as DaisyThemeSize,
   ));
 }
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeColorsCopyWith<$Res> get colors {
+$DaisyThemeColorCopyWith<$Res> get colors {
   
-  return $DaisyThemeColorsCopyWith<$Res>(_self.colors, (value) {
+  return $DaisyThemeColorCopyWith<$Res>(_self.colors, (value) {
     return _then(_self.copyWith(colors: value));
   });
 }/// Create a copy of DaisyThemeModel
@@ -98,6 +99,15 @@ $DaisyThemeRadiusCopyWith<$Res> get radius {
   
   return $DaisyThemeRadiusCopyWith<$Res>(_self.radius, (value) {
     return _then(_self.copyWith(radius: value));
+  });
+}/// Create a copy of DaisyThemeModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DaisyThemeSizeCopyWith<$Res> get size {
+  
+  return $DaisyThemeSizeCopyWith<$Res>(_self.size, (value) {
+    return _then(_self.copyWith(size: value));
   });
 }
 }
@@ -181,10 +191,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String description,  DaisyThemeColors colors,  DaisyThemeRadius radius)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String description,  DaisyThemeColor colors,  DaisyThemeRadius radius,  DaisyThemeSize size)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DaisyThemeModel() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius);case _:
+return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius,_that.size);case _:
   return orElse();
 
 }
@@ -202,10 +212,10 @@ return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String description,  DaisyThemeColors colors,  DaisyThemeRadius radius)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String description,  DaisyThemeColor colors,  DaisyThemeRadius radius,  DaisyThemeSize size)  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeModel():
-return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius);case _:
+return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius,_that.size);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -222,10 +232,10 @@ return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String description,  DaisyThemeColors colors,  DaisyThemeRadius radius)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String description,  DaisyThemeColor colors,  DaisyThemeRadius radius,  DaisyThemeSize size)?  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeModel() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius);case _:
+return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius,_that.size);case _:
   return null;
 
 }
@@ -237,14 +247,15 @@ return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius)
 @JsonSerializable()
 
 class _DaisyThemeModel implements DaisyThemeModel {
-  const _DaisyThemeModel({required this.id, required this.name, required this.description, required this.colors, required this.radius});
+  const _DaisyThemeModel({required this.id, required this.name, required this.description, required this.colors, required this.radius, required this.size});
   factory _DaisyThemeModel.fromJson(Map<String, dynamic> json) => _$DaisyThemeModelFromJson(json);
 
 @override final  String id;
 @override final  String name;
 @override final  String description;
-@override final  DaisyThemeColors colors;
+@override final  DaisyThemeColor colors;
 @override final  DaisyThemeRadius radius;
+@override final  DaisyThemeSize size;
 
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
@@ -259,18 +270,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.radius, radius) || other.radius == radius));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.radius, radius) || other.radius == radius)&&(identical(other.size, size) || other.size == size));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,name,description,colors,radius);
+    return Object.hash(runtimeType,id,name,description,colors,radius,size);
 }
 
 @override
 String toString() {
-    return 'DaisyThemeModel(id: $id, name: $name, description: $description, colors: $colors, radius: $radius)';
+    return 'DaisyThemeModel(id: $id, name: $name, description: $description, colors: $colors, radius: $radius, size: $size)';
 }
 
 
@@ -281,11 +292,11 @@ abstract mixin class _$DaisyThemeModelCopyWith<$Res> implements $DaisyThemeModel
   factory _$DaisyThemeModelCopyWith(_DaisyThemeModel value, $Res Function(_DaisyThemeModel) _then) = __$DaisyThemeModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String description, DaisyThemeColors colors, DaisyThemeRadius radius
+ String id, String name, String description, DaisyThemeColor colors, DaisyThemeRadius radius, DaisyThemeSize size
 });
 
 
-@override $DaisyThemeColorsCopyWith<$Res> get colors;@override $DaisyThemeRadiusCopyWith<$Res> get radius;
+@override $DaisyThemeColorCopyWith<$Res> get colors;@override $DaisyThemeRadiusCopyWith<$Res> get radius;@override $DaisyThemeSizeCopyWith<$Res> get size;
 
 }
 /// @nodoc
@@ -298,14 +309,15 @@ class __$DaisyThemeModelCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = null,Object? colors = null,Object? radius = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = null,Object? colors = null,Object? radius = null,Object? size = null,}) {
   return _then(_DaisyThemeModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
-as DaisyThemeColors,radius: null == radius ? _self.radius : radius // ignore: cast_nullable_to_non_nullable
-as DaisyThemeRadius,
+as DaisyThemeColor,radius: null == radius ? _self.radius : radius // ignore: cast_nullable_to_non_nullable
+as DaisyThemeRadius,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as DaisyThemeSize,
   ));
 }
 
@@ -313,9 +325,9 @@ as DaisyThemeRadius,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeColorsCopyWith<$Res> get colors {
+$DaisyThemeColorCopyWith<$Res> get colors {
   
-  return $DaisyThemeColorsCopyWith<$Res>(_self.colors, (value) {
+  return $DaisyThemeColorCopyWith<$Res>(_self.colors, (value) {
     return _then(_self.copyWith(colors: value));
   });
 }/// Create a copy of DaisyThemeModel
@@ -326,6 +338,15 @@ $DaisyThemeRadiusCopyWith<$Res> get radius {
   
   return $DaisyThemeRadiusCopyWith<$Res>(_self.radius, (value) {
     return _then(_self.copyWith(radius: value));
+  });
+}/// Create a copy of DaisyThemeModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DaisyThemeSizeCopyWith<$Res> get size {
+  
+  return $DaisyThemeSizeCopyWith<$Res>(_self.size, (value) {
+    return _then(_self.copyWith(size: value));
   });
 }
 }

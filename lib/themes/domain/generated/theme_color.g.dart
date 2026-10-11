@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../theme_colors.dart';
+part of '../theme_color.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_DaisyThemeColors _$DaisyThemeColorsFromJson(
+_DaisyThemeColor _$DaisyThemeColorFromJson(
   Map<String, dynamic> json,
-) => _DaisyThemeColors(
+) => _DaisyThemeColor(
   base: DaisyThemeColorPair.fromJson(json['base'] as Map<String, dynamic>),
   primary: DaisyThemeColorPair.fromJson(
     json['primary'] as Map<String, dynamic>,
@@ -31,7 +31,7 @@ _DaisyThemeColors _$DaisyThemeColorsFromJson(
   danger: DaisyThemeColorPair.fromJson(json['danger'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$DaisyThemeColorsToJson(_DaisyThemeColors instance) =>
+Map<String, dynamic> _$DaisyThemeColorToJson(_DaisyThemeColor instance) =>
     <String, dynamic>{
       'base': instance.base,
       'primary': instance.primary,

@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of '../theme_colors.dart';
+part of '../theme_color.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,44 +14,44 @@ part of '../theme_colors.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$DaisyThemeColors {
+mixin _$DaisyThemeColor {
 
  DaisyThemeColorPair get base; DaisyThemeColorPair get primary; DaisyThemeColorPair get secondary; DaisyThemeColorPair get accent; DaisyThemeColorPair get neutral; DaisyThemeColorPair get info; DaisyThemeColorPair get success; DaisyThemeColorPair get error; DaisyThemeColorPair get warning; DaisyThemeColorPair get danger;
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$DaisyThemeColorsCopyWith<DaisyThemeColors> get copyWith => _$DaisyThemeColorsCopyWithImpl<DaisyThemeColors>(this as DaisyThemeColors, _$identity);
+$DaisyThemeColorCopyWith<DaisyThemeColor> get copyWith => _$DaisyThemeColorCopyWithImpl<DaisyThemeColor>(this as DaisyThemeColor, _$identity);
 
-  /// Serializes this DaisyThemeColors to a JSON map.
+  /// Serializes this DaisyThemeColor to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  final _this = this as DaisyThemeColors;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColors&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.primary, _this.primary) || other.primary == _this.primary)&&(identical(other.secondary, _this.secondary) || other.secondary == _this.secondary)&&(identical(other.accent, _this.accent) || other.accent == _this.accent)&&(identical(other.neutral, _this.neutral) || other.neutral == _this.neutral)&&(identical(other.info, _this.info) || other.info == _this.info)&&(identical(other.success, _this.success) || other.success == _this.success)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.warning, _this.warning) || other.warning == _this.warning)&&(identical(other.danger, _this.danger) || other.danger == _this.danger));
+  final _this = this as DaisyThemeColor;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColor&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.primary, _this.primary) || other.primary == _this.primary)&&(identical(other.secondary, _this.secondary) || other.secondary == _this.secondary)&&(identical(other.accent, _this.accent) || other.accent == _this.accent)&&(identical(other.neutral, _this.neutral) || other.neutral == _this.neutral)&&(identical(other.info, _this.info) || other.info == _this.info)&&(identical(other.success, _this.success) || other.success == _this.success)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.warning, _this.warning) || other.warning == _this.warning)&&(identical(other.danger, _this.danger) || other.danger == _this.danger));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-  final _this = this as DaisyThemeColors;
+  final _this = this as DaisyThemeColor;
   return Object.hash(runtimeType,_this.base,_this.primary,_this.secondary,_this.accent,_this.neutral,_this.info,_this.success,_this.error,_this.warning,_this.danger);
 }
 
 @override
 String toString() {
-  final _this = this as DaisyThemeColors;
-  return 'DaisyThemeColors(base: ${_this.base}, primary: ${_this.primary}, secondary: ${_this.secondary}, accent: ${_this.accent}, neutral: ${_this.neutral}, info: ${_this.info}, success: ${_this.success}, error: ${_this.error}, warning: ${_this.warning}, danger: ${_this.danger})';
+  final _this = this as DaisyThemeColor;
+  return 'DaisyThemeColor(base: ${_this.base}, primary: ${_this.primary}, secondary: ${_this.secondary}, accent: ${_this.accent}, neutral: ${_this.neutral}, info: ${_this.info}, success: ${_this.success}, error: ${_this.error}, warning: ${_this.warning}, danger: ${_this.danger})';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $DaisyThemeColorsCopyWith<$Res>  {
-  factory $DaisyThemeColorsCopyWith(DaisyThemeColors value, $Res Function(DaisyThemeColors) _then) = _$DaisyThemeColorsCopyWithImpl;
+abstract mixin class $DaisyThemeColorCopyWith<$Res>  {
+  factory $DaisyThemeColorCopyWith(DaisyThemeColor value, $Res Function(DaisyThemeColor) _then) = _$DaisyThemeColorCopyWithImpl;
 @useResult
 $Res call({
  DaisyThemeColorPair base, DaisyThemeColorPair primary, DaisyThemeColorPair secondary, DaisyThemeColorPair accent, DaisyThemeColorPair neutral, DaisyThemeColorPair info, DaisyThemeColorPair success, DaisyThemeColorPair error, DaisyThemeColorPair warning, DaisyThemeColorPair danger
@@ -62,17 +62,17 @@ $DaisyThemeColorPairCopyWith<$Res> get base;$DaisyThemeColorPairCopyWith<$Res> g
 
 }
 /// @nodoc
-class _$DaisyThemeColorsCopyWithImpl<$Res>
-    implements $DaisyThemeColorsCopyWith<$Res> {
-  _$DaisyThemeColorsCopyWithImpl(this._self, this._then);
+class _$DaisyThemeColorCopyWithImpl<$Res>
+    implements $DaisyThemeColorCopyWith<$Res> {
+  _$DaisyThemeColorCopyWithImpl(this._self, this._then);
 
-  final DaisyThemeColors _self;
-  final $Res Function(DaisyThemeColors) _then;
+  final DaisyThemeColor _self;
+  final $Res Function(DaisyThemeColor) _then;
 
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? base = null,Object? primary = null,Object? secondary = null,Object? accent = null,Object? neutral = null,Object? info = null,Object? success = null,Object? error = null,Object? warning = null,Object? danger = null,}) {
-  return _then(DaisyThemeColors(
+  return _then(DaisyThemeColor(
 base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
 as DaisyThemeColorPair,primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
 as DaisyThemeColorPair,secondary: null == secondary ? _self.secondary : secondary // ignore: cast_nullable_to_non_nullable
@@ -86,7 +86,7 @@ as DaisyThemeColorPair,danger: null == danger ? _self.danger : danger // ignore:
 as DaisyThemeColorPair,
   ));
 }
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -95,7 +95,7 @@ $DaisyThemeColorPairCopyWith<$Res> get base {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.base, (value) {
     return _then(_self.copyWith(base: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -104,7 +104,7 @@ $DaisyThemeColorPairCopyWith<$Res> get primary {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.primary, (value) {
     return _then(_self.copyWith(primary: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -113,7 +113,7 @@ $DaisyThemeColorPairCopyWith<$Res> get secondary {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.secondary, (value) {
     return _then(_self.copyWith(secondary: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -122,7 +122,7 @@ $DaisyThemeColorPairCopyWith<$Res> get accent {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.accent, (value) {
     return _then(_self.copyWith(accent: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -131,7 +131,7 @@ $DaisyThemeColorPairCopyWith<$Res> get neutral {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.neutral, (value) {
     return _then(_self.copyWith(neutral: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -140,7 +140,7 @@ $DaisyThemeColorPairCopyWith<$Res> get info {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.info, (value) {
     return _then(_self.copyWith(info: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -149,7 +149,7 @@ $DaisyThemeColorPairCopyWith<$Res> get success {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.success, (value) {
     return _then(_self.copyWith(success: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -158,7 +158,7 @@ $DaisyThemeColorPairCopyWith<$Res> get error {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.error, (value) {
     return _then(_self.copyWith(error: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -167,7 +167,7 @@ $DaisyThemeColorPairCopyWith<$Res> get warning {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.warning, (value) {
     return _then(_self.copyWith(warning: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -180,8 +180,8 @@ $DaisyThemeColorPairCopyWith<$Res> get danger {
 }
 
 
-/// Adds pattern-matching-related methods to [DaisyThemeColors].
-extension DaisyThemeColorsPatterns on DaisyThemeColors {
+/// Adds pattern-matching-related methods to [DaisyThemeColor].
+extension DaisyThemeColorPatterns on DaisyThemeColor {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -194,10 +194,10 @@ extension DaisyThemeColorsPatterns on DaisyThemeColors {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DaisyThemeColors value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DaisyThemeColor value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _DaisyThemeColors() when $default != null:
+case _DaisyThemeColor() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -216,10 +216,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DaisyThemeColors value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DaisyThemeColor value)  $default,){
 final _that = this;
 switch (_that) {
-case _DaisyThemeColors():
+case _DaisyThemeColor():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -237,10 +237,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DaisyThemeColors value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DaisyThemeColor value)?  $default,){
 final _that = this;
 switch (_that) {
-case _DaisyThemeColors() when $default != null:
+case _DaisyThemeColor() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -260,7 +260,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DaisyThemeColorPair base,  DaisyThemeColorPair primary,  DaisyThemeColorPair secondary,  DaisyThemeColorPair accent,  DaisyThemeColorPair neutral,  DaisyThemeColorPair info,  DaisyThemeColorPair success,  DaisyThemeColorPair error,  DaisyThemeColorPair warning,  DaisyThemeColorPair danger)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _DaisyThemeColors() when $default != null:
+case _DaisyThemeColor() when $default != null:
 return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neutral,_that.info,_that.success,_that.error,_that.warning,_that.danger);case _:
   return orElse();
 
@@ -281,7 +281,7 @@ return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neut
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DaisyThemeColorPair base,  DaisyThemeColorPair primary,  DaisyThemeColorPair secondary,  DaisyThemeColorPair accent,  DaisyThemeColorPair neutral,  DaisyThemeColorPair info,  DaisyThemeColorPair success,  DaisyThemeColorPair error,  DaisyThemeColorPair warning,  DaisyThemeColorPair danger)  $default,) {final _that = this;
 switch (_that) {
-case _DaisyThemeColors():
+case _DaisyThemeColor():
 return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neutral,_that.info,_that.success,_that.error,_that.warning,_that.danger);case _:
   throw StateError('Unexpected subclass');
 
@@ -301,7 +301,7 @@ return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neut
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DaisyThemeColorPair base,  DaisyThemeColorPair primary,  DaisyThemeColorPair secondary,  DaisyThemeColorPair accent,  DaisyThemeColorPair neutral,  DaisyThemeColorPair info,  DaisyThemeColorPair success,  DaisyThemeColorPair error,  DaisyThemeColorPair warning,  DaisyThemeColorPair danger)?  $default,) {final _that = this;
 switch (_that) {
-case _DaisyThemeColors() when $default != null:
+case _DaisyThemeColor() when $default != null:
 return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neutral,_that.info,_that.success,_that.error,_that.warning,_that.danger);case _:
   return null;
 
@@ -313,9 +313,9 @@ return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neut
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeColors implements DaisyThemeColors {
-  const _DaisyThemeColors({required this.base, required this.primary, required this.secondary, required this.accent, required this.neutral, required this.info, required this.success, required this.error, required this.warning, required this.danger});
-  factory _DaisyThemeColors.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorsFromJson(json);
+class _DaisyThemeColor implements DaisyThemeColor {
+  const _DaisyThemeColor({required this.base, required this.primary, required this.secondary, required this.accent, required this.neutral, required this.info, required this.success, required this.error, required this.warning, required this.danger});
+  factory _DaisyThemeColor.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorFromJson(json);
 
 @override final  DaisyThemeColorPair base;
 @override final  DaisyThemeColorPair primary;
@@ -328,20 +328,20 @@ class _DaisyThemeColors implements DaisyThemeColors {
 @override final  DaisyThemeColorPair warning;
 @override final  DaisyThemeColorPair danger;
 
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$DaisyThemeColorsCopyWith<_DaisyThemeColors> get copyWith => __$DaisyThemeColorsCopyWithImpl<_DaisyThemeColors>(this, _$identity);
+_$DaisyThemeColorCopyWith<_DaisyThemeColor> get copyWith => __$DaisyThemeColorCopyWithImpl<_DaisyThemeColor>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$DaisyThemeColorsToJson(this, );
+  return _$DaisyThemeColorToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColors&&(identical(other.base, base) || other.base == base)&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.secondary, secondary) || other.secondary == secondary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.neutral, neutral) || other.neutral == neutral)&&(identical(other.info, info) || other.info == info)&&(identical(other.success, success) || other.success == success)&&(identical(other.error, error) || other.error == error)&&(identical(other.warning, warning) || other.warning == warning)&&(identical(other.danger, danger) || other.danger == danger));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColor&&(identical(other.base, base) || other.base == base)&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.secondary, secondary) || other.secondary == secondary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.neutral, neutral) || other.neutral == neutral)&&(identical(other.info, info) || other.info == info)&&(identical(other.success, success) || other.success == success)&&(identical(other.error, error) || other.error == error)&&(identical(other.warning, warning) || other.warning == warning)&&(identical(other.danger, danger) || other.danger == danger));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -352,15 +352,15 @@ int get hashCode {
 
 @override
 String toString() {
-    return 'DaisyThemeColors(base: $base, primary: $primary, secondary: $secondary, accent: $accent, neutral: $neutral, info: $info, success: $success, error: $error, warning: $warning, danger: $danger)';
+    return 'DaisyThemeColor(base: $base, primary: $primary, secondary: $secondary, accent: $accent, neutral: $neutral, info: $info, success: $success, error: $error, warning: $warning, danger: $danger)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$DaisyThemeColorsCopyWith<$Res> implements $DaisyThemeColorsCopyWith<$Res> {
-  factory _$DaisyThemeColorsCopyWith(_DaisyThemeColors value, $Res Function(_DaisyThemeColors) _then) = __$DaisyThemeColorsCopyWithImpl;
+abstract mixin class _$DaisyThemeColorCopyWith<$Res> implements $DaisyThemeColorCopyWith<$Res> {
+  factory _$DaisyThemeColorCopyWith(_DaisyThemeColor value, $Res Function(_DaisyThemeColor) _then) = __$DaisyThemeColorCopyWithImpl;
 @override @useResult
 $Res call({
  DaisyThemeColorPair base, DaisyThemeColorPair primary, DaisyThemeColorPair secondary, DaisyThemeColorPair accent, DaisyThemeColorPair neutral, DaisyThemeColorPair info, DaisyThemeColorPair success, DaisyThemeColorPair error, DaisyThemeColorPair warning, DaisyThemeColorPair danger
@@ -371,17 +371,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$DaisyThemeColorsCopyWithImpl<$Res>
-    implements _$DaisyThemeColorsCopyWith<$Res> {
-  __$DaisyThemeColorsCopyWithImpl(this._self, this._then);
+class __$DaisyThemeColorCopyWithImpl<$Res>
+    implements _$DaisyThemeColorCopyWith<$Res> {
+  __$DaisyThemeColorCopyWithImpl(this._self, this._then);
 
-  final _DaisyThemeColors _self;
-  final $Res Function(_DaisyThemeColors) _then;
+  final _DaisyThemeColor _self;
+  final $Res Function(_DaisyThemeColor) _then;
 
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? base = null,Object? primary = null,Object? secondary = null,Object? accent = null,Object? neutral = null,Object? info = null,Object? success = null,Object? error = null,Object? warning = null,Object? danger = null,}) {
-  return _then(_DaisyThemeColors(
+  return _then(_DaisyThemeColor(
 base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
 as DaisyThemeColorPair,primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
 as DaisyThemeColorPair,secondary: null == secondary ? _self.secondary : secondary // ignore: cast_nullable_to_non_nullable
@@ -396,7 +396,7 @@ as DaisyThemeColorPair,
   ));
 }
 
-/// Create a copy of DaisyThemeColors
+/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -405,7 +405,7 @@ $DaisyThemeColorPairCopyWith<$Res> get base {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.base, (value) {
     return _then(_self.copyWith(base: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -414,7 +414,7 @@ $DaisyThemeColorPairCopyWith<$Res> get primary {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.primary, (value) {
     return _then(_self.copyWith(primary: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -423,7 +423,7 @@ $DaisyThemeColorPairCopyWith<$Res> get secondary {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.secondary, (value) {
     return _then(_self.copyWith(secondary: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -432,7 +432,7 @@ $DaisyThemeColorPairCopyWith<$Res> get accent {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.accent, (value) {
     return _then(_self.copyWith(accent: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -441,7 +441,7 @@ $DaisyThemeColorPairCopyWith<$Res> get neutral {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.neutral, (value) {
     return _then(_self.copyWith(neutral: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -450,7 +450,7 @@ $DaisyThemeColorPairCopyWith<$Res> get info {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.info, (value) {
     return _then(_self.copyWith(info: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -459,7 +459,7 @@ $DaisyThemeColorPairCopyWith<$Res> get success {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.success, (value) {
     return _then(_self.copyWith(success: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -468,7 +468,7 @@ $DaisyThemeColorPairCopyWith<$Res> get error {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.error, (value) {
     return _then(_self.copyWith(error: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -477,7 +477,7 @@ $DaisyThemeColorPairCopyWith<$Res> get warning {
   return $DaisyThemeColorPairCopyWith<$Res>(_self.warning, (value) {
     return _then(_self.copyWith(warning: value));
   });
-}/// Create a copy of DaisyThemeColors
+}/// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
