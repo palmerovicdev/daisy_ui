@@ -1,0 +1,39 @@
+name: daisy_ui
+description: "A Flutter plugin for the Daisy UI library."
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ^3.13.5
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.1.1
+  plugin_platform_interface: ^2.1.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.palmerodev.daisy_ui
+        pluginClass: DaisyUiPlugin
+      ios:
+        pluginClass: DaisyUiPlugin
+      linux:
+        pluginClass: DaisyUiPlugin
+      macos:
+        pluginClass: DaisyUiPlugin
+      windows:
+        pluginClass: DaisyUiPluginCApi
+      web:
+        pluginClass: DaisyUiWeb
+        fileName: daisy_ui_web.dart
