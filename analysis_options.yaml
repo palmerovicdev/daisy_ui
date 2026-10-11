@@ -2,6 +2,7 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
+    - '**/generated/**'
     - build/**
     - android/**
     - ios/**
@@ -10,5 +11,5 @@ analyzer:
     - macos/**
     - linux/**
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+formatter:
+  trailing_commas: preserve
