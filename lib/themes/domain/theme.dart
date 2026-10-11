@@ -16,6 +16,7 @@ abstract class DaisyThemeModel with _$DaisyThemeModel {
     required DaisyThemeColor colors,
     required DaisyThemeRadius radius,
     required DaisyThemeSize size,
+    required double border,
   }) = _DaisyThemeModel;
 
   factory DaisyThemeModel.fromJson(Map<String, Object?> json) =>

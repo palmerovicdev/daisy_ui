@@ -14,6 +14,7 @@ _DaisyThemeModel _$DaisyThemeModelFromJson(Map<String, dynamic> json) =>
       colors: DaisyThemeColor.fromJson(json['colors'] as Map<String, dynamic>),
       radius: DaisyThemeRadius.fromJson(json['radius'] as Map<String, dynamic>),
       size: DaisyThemeSize.fromJson(json['size'] as Map<String, dynamic>),
+      border: (json['border'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$DaisyThemeModelToJson(_DaisyThemeModel instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$DaisyThemeModelToJson(_DaisyThemeModel instance) =>
       'colors': instance.colors,
       'radius': instance.radius,
       'size': instance.size,
+      'border': instance.border,
     };
