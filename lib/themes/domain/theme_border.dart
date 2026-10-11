@@ -1,10 +1,6 @@
-enum DaisyThemeBorderWidthPreset {
-  hairline(value: 0.5),
-  thin(value: 1),
-  medium(value: 1.5),
-  thick(value: 2);
-
-  final double value;
-
-  const DaisyThemeBorderWidthPreset({required this.value});
+abstract final class DaisyThemeBorderWidthPreset {
+  static const double hairline = 0.5;
+  static const double thin = 1;
+  static const double medium = 1.5;
+  static const double thick = 2;
 }

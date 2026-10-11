@@ -30,16 +30,10 @@ abstract class DaisyThemeRadius with _$DaisyThemeRadius {
 
 /// Daisy Theme Radius Preset
 ///
-enum DaisyThemeRadiusPreset {
-  sharp(value: 0), // 0rem -> 0px
-  soft(value: 4), // 0.25rem -> 4px
-  medium(value: 8), // 0.5rem -> 8px
-  large(value: 16), // 1rem -> 16px
-  full(value: 32); // 2rem -> 32px
-
-  final int value;
-
-  const DaisyThemeRadiusPreset({
-    required this.value,
-  });
+abstract class DaisyThemeRadiusPreset {
+  static const int sharp = 0;
+  static const int soft = 4;
+  static const int medium = 8;
+  static const int large = 16;
+  static const int full = 32;
 }
