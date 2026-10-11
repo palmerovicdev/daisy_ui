@@ -28,7 +28,7 @@ part 'generated/my_model.g.dart';
 After adding or changing an annotated model, run:
 
 ```sh
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 Keep the generated files in version control.
