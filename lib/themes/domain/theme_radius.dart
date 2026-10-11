@@ -13,14 +13,19 @@ part 'generated/theme_radius.g.dart';
 /// - full: 2rem -> 32px
 @freezed
 abstract class DaisyThemeRadius with _$DaisyThemeRadius {
+  /// Corner radii of a theme, in logical pixels.
+  ///
+  /// Mirrors DaisyUI's `--radius-box`, `--radius-field` and
+  /// `--radius-selector` tokens (1rem = 16px). Pick values from
+  /// [DaisyThemeRadiusPreset].
   const factory DaisyThemeRadius({
-    /// card, modal, alert
+    /// Cards, modals, alerts.
     required int boxes,
 
-    /// button, input, select, tab
+    /// Buttons, inputs, selects, tabs.
     required int fields,
 
-    /// checkbox, toggle, badge
+    /// Checkboxes, toggles, badges.
     required int selectors,
   }) = _DaisyThemeRadius;
 
@@ -28,8 +33,7 @@ abstract class DaisyThemeRadius with _$DaisyThemeRadius {
       _$DaisyThemeRadiusFromJson(json);
 }
 
-/// Daisy Theme Radius Preset
-///
+/// Fixed radius steps matching DaisyUI's radius scale (1rem = 16px).
 abstract class DaisyThemeRadiusPreset {
 
   /// sharp 0rem -> 0px

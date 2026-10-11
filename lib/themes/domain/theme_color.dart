@@ -7,16 +7,43 @@ part 'generated/theme_color.g.dart';
 
 @freezed
 abstract class DaisyThemeColor with _$DaisyThemeColor {
+  /// Semantic color roles of a DaisyUI theme.
+  ///
+  /// Each role pairs a surface color with the foreground readable on top
+  /// of it (see [DaisyThemeColorPair]). Only [base] carries the stepped
+  /// `base-200`/`base-300` surfaces; every other role leaves
+  /// [DaisyThemeColorPair.base200] and [DaisyThemeColorPair.base300] as
+  /// `null`.
   const factory DaisyThemeColor({
+    /// Default surface and stepped surfaces (app background, cards).
     required DaisyThemeColorPair base,
+
+    /// Primary brand color and its foreground.
     required DaisyThemeColorPair primary,
+
+    /// Secondary brand color and its foreground.
     required DaisyThemeColorPair secondary,
+
+    /// Accent color and its foreground.
     required DaisyThemeColorPair accent,
+
+    /// Low-emphasis surfaces (muted, disabled) and their foreground.
     required DaisyThemeColorPair neutral,
+
+    /// Informative states and their foreground.
     required DaisyThemeColorPair info,
+
+    /// Positive/success states and their foreground.
     required DaisyThemeColorPair success,
+
+    /// Negative/error states and their foreground.
     required DaisyThemeColorPair error,
+
+    /// Warning states and their foreground.
     required DaisyThemeColorPair warning,
+
+    /// Destructive actions and their foreground. Reuses [error] values
+    /// when the source theme does not define it.
     required DaisyThemeColorPair danger,
   }) = _DaisyThemeColor;
 
@@ -26,10 +53,24 @@ abstract class DaisyThemeColor with _$DaisyThemeColor {
 
 @freezed
 abstract class DaisyThemeColorPair with _$DaisyThemeColorPair {
+  /// A surface color plus the foreground readable on top of it.
+  ///
+  /// Colors are OKLCH ([RayOklch]), DaisyUI's native color space, instead
+  /// of pre-baked hex strings, so they can be converted or adjusted
+  /// programmatically.
   const factory DaisyThemeColorPair({
+    /// Main surface color of the role.
     required RayOklch base,
+
+    /// Foreground (text/icon) color readable on top of [base].
     required RayOklch content,
+
+    /// Second stepped surface (`base-200`). Only set on the
+    /// [DaisyThemeColor.base] role; `null` on every other role.
     RayOklch? base200,
+
+    /// Third stepped surface (`base-300`). Only set on the
+    /// [DaisyThemeColor.base] role; `null` on every other role.
     RayOklch? base300,
   }) = _DaisyThemeColorPair;
 
@@ -40,6 +81,8 @@ abstract class DaisyThemeColorPair with _$DaisyThemeColorPair {
 /// Tailwind CSS palette in OKLCH (source: pasted picker HTML).
 ///
 /// Naming: `<family><shade>`, e.g. [slate50] is `slate-50`.
+/// Custom (non-Tailwind) theme colors, such as the dark theme bases, live
+/// inline in `DaisyThemes` instead of here.
 abstract final class DaisyThemeColorPalette {
   // Slate
   static const slate50 = RayOklch.fromComponents(0.98, 0.003, 247.858);

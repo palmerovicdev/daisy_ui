@@ -6,11 +6,15 @@ part 'generated/theme_size.g.dart';
 
 @freezed
 abstract class DaisyThemeSize with _$DaisyThemeSize {
+  /// Control sizes of a theme.
+  ///
+  /// Both groups share the [DaisyThemeSizeConfig] scale and only differ
+  /// in their [DaisyThemeSizeConfig.base] step.
   const factory DaisyThemeSize({
-    /// button, input, select, tab
+    /// Buttons, inputs, selects, tabs.
     required DaisyThemeSizeConfig fields,
 
-    /// checkbox, toggle, badge
+    /// Checkboxes, toggles, badges.
     required DaisyThemeSizeConfig selectors,
   }) = _DaisyThemeSize;
 
@@ -20,20 +24,31 @@ abstract class DaisyThemeSize with _$DaisyThemeSize {
 
 @freezed
 abstract class DaisyThemeSizeConfig with _$DaisyThemeSizeConfig {
+  /// Size scale derived from a single [base] step in logical pixels.
+  ///
+  /// Each t-shirt size multiplies [base] by a fixed factor, so bumping
+  /// [base] rescales the whole group (e.g. `base: 4` yields
+  /// xs 24, sm 32, md 40, lg 48, xl 56).
   const DaisyThemeSizeConfig._();
 
   const factory DaisyThemeSizeConfig({
+    /// Base step in logical pixels; every size below derives from it.
     required int base,
   }) = _DaisyThemeSizeConfig;
 
+  /// Extra-small: `base * 6`.
   int get xs => base * 6;
 
+  /// Small: `base * 8`.
   int get sm => base * 8;
 
+  /// Medium: `base * 10`.
   int get md => base * 10;
 
+  /// Large: `base * 12`.
   int get lg => base * 12;
 
+  /// Extra-large: `base * 14`.
   int get xl => base * 14;
 
   factory DaisyThemeSizeConfig.fromJson(Map<String, Object?> json) =>
