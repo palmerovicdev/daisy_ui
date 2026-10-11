@@ -16,7 +16,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel light = DaisyThemeModel(
     id: 'light',
     name: 'Light',
-    description: '',
+    description:
+        'Crisp white surfaces with indigo, pink and teal accents for a clean, '
+        'colorful everyday interface.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -78,7 +80,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel dark = DaisyThemeModel(
     id: 'dark',
     name: 'Dark',
-    description: '',
+    description:
+        'Deep blue gray surfaces with vivid indigo, pink and teal accents for '
+        'an expressive dark interface.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -143,7 +147,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel cupcake = DaisyThemeModel(
     id: 'cupcake',
     name: 'Cupcake',
-    description: '',
+    description:
+        'Cream surfaces, mint, pink and peach accents, and pill shaped '
+        'controls create a soft, playful look.',
     border: DaisyThemeBorderWidthPreset.thick,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -204,7 +210,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel bumblebee = DaisyThemeModel(
     id: 'bumblebee',
     name: 'Bumblebee',
-    description: '',
+    description:
+        'Bright white surfaces meet honey yellow, warm orange and bold black '
+        'accents for a lively, confident look.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -265,7 +273,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel emerald = DaisyThemeModel(
     id: 'emerald',
     name: 'Emerald',
-    description: '',
+    description:
+        'Fresh emerald green, cool blue and coral accents on white surfaces '
+        'create a balanced, cheerful palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -326,7 +336,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel corporate = DaisyThemeModel(
     id: 'corporate',
     name: 'Corporate',
-    description: '',
+    description:
+        'White surfaces, restrained blue and teal accents, and subtle corners '
+        'give professional interfaces a tidy look.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -387,7 +399,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel synthwave = DaisyThemeModel(
     id: 'synthwave',
     name: 'Synthwave',
-    description: '',
+    description:
+        'Deep violet surfaces with neon pink, cyan and orange accents capture '
+        'the energy of retro arcades.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -448,7 +462,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel retro = DaisyThemeModel(
     id: 'retro',
     name: 'Retro',
-    description: '',
+    description:
+        'Warm cream surfaces with faded red, mint and mustard accents evoke '
+        'vintage posters and nostalgic print design.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -509,7 +525,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel cyberpunk = DaisyThemeModel(
     id: 'cyberpunk',
     name: 'Cyberpunk',
-    description: '',
+    description:
+        'Vivid yellow surfaces, electric pink, cyan and purple accents, and '
+        'sharp corners create a futuristic look.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -570,7 +588,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel valentine = DaisyThemeModel(
     id: 'valentine',
     name: 'Valentine',
-    description: '',
+    description:
+        'Blush surfaces, rich pink, purple and sky blue accents, and rounded '
+        'controls create a romantic, playful style.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -631,7 +651,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel halloween = DaisyThemeModel(
     id: 'halloween',
     name: 'Halloween',
-    description: '',
+    description:
+        'Charcoal surfaces with pumpkin orange, purple and vivid green '
+        'accents give the interface a bold, spooky character.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -692,7 +714,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel garden = DaisyThemeModel(
     id: 'garden',
     name: 'Garden',
-    description: '',
+    description:
+        'Pale gray surfaces with berry pink and muted green accents bring a '
+        'floral, botanical character to the interface.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -753,7 +777,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel forest = DaisyThemeModel(
     id: 'forest',
     name: 'Forest',
-    description: '',
+    description:
+        'Dark surfaces with leaf green, mint and teal accents create a rich '
+        'palette inspired by woodland foliage.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -814,7 +840,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel aqua = DaisyThemeModel(
     id: 'aqua',
     name: 'Aqua',
-    description: '',
+    description:
+        'Deep blue surfaces with bright cyan, violet and pale yellow accents '
+        'create a vibrant aquatic palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -875,7 +903,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel lofi = DaisyThemeModel(
     id: 'lofi',
     name: 'Lofi',
-    description: '',
+    description:
+        'White and gray surfaces with near black accents and simple borders '
+        'keep the interface quiet and minimal.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -936,7 +966,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel pastel = DaisyThemeModel(
     id: 'pastel',
     name: 'Pastel',
-    description: '',
+    description:
+        'White surfaces with soft lavender, rose and mint accents and pill '
+        'shaped controls create a gentle, airy style.',
     border: DaisyThemeBorderWidthPreset.thick,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -997,7 +1029,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel fantasy = DaisyThemeModel(
     id: 'fantasy',
     name: 'Fantasy',
-    description: '',
+    description:
+        'White surfaces with rich magenta, blue and warm orange accents give '
+        'the interface a colorful storybook character.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1058,7 +1092,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel wireframe = DaisyThemeModel(
     id: 'wireframe',
     name: 'Wireframe',
-    description: '',
+    description:
+        'White surfaces, neutral gray accents and minimal rounding create a '
+        'simple sketchlike style for prototypes.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1119,7 +1155,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel black = DaisyThemeModel(
     id: 'black',
     name: 'Black',
-    description: '',
+    description:
+        'Pure black surfaces with charcoal controls and gray foregrounds '
+        'create a stark, monochrome dark interface.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1180,7 +1218,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel luxury = DaisyThemeModel(
     id: 'luxury',
     name: 'Luxury',
-    description: '',
+    description:
+        'Near black surfaces with white, midnight blue and plum accents '
+        'create a refined, dramatic atmosphere.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1241,7 +1281,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel dracula = DaisyThemeModel(
     id: 'dracula',
     name: 'Dracula',
-    description: '',
+    description:
+        'Deep violet gray surfaces with bright pink, lavender and warm orange '
+        'accents create a colorful gothic style.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1302,7 +1344,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel cmyk = DaisyThemeModel(
     id: 'cmyk',
     name: 'Cmyk',
-    description: '',
+    description:
+        'White surfaces with saturated cyan, magenta, yellow and black '
+        'accents celebrate the bold palette of print design.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1363,7 +1407,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel autumn = DaisyThemeModel(
     id: 'autumn',
     name: 'Autumn',
-    description: '',
+    description:
+        'Pale neutral surfaces with burgundy, rust and warm amber accents '
+        'evoke the earthy colors of autumn.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1424,7 +1470,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel business = DaisyThemeModel(
     id: 'business',
     name: 'Business',
-    description: '',
+    description:
+        'Charcoal surfaces, muted blue and slate accents, and restrained '
+        'orange highlights give dashboards a composed look.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1485,7 +1533,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel acid = DaisyThemeModel(
     id: 'acid',
     name: 'Acid',
-    description: '',
+    description:
+        'Light surfaces with intense fuchsia, orange and lime accents create '
+        'a bold, psychedelic palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1546,7 +1596,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel lemonade = DaisyThemeModel(
     id: 'lemonade',
     name: 'Lemonade',
-    description: '',
+    description:
+        'Pale citrus surfaces with leafy green, yellow green and lemon '
+        'accents create a fresh, sunny palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1607,7 +1659,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel night = DaisyThemeModel(
     id: 'night',
     name: 'Night',
-    description: '',
+    description:
+        'Deep navy surfaces with bright sky blue, periwinkle and pink accents '
+        'create a crisp, colorful night palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1668,7 +1722,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel coffee = DaisyThemeModel(
     id: 'coffee',
     name: 'Coffee',
-    description: '',
+    description:
+        'Dark plum brown surfaces with caramel, muted teal and blue accents '
+        'create a warm, intimate cafe atmosphere.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1729,7 +1785,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel winter = DaisyThemeModel(
     id: 'winter',
     name: 'Winter',
-    description: '',
+    description:
+        'Crisp white surfaces with icy blue, deep indigo and magenta accents '
+        'create a bright, cool seasonal palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1790,7 +1848,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel dim = DaisyThemeModel(
     id: 'dim',
     name: 'Dim',
-    description: '',
+    description:
+        'Soft blue gray surfaces with lime, coral and lavender accents create '
+        'a subdued alternative to a black background.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1851,7 +1911,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel nord = DaisyThemeModel(
     id: 'nord',
     name: 'Nord',
-    description: '',
+    description:
+        'Pale blue gray surfaces with muted steel blue and icy cyan accents '
+        'create a calm, Nordic inspired palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1912,7 +1974,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel sunset = DaisyThemeModel(
     id: 'sunset',
     name: 'Sunset',
-    description: '',
+    description:
+        'Dark blue gray surfaces with coral, rose and violet accents reflect '
+        'the rich colors of an evening sky.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -1973,7 +2037,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel caramellatte = DaisyThemeModel(
     id: 'caramellatte',
     name: 'Caramellatte',
-    description: '',
+    description:
+        'Warm cream surfaces with black, espresso and caramel accents and '
+        'rounded corners evoke a cozy coffee shop.',
     border: DaisyThemeBorderWidthPreset.thick,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -2034,7 +2100,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel abyss = DaisyThemeModel(
     id: 'abyss',
     name: 'Abyss',
-    description: '',
+    description:
+        'Deep ocean teal surfaces with electric lime, pale lavender and gray '
+        'accents create an unusual, dramatic dark palette.',
     border: DaisyThemeBorderWidthPreset.thin,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
@@ -2095,7 +2163,9 @@ abstract final class DaisyThemes {
   static const DaisyThemeModel silk = DaisyThemeModel(
     id: 'silk',
     name: 'Silk',
-    description: '',
+    description:
+        'Warm ivory surfaces with subtle violet charcoal accents and rounded '
+        'corners create a soft, understated elegance.',
     border: DaisyThemeBorderWidthPreset.thick,
     colors: DaisyThemeColor(
       base: DaisyThemeColorPair(
