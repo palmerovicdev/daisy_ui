@@ -16,5 +16,3 @@ abstract final class DaisyThemeService {
     _palette.value = theme;
   }
 }
-
-DaisyThemeModel get daisyTheme => DaisyThemeService.theme.value;
