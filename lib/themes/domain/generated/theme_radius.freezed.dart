@@ -16,9 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyThemeRadius {
 
-/// card, modal, alert
- int get boxes;/// button, input, select, tab
- int get fields;/// checkbox, toggle, badge
+/// Cards, modals, alerts.
+ int get boxes;/// Buttons, inputs, selects, tabs.
+ int get fields;/// Checkboxes, toggles, badges.
  int get selectors;
 /// Create a copy of DaisyThemeRadius
 /// with the given fields replaced by the non-null parameter values.
@@ -223,11 +223,11 @@ class _DaisyThemeRadius implements DaisyThemeRadius {
   const _DaisyThemeRadius({required this.boxes, required this.fields, required this.selectors});
   factory _DaisyThemeRadius.fromJson(Map<String, dynamic> json) => _$DaisyThemeRadiusFromJson(json);
 
-/// card, modal, alert
+/// Cards, modals, alerts.
 @override final  int boxes;
-/// button, input, select, tab
+/// Buttons, inputs, selects, tabs.
 @override final  int fields;
-/// checkbox, toggle, badge
+/// Checkboxes, toggles, badges.
 @override final  int selectors;
 
 /// Create a copy of DaisyThemeRadius

@@ -16,7 +16,15 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyThemeModel {
 
- String get id; String get name; String get description; DaisyThemeColor get colors; DaisyThemeRadius get radius; DaisyThemeSize get size; double get border;
+/// Stable identifier, e.g. `'light'` or `'dark'`.
+ String get id;/// Human-readable name shown in pickers, e.g. `'Light'`.
+ String get name;/// Short description of the theme; may be empty.
+ String get description;/// Semantic color roles (base, primary, …) with their content colors.
+ DaisyThemeColor get colors;/// Corner radii for boxes, fields and selectors, in logical pixels.
+ DaisyThemeRadius get radius;/// Control sizes derived from a base step, for fields and selectors.
+ DaisyThemeSize get size;/// Global border width in logical pixels,
+/// see [DaisyThemeBorderWidthPreset].
+ double get border;
 /// Create a copy of DaisyThemeModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -251,12 +259,20 @@ class _DaisyThemeModel implements DaisyThemeModel {
   const _DaisyThemeModel({required this.id, required this.name, required this.description, required this.colors, required this.radius, required this.size, required this.border});
   factory _DaisyThemeModel.fromJson(Map<String, dynamic> json) => _$DaisyThemeModelFromJson(json);
 
+/// Stable identifier, e.g. `'light'` or `'dark'`.
 @override final  String id;
+/// Human-readable name shown in pickers, e.g. `'Light'`.
 @override final  String name;
+/// Short description of the theme; may be empty.
 @override final  String description;
+/// Semantic color roles (base, primary, …) with their content colors.
 @override final  DaisyThemeColor colors;
+/// Corner radii for boxes, fields and selectors, in logical pixels.
 @override final  DaisyThemeRadius radius;
+/// Control sizes derived from a base step, for fields and selectors.
 @override final  DaisyThemeSize size;
+/// Global border width in logical pixels,
+/// see [DaisyThemeBorderWidthPreset].
 @override final  double border;
 
 /// Create a copy of DaisyThemeModel

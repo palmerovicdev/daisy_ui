@@ -22,8 +22,8 @@ Map<String, dynamic> _$DaisyThemeModelToJson(_DaisyThemeModel instance) =>
       'id': instance.id,
       'name': instance.name,
       'description': instance.description,
-      'colors': instance.colors,
-      'radius': instance.radius,
-      'size': instance.size,
+      'colors': instance.colors.toJson(),
+      'radius': instance.radius.toJson(),
+      'size': instance.size.toJson(),
       'border': instance.border,
     };

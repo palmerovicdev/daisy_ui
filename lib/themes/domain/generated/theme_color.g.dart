@@ -33,16 +33,16 @@ _DaisyThemeColor _$DaisyThemeColorFromJson(
 
 Map<String, dynamic> _$DaisyThemeColorToJson(_DaisyThemeColor instance) =>
     <String, dynamic>{
-      'base': instance.base,
-      'primary': instance.primary,
-      'secondary': instance.secondary,
-      'accent': instance.accent,
-      'neutral': instance.neutral,
-      'info': instance.info,
-      'success': instance.success,
-      'error': instance.error,
-      'warning': instance.warning,
-      'danger': instance.danger,
+      'base': instance.base.toJson(),
+      'primary': instance.primary.toJson(),
+      'secondary': instance.secondary.toJson(),
+      'accent': instance.accent.toJson(),
+      'neutral': instance.neutral.toJson(),
+      'info': instance.info.toJson(),
+      'success': instance.success.toJson(),
+      'error': instance.error.toJson(),
+      'warning': instance.warning.toJson(),
+      'danger': instance.danger.toJson(),
     };
 
 _DaisyThemeColorPair _$DaisyThemeColorPairFromJson(Map<String, dynamic> json) =>
@@ -60,8 +60,8 @@ _DaisyThemeColorPair _$DaisyThemeColorPairFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DaisyThemeColorPairToJson(
   _DaisyThemeColorPair instance,
 ) => <String, dynamic>{
-  'base': instance.base,
-  'content': instance.content,
-  'base200': instance.base200,
-  'base300': instance.base300,
+  'base': instance.base.toJson(),
+  'content': instance.content.toJson(),
+  'base200': instance.base200?.toJson(),
+  'base300': instance.base300?.toJson(),
 };

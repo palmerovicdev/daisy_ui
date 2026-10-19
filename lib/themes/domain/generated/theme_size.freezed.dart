@@ -16,8 +16,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyThemeSize {
 
-/// button, input, select, tab
- DaisyThemeSizeConfig get fields;/// checkbox, toggle, badge
+/// Buttons, inputs, selects, tabs.
+ DaisyThemeSizeConfig get fields;/// Checkboxes, toggles, badges.
  DaisyThemeSizeConfig get selectors;
 /// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
@@ -239,9 +239,9 @@ class _DaisyThemeSize implements DaisyThemeSize {
   const _DaisyThemeSize({required this.fields, required this.selectors});
   factory _DaisyThemeSize.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizeFromJson(json);
 
-/// button, input, select, tab
+/// Buttons, inputs, selects, tabs.
 @override final  DaisyThemeSizeConfig fields;
-/// checkbox, toggle, badge
+/// Checkboxes, toggles, badges.
 @override final  DaisyThemeSizeConfig selectors;
 
 /// Create a copy of DaisyThemeSize
@@ -329,6 +329,7 @@ $DaisyThemeSizeConfigCopyWith<$Res> get selectors {
 /// @nodoc
 mixin _$DaisyThemeSizeConfig {
 
+/// Base step in logical pixels; every size below derives from it.
  int get base;
 /// Create a copy of DaisyThemeSizeConfig
 /// with the given fields replaced by the non-null parameter values.
@@ -531,6 +532,7 @@ class _DaisyThemeSizeConfig extends DaisyThemeSizeConfig {
   const _DaisyThemeSizeConfig({required this.base}): super._();
   factory _DaisyThemeSizeConfig.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizeConfigFromJson(json);
 
+/// Base step in logical pixels; every size below derives from it.
 @override final  int base;
 
 /// Create a copy of DaisyThemeSizeConfig

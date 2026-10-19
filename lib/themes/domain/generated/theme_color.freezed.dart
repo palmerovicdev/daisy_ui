@@ -16,7 +16,18 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyThemeColor {
 
- DaisyThemeColorPair get base; DaisyThemeColorPair get primary; DaisyThemeColorPair get secondary; DaisyThemeColorPair get accent; DaisyThemeColorPair get neutral; DaisyThemeColorPair get info; DaisyThemeColorPair get success; DaisyThemeColorPair get error; DaisyThemeColorPair get warning; DaisyThemeColorPair get danger;
+/// Default surface and stepped surfaces (app background, cards).
+ DaisyThemeColorPair get base;/// Primary brand color and its foreground.
+ DaisyThemeColorPair get primary;/// Secondary brand color and its foreground.
+ DaisyThemeColorPair get secondary;/// Accent color and its foreground.
+ DaisyThemeColorPair get accent;/// Low-emphasis surfaces (muted, disabled) and their foreground.
+ DaisyThemeColorPair get neutral;/// Informative states and their foreground.
+ DaisyThemeColorPair get info;/// Positive/success states and their foreground.
+ DaisyThemeColorPair get success;/// Negative/error states and their foreground.
+ DaisyThemeColorPair get error;/// Warning states and their foreground.
+ DaisyThemeColorPair get warning;/// Destructive actions and their foreground. Reuses [error] values
+/// when the source theme does not define it.
+ DaisyThemeColorPair get danger;
 /// Create a copy of DaisyThemeColor
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -317,15 +328,26 @@ class _DaisyThemeColor implements DaisyThemeColor {
   const _DaisyThemeColor({required this.base, required this.primary, required this.secondary, required this.accent, required this.neutral, required this.info, required this.success, required this.error, required this.warning, required this.danger});
   factory _DaisyThemeColor.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorFromJson(json);
 
+/// Default surface and stepped surfaces (app background, cards).
 @override final  DaisyThemeColorPair base;
+/// Primary brand color and its foreground.
 @override final  DaisyThemeColorPair primary;
+/// Secondary brand color and its foreground.
 @override final  DaisyThemeColorPair secondary;
+/// Accent color and its foreground.
 @override final  DaisyThemeColorPair accent;
+/// Low-emphasis surfaces (muted, disabled) and their foreground.
 @override final  DaisyThemeColorPair neutral;
+/// Informative states and their foreground.
 @override final  DaisyThemeColorPair info;
+/// Positive/success states and their foreground.
 @override final  DaisyThemeColorPair success;
+/// Negative/error states and their foreground.
 @override final  DaisyThemeColorPair error;
+/// Warning states and their foreground.
 @override final  DaisyThemeColorPair warning;
+/// Destructive actions and their foreground. Reuses [error] values
+/// when the source theme does not define it.
 @override final  DaisyThemeColorPair danger;
 
 /// Create a copy of DaisyThemeColor
@@ -493,7 +515,13 @@ $DaisyThemeColorPairCopyWith<$Res> get danger {
 /// @nodoc
 mixin _$DaisyThemeColorPair {
 
- RayOklch get base; RayOklch get content; RayOklch? get base200; RayOklch? get base300;
+/// Main surface color of the role.
+ RayOklch get base;/// Foreground (text/icon) color readable on top of [base].
+ RayOklch get content;/// Second stepped surface (`base-200`). Only set on the
+/// [DaisyThemeColor.base] role; `null` on every other role.
+ RayOklch? get base200;/// Third stepped surface (`base-300`). Only set on the
+/// [DaisyThemeColor.base] role; `null` on every other role.
+ RayOklch? get base300;
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -698,9 +726,15 @@ class _DaisyThemeColorPair implements DaisyThemeColorPair {
   const _DaisyThemeColorPair({required this.base, required this.content, this.base200, this.base300});
   factory _DaisyThemeColorPair.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorPairFromJson(json);
 
+/// Main surface color of the role.
 @override final  RayOklch base;
+/// Foreground (text/icon) color readable on top of [base].
 @override final  RayOklch content;
+/// Second stepped surface (`base-200`). Only set on the
+/// [DaisyThemeColor.base] role; `null` on every other role.
 @override final  RayOklch? base200;
+/// Third stepped surface (`base-300`). Only set on the
+/// [DaisyThemeColor.base] role; `null` on every other role.
 @override final  RayOklch? base300;
 
 /// Create a copy of DaisyThemeColorPair

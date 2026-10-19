@@ -1,18 +1,15 @@
-import 'package:daisy_ui/themes/domain/daisy_themes.dart';
-import 'package:signals_flutter/signals_flutter.dart';
+import 'package:daisy_ui/themes/application/daisy_theme_controller.dart';
+import 'package:flutter/foundation.dart';
 
 import '../domain/theme.dart';
 
+/// The default theme shared by scopes without an explicit controller.
 abstract final class DaisyThemeService {
-  static final _palette = signal<DaisyThemeModel>(
-    DaisyThemes.light,
-  );
+  static final _controller = DaisyThemeController();
 
-  static final theme = computed<DaisyThemeModel>(
-    () => _palette.value,
-  );
+  static ValueListenable<DaisyThemeModel> get theme => _controller.theme;
 
   static void setTheme(DaisyThemeModel theme) {
-    _palette.value = theme;
+    _controller.setTheme(theme);
   }
 }

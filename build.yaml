@@ -12,3 +12,6 @@ targets:
         options:
           build_extensions:
             '^{{dir}}/{{file}}.dart': '{{dir}}/generated/{{file}}.g.dart'
+      json_serializable:
+        options:
+          explicit_to_json: true

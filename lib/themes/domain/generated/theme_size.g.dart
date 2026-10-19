@@ -18,8 +18,8 @@ _DaisyThemeSize _$DaisyThemeSizeFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$DaisyThemeSizeToJson(_DaisyThemeSize instance) =>
     <String, dynamic>{
-      'fields': instance.fields,
-      'selectors': instance.selectors,
+      'fields': instance.fields.toJson(),
+      'selectors': instance.selectors.toJson(),
     };
 
 _DaisyThemeSizeConfig _$DaisyThemeSizeConfigFromJson(

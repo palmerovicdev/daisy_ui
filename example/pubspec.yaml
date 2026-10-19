@@ -1,5 +1,5 @@
 name: daisy_ui_example
-description: "A Flutter example app for the daisy_ui plugin."
+description: "A Flutter example app for the daisy_ui package."
 publish_to: 'none'
 
 environment:
@@ -15,8 +15,6 @@ dependencies:
   cupertino_icons: ^2.0.0
 
 dev_dependencies:
-  integration_test:
-    sdk: flutter
   flutter_test:
     sdk: flutter
 
