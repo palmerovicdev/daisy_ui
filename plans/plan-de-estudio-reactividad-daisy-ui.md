@@ -102,6 +102,8 @@ interna y no hereda de `ChangeNotifier`.
 - **Práctica:** observar un valor y, dentro del callback, imprimir su valor actual.
 - [ ] **Dominado cuando:** puedes distinguir «me avisaron de un cambio» de «consulté el valor que tiene ahora».
 
+**Guía y materiales:** [06. ValueListenable: avisos y valor actual](temarios/06-value-listenable-avisos-y-valor-actual.md).
+
 ### 7. `ValueNotifier<T>`: un valor mutable que notifica
 
 - **Conceptos:** almacenamiento de un valor, setter `value`, comparación mediante `==` y notificaciones asociadas a
@@ -112,6 +114,8 @@ interna y no hereda de `ChangeNotifier`.
   por otra lista.
 - [ ] **Dominado cuando:** puedes predecir cuándo se produce una notificación en esos ejemplos y justificar tu
   respuesta.
+
+**Guía y materiales:** [07. ValueNotifier: un valor mutable que notifica](temarios/07-value-notifier-un-valor-mutable-que-notifica.md).
 
 ### 8. Identidad, igualdad e inmutabilidad
 
