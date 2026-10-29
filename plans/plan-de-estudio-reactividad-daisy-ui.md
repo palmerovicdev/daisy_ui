@@ -38,6 +38,8 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 - [ ] **Dominado cuando:** puedes señalar dónde vive el dato original y qué lecturas son solamente valores obtenidos en
   un momento concreto.
 
+**Guía y materiales:** [01. Estado, valor actual y cambio](temarios/01-estado-valor-actual-y-cambio.md).
+
 ### 2. Funciones como valores: callbacks y listeners
 
 - **Conceptos:** función, referencia a una función, ejecución, callback, listener, función anónima, closure, sintaxis
@@ -49,6 +51,8 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 - [ ] **Dominado cuando:** puedes explicar quién ejecuta el callback y por qué crear otra función anónima no equivale
   necesariamente a retirar la que registraste.
 
+**Guía y materiales:** [02. Funciones como valores: callbacks y listeners](temarios/02-funciones-como-valores-callbacks-y-listeners.md).
+
 ### 3. Objetos, referencias, tipos y contratos
 
 - **Conceptos:** clase, instancia, referencia, campo, método, tipo declarado, objeto real, genéricos `<T>`, interfaz,
@@ -58,6 +62,8 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 - **Práctica:** definir un contrato mínimo de lectura de un número e implementarlo con dos clases diferentes.
 - [ ] **Dominado cuando:** puedes distinguir las operaciones que permite el tipo de una variable de las capacidades del
   objeto que contiene.
+
+**Guía y materiales:** [03. Objetos, referencias, tipos y contratos](temarios/03-objetos-referencias-tipos-y-contratos.md).
 
 ## Bloque 2. El sistema de notificaciones de Flutter
 
@@ -71,6 +77,8 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 - [ ] **Dominado cuando:** puedes describir el registro y la retirada de listeners sin atribuirles por sí solos una
   reconstrucción de pantalla.
 
+**Guía y materiales:** [04. Listenable: recibir avisos](temarios/04-listenable-recibir-avisos.md).
+
 ### 5. `ChangeNotifier`: producir avisos
 
 - **Conceptos:** implementación de `Listenable`, `notifyListeners()` y notificación explícita.
@@ -82,6 +90,8 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 
 Esta clase se estudia para comprender el mecanismo de Flutter. Nuestro `DaisyThemeController` actual utiliza una señal
 interna y no hereda de `ChangeNotifier`.
+
+**Guía y materiales:** [05. ChangeNotifier: producir avisos](temarios/05-change-notifier-producir-avisos.md).
 
 ### 6. `ValueListenable<T>`: avisos y valor actual
 
