@@ -126,6 +126,8 @@ interna y no hereda de `ChangeNotifier`.
 - **Práctica:** comparar el mismo objeto, dos objetos con los mismos datos y una copia con un campo distinto.
 - [ ] **Dominado cuando:** puedes separar «es el mismo objeto», «tiene los mismos datos» y «no se puede modificar».
 
+**Guía y materiales:** [08. Identidad, igualdad e inmutabilidad](temarios/08-identidad-igualdad-e-inmutabilidad.md).
+
 ## Bloque 3. Signals: almacenar y relacionar estado
 
 ### 9. Señales: `signal<T>` y `FlutterSignal<T>`
@@ -139,6 +141,8 @@ interna y no hereda de `ChangeNotifier`.
 - [ ] **Dominado cuando:** puedes explicar qué hace `_palette.value = theme` sin saltarte el almacenamiento ni los
   avisos.
 
+**Guía y materiales:** [09. Señales: `signal<T>` y `FlutterSignal<T>`](temarios/09-senales-signal-y-flutter-signal.md).
+
 ### 10. Dependencias reactivas y contextos de observación
 
 - **Conceptos:** dependencia, lectura rastreada, contexto reactivo, lectura puntual y `SignalBuilder`.
@@ -147,6 +151,8 @@ interna y no hereda de `ChangeNotifier`.
 - **Práctica:** comparar una lectura en un widget sin observación con una lectura dentro de un consumidor reactivo.
   Mover una lectura fuera de su callback y analizar el resultado.
 - [ ] **Dominado cuando:** puedes identificar quién registra la dependencia en cada alternativa.
+
+**Guía y materiales:** [10. Dependencias reactivas y contextos de observación](temarios/10-dependencias-reactivas-y-contextos-de-observacion.md).
 
 ### 11. `computed`: estado derivado
 
@@ -159,6 +165,8 @@ interna y no hereda de `ChangeNotifier`.
 
 El proyecto actual ya no utiliza el `computed` que se limitaba a devolver la señal del tema. Se estudia para comprender
 esa decisión y el funcionamiento de Signals.
+
+**Guía y materiales:** [11. `computed`: estado derivado](temarios/11-computed-estado-derivado.md).
 
 ### 12. Efectos y suscripciones
 
