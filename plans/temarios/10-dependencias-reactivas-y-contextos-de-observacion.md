@@ -154,7 +154,8 @@ Una variable local no es una suscripción ni una referencia a una celda que cons
 
 ## 10.3. `SignalBuilder` paso a paso
 
-El [`SignalBuilder` instalado](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
+El [
+`SignalBuilder` instalado](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
 extiende `SignalWidget`, cuyo `createElement` crea un `SignalElement`. En esta versión el registro de lecturas de
 widgets **no se debe explicar simplemente diciendo que el builder crea un `effect` que envuelve su callback**. El
 código usa un gancho de lectura y luego suscripciones. Simplificando solo lo necesario para el ejemplo A:
@@ -292,11 +293,12 @@ cambia ese texto por sí solo. Esto no implica que el hijo jamás se reconstruya
 valor ya obtenido:
 
 ```dart
-SignalBuilder(
-  builder: (context) {
-    final actual = tema.value;
-    return Builder(builder: (_) => Text(actual));
-  },
+SignalBuilder
+(
+builder: (context) {
+final actual = tema.value;
+return Builder(builder: (_) => Text(actual));
+},
 )
 ```
 
@@ -371,13 +373,16 @@ señal. La solución está al final.
 
 ## 10.7. El scope real de DaisyUI
 
-El flujo actual del proyecto usa otra relación. [`context.daisyTheme`](../../lib/themes/core/extension/build_context.dart)
+El flujo actual del proyecto usa otra relación. [
+`context.daisyTheme`](../../lib/themes/core/extension/build_context.dart)
 llama a `DaisyThemeScope.of(context)`. Este busca el ancestro más cercano con
-[`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html),
+[
+`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html),
 que registra una **dependencia heredada de Flutter**, y lee `scope.notifier!.value`.
 
 Por otra parte, [`DaisyThemeScope`](../../lib/themes/application/daisy_theme_scope.dart) extiende
-[`InheritedNotifier<ValueListenable<DaisyThemeModel>>`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html).
+[
+`InheritedNotifier<ValueListenable<DaisyThemeModel>>`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html).
 Su notifier es la vista pública del controlador. Flutter escucha esa vista; `_ThemeListenable` reenvía la escucha a
 la señal. Son dos relaciones complementarias: el scope escucha al notifier y el consumidor queda registrado como
 dependiente del scope. `context.daisyTheme` no almacena otro tema.
@@ -415,7 +420,8 @@ void main() {
 ```
 
 El test crea el controlador, monta el scope y construye un hijo que consulta el tema. Al cambiar a `dark`, la señal
-acepta el valor, el aviso llega por el adaptador al elemento del `InheritedNotifier`, y Flutter marca a sus dependientes.
+acepta el valor, el aviso llega por el adaptador al elemento del `InheritedNotifier`, y Flutter marca a sus
+dependientes.
 Después de `pump`, el `Builder` consumidor se reconstruye, vuelve a consultar el scope y muestra `dark`. No hay un
 `SignalBuilder` en este ejemplo.
 
@@ -434,12 +440,12 @@ controlador y desmontaje de un scope con controlador prestado.
 
 ## 10.8. Comparar los mecanismos
 
-| Mecanismo | Cómo se establece la relación | Qué sucede cuando cambia la fuente |
-| --- | --- | --- |
-| Lectura puntual | Se consulta `.value` sin un observador activo ni registro explícito. | Esa lectura por sí sola no solicita un build; otra causa sí puede reconstruir y volver a leer. |
-| `addListener` | Un consumidor registra una función en un `Listenable`. | La implementación llama al callback según sus reglas; el callback decide qué hacer. |
-| `SignalBuilder` | Su elemento reúne lecturas síncronas y mantiene suscripciones; también lee `dependencies`. | Una suscripción marca ese elemento; Flutter procesa la construcción en un frame. |
-| Scope de DaisyUI | `InheritedNotifier` escucha la vista; `of(context)` registra una dependencia heredada. | El aviso llega al scope y Flutter puede actualizar sus dependientes en un frame. |
+| Mecanismo        | Cómo se establece la relación                                                              | Qué sucede cuando cambia la fuente                                                             |
+|------------------|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| Lectura puntual  | Se consulta `.value` sin un observador activo ni registro explícito.                       | Esa lectura por sí sola no solicita un build; otra causa sí puede reconstruir y volver a leer. |
+| `addListener`    | Un consumidor registra una función en un `Listenable`.                                     | La implementación llama al callback según sus reglas; el callback decide qué hacer.            |
+| `SignalBuilder`  | Su elemento reúne lecturas síncronas y mantiene suscripciones; también lee `dependencies`. | Una suscripción marca ese elemento; Flutter procesa la construcción en un frame.               |
+| Scope de DaisyUI | `InheritedNotifier` escucha la vista; `of(context)` registra una dependencia heredada.     | El aviso llega al scope y Flutter puede actualizar sus dependientes en un frame.               |
 
 Un consumidor puede tener varias dependencias o recibir reconstrucciones por razones distintas a una señal. Los
 resultados de los ejemplos se refieren al árbol y a la secuencia controlada de cada prueba. Una relación de observación
@@ -447,15 +453,18 @@ no es una garantía de que *ningún otro* widget se reconstruya, ni una medició
 
 ## Materiales de estudio seleccionados
 
-- **S1 · Signals:** [`SignalBuilder`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
+- **S1 · Signals:** [
+  `SignalBuilder`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
   y [`SignalWidget`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalWidget-class.html) —
   lecturas síncronas, callback, lista explícita y desmontaje. En la caché local revisa los archivos
   `signals_flutter-7.1.0/lib/src/widgets/signal_builder.dart` y `signal_widget.dart` para los pasos concretos.
-- **S2 · Signals:** [`FlutterSignal`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
+- **S2 · Signals:** [
+  `FlutterSignal`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
   y [`signals_core`](https://pub.dev/packages/signals_core) — lectura, suscripción y `peek`. Las versiones de la
   documentación `latest` pueden cambiar.
 - **F1 · Flutter:** [`InheritedNotifier`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html) y
-  [`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html)
+  [
+  `dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html)
   — escucha y dependencia heredada, incluidas las restricciones de ciclo de vida.
 - **F2 · Flutter:** [introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)
   y [`WidgetTester.pump`](https://api.flutter.dev/flutter/flutter_test/WidgetTester/pump.html) — frames de prueba.
@@ -524,7 +533,8 @@ construcción.
 ### Ejemplo A
 
 Después de cambiar a `oscuro` y hacer `pump`, los textos son `puntual:claro`, `rastreado:oscuro` y `capturado:claro`;
-los contadores son `[1, 2, 1]`. El primer `Builder` puede volver a leer el valor si otra causa lo reconstruye; el tercero
+los contadores son `[1, 2, 1]`. El primer `Builder` puede volver a leer el valor si otra causa lo reconstruye; el
+tercero
 necesita que se le entregue otra captura o que lea la señal dentro del contexto observado.
 
 ### Ejemplo B
@@ -635,7 +645,8 @@ observación salvo que exista otra lectura registrada, por ejemplo en `dependenc
 - El grafo rechazó indexar esta carpeta por su configuración de acceso; los archivos citados se verificaron mediante
   lectura directa.
 - Pasaron los cinco ejemplos, la solución del proyecto, tres pruebas de variaciones y las cuatro pruebas existentes del
-  scope: **13 pruebas de widgets**. El analizador de Dart no encontró problemas en los siete archivos temporales; después
+  scope: **13 pruebas de widgets**. El analizador de Dart no encontró problemas en los siete archivos temporales;
+  después
   se retiraron. Se verificó que los seis ejemplos completos de la guía coinciden con los archivos ejecutados.
 - Se comprobaron los enlaces locales, las anclas, los bloques de código y `git diff --check`. Las pruebas verifican
   árboles y frames controlados, no una pantalla física ni sus repintados. El estudio permanece pendiente hasta resolver

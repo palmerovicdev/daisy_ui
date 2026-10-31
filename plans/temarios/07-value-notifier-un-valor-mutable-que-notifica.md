@@ -496,7 +496,8 @@ mismos casos límite. Las unidades 8 y 9 investigarán las reglas de igualdad de
 
 El [scope](../../lib/themes/application/daisy_theme_scope.dart) entrega la vista a `InheritedNotifier`; el controlador
 explícito es prestado por el scope y lo libera su propietario. En A–E y el proyecto, el código que crea cada
-`ValueNotifier` es el propietario: retira sus listeners y llama a `dispose()` cuando termina. En E primero se desmonta el
+`ValueNotifier` es el propietario: retira sus listeners y llama a `dispose()` cuando termina. En E primero se desmonta
+el
 widget consumidor. El [`dispose` heredado](https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html)
 no emite un último aviso y deja el objeto sin estado utilizable.
 

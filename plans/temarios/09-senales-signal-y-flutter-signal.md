@@ -20,8 +20,8 @@ y propiedad de recursos tienen unidades posteriores.
 
 ## Versiones y forma de practicar
 
-Esta guía se contrastó con el `pubspec.lock` y la implementación instalada: **`signals_flutter` 7.1.0**,
-**`signals_core` 7.0.0** y **`preact_signals` 7.0.0**. `pubspec.yaml` declara un rango para `signals_flutter`; la
+Esta guía se contrastó con el `pubspec.lock` y la implementación instalada: **`signals_flutter` 7.1.0**, **
+`signals_core` 7.0.0** y **`preact_signals` 7.0.0**. `pubspec.yaml` declara un rango para `signals_flutter`; la
 versión resuelta y sus dependencias son las que determinan el comportamiento de estos ejemplos. La documentación con
 `latest` puede cambiar. Los comportamientos internos descritos aquí corresponden a esa combinación de versiones, no a
 cualquier biblioteca llamada «signals».
@@ -64,12 +64,15 @@ Piensa en una pizarra con el tema actual y un sistema para avisar a quienes se a
 es lo mismo que apuntarse para escuchar. Esta analogía no explica por sí sola cómo se registran observadores, cómo se
 compara un valor ni cuándo Flutter decide reconstruir: esas decisiones pertenecen a implementaciones concretas.
 
-En este proyecto, [`signal<T>` de `signals_flutter`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
-crea un [`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
+En este proyecto, [`signal<T>` de
+`signals_flutter`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
+crea un [
+`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
 mutable con un valor inicial. `T` describe el tipo del **valor que contiene**, no el tipo de la variable que contiene
 la referencia a la señal.
 
 ```dart
+
 final FlutterSignal<int> contador = signal<int>(0);
 ```
 
@@ -230,12 +233,14 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 class Tema {
   const Tema(this.nombre, this.borde);
+
   final String nombre;
   final int borde;
 
   @override
   bool operator ==(Object other) =>
       other is Tema && nombre == other.nombre && borde == other.borde;
+
   @override
   int get hashCode => Object.hash(nombre, borde);
 }
@@ -325,15 +330,19 @@ estas últimas pueden definir operaciones y políticas adicionales.
 El [controlador](../../lib/themes/application/daisy_theme_controller.dart) contiene estas piezas:
 
 ```dart
-DaisyThemeController({DaisyThemeModel initialTheme = DaisyThemes.light})
-  : _palette = signal<DaisyThemeModel>(initialTheme);
+DaisyThemeController
+(
+{
+DaisyThemeModel
+initialTheme = DaisyThemes.light})
+    : _palette = signal<DaisyThemeModel>(initialTheme);
 
 final FlutterSignal<DaisyThemeModel> _palette;
 late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(_palette);
 ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
+_palette.value = theme;
 }
 ```
 
@@ -352,7 +361,8 @@ void setTheme(DaisyThemeModel theme) {
 7. El dueño del controlador llama a `dispose()` cuando termina su uso. Un consumidor que solo pidió escuchar debe
    retirar su listener cuando deje de necesitarlo; poseer y escuchar son responsabilidades distintas.
 
-El [modelo de tema](../../lib/themes/domain/theme.dart) usa Freezed; su [igualdad generada](../../lib/themes/domain/generated/theme.freezed.dart)
+El [modelo de tema](../../lib/themes/domain/theme.dart) usa Freezed;
+su [igualdad generada](../../lib/themes/domain/generated/theme.freezed.dart)
 compara los campos actuales según las igualdades de sus valores. La prueba existente del
 [controlador](../../test/themes/daisy_theme_controller_test.dart) observa que `light.copyWith()` no avisa y que cambiar
 a `dark` sí. Un cambio de tema y una reconstrucción de interfaz son eventos distintos.
@@ -390,10 +400,12 @@ recursos se estudiarán en la unidad 13. No escribas ni sigas usando una señal 
 
 ## Materiales de estudio seleccionados
 
-- **S1 · Signals:** [`signal<T>` de Flutter](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
+- **S1 · Signals:** [
+  `signal<T>` de Flutter](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
   y [`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
   — 9.1–9.3. Compara creación, clase e interfaces con la implementación instalada.
-- **S2 · Signals:** [`SignalOptions`](https://pub.dev/documentation/signals_core/latest/signals_core/SignalOptions-class.html)
+- **S2 · Signals:** [
+  `SignalOptions`](https://pub.dev/documentation/signals_core/latest/signals_core/SignalOptions-class.html)
   y [`Signal` del núcleo](https://pub.dev/documentation/signals_core/latest/signals_core/Signal-class.html) — 9.4–9.6.
   Revisa opciones y `set`; el código exacto usado por este proyecto está en la caché de paquetes resueltos.
 - **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html),
@@ -496,7 +508,9 @@ class SelectorTema {
   final FlutterSignal<String> _tema = signal<String>('claro');
 
   ValueListenable<String> get tema => _tema;
+
   void seleccionar(String nuevo) => _tema.value = nuevo;
+
   void dispose() => _tema.dispose();
 }
 

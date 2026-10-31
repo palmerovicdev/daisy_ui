@@ -14,8 +14,8 @@ cambio desde el productor hasta el listener, diferenciando el aviso sin argument
 en el cuerpo del callback. Sabrás identificar qué puede hacer un consumidor con su referencia y qué decisiones
 pertenecen a la implementación concreta.
 
-La unidad desarrolla **valor actual**, **getter**, **tipo genérico**, **lectura puntual**, **vista de lectura** y
-**`ValueListenableBuilder`**. Utiliza las funciones de la unidad 2, los contratos de la 3 y las notificaciones de las
+La unidad desarrolla **valor actual**, **getter**, **tipo genérico**, **lectura puntual**, **vista de lectura** y **
+`ValueListenableBuilder`**. Utiliza las funciones de la unidad 2, los contratos de la 3 y las notificaciones de las
 unidades 4 y 5. `ValueNotifier` se usa como productor para algunos ejemplos: sus reglas de igualdad y mutabilidad se
 estudiarán con detalle en la unidad 7.
 
@@ -307,7 +307,8 @@ comparar con `==` o tener una operación `dispose` en su interfaz.
 
 Las dos fuentes del ejemplo se notifican antes de que regresen sus operaciones concretas porque se apoyan en
 `ChangeNotifier`. El contrato de `ValueListenable` no establece por sí solo esa misma temporización para todas las
-implementaciones. Para detalles de `ValueNotifier`, consulta su [API oficial](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html).
+implementaciones. Para detalles de `ValueNotifier`, consulta
+su [API oficial](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html).
 
 ### Comprobación
 
@@ -520,7 +521,8 @@ la guía y las prácticas están en español. Lee la sección indicada y despué
   `String` y `DaisyThemeModel`, y diferencia leer una propiedad de escribirla.
 - **F3 · Flutter: [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)** — 6.3 y 6.5.
   Reconoce una implementación concreta del contrato. Deja el análisis detallado de `==` y colecciones para la unidad 7.
-- **F4 · Flutter: [ValueListenableBuilder](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html)** —
+- **F4 ·
+  Flutter: [ValueListenableBuilder](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html)** —
   6.6. Identifica la fuente, el callback de construcción, el valor entregado y el ejemplo completo disponible.
 - **F5 · Flutter: [Introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)** —
   ejemplo D. Identifica `pumpWidget`, `pump`, un finder y una expectativa.

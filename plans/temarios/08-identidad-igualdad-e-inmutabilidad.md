@@ -143,6 +143,7 @@ elegirse una política apropiada, por ejemplo `DeepCollectionEquality` de `packa
 Fragmento para leer en Flutter:
 
 ```dart
+
 final a = <int>[1, 2];
 final b = <int>[1, 2];
 final anidadaA = <List<int>>[<int>[1]];
@@ -178,12 +179,14 @@ No es necesario adivinar un resultado concreto de un programa que viola ese cont
 ```dart
 class Preferencia {
   const Preferencia(this.nombre, this.borde);
+
   final String nombre;
   final int borde;
 
   @override
   bool operator ==(Object other) =>
       other is Preferencia && nombre == other.nombre && borde == other.borde;
+
   @override
   int get hashCode => Object.hash(nombre, borde);
 }
@@ -263,10 +266,16 @@ cambio. Una lista copiada puede compartir objetos mutables con el original.
 Fragmento para razonar:
 
 ```dart
+
 final fuente = <List<int>>[<int>[1]];
 final copia = List<List<int>>.unmodifiable(fuente);
-fuente.add(<int>[2]);       // copia sigue teniendo una sola lista exterior.
-fuente[0].add(9);           // copia[0] también ve [1, 9]: elemento compartido.
+fuente.add
+(<int>[2]); // copia sigue teniendo una sola lista exterior.
+fuente[0].
+add
+(
+9
+); // copia[0] también ve [1, 9]: elemento compartido.
 // copia.add(<int>[3]);     // UnsupportedError: exterior no modificable.
 ```
 
@@ -283,7 +292,8 @@ vida útil y mutación.
 
 ## 8.7. Igualdad y notificaciones
 
-En la unidad 7 vimos el [setter de `ValueNotifier`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html):
+En la unidad 7 vimos el [setter de
+`ValueNotifier`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html):
 compara `valorAnterior == valorPropuesto`. Si son iguales retorna **antes de reemplazar el objeto** y sin notificar;
 si son distintos almacena el propuesto y llama a `notifyListeners`. El contrato de `ValueListenable` no exige esa
 política a todas sus implementaciones.
@@ -510,6 +520,7 @@ controlador. La prueba no mide reconstrucciones ni demuestra la política genera
 ```dart
 class Configuracion {
   const Configuracion(this.nombre, this.borde);
+
   final String nombre;
   final int borde;
 
@@ -518,6 +529,7 @@ class Configuracion {
   @override
   bool operator ==(Object other) =>
       other is Configuracion && nombre == other.nombre && borde == other.borde;
+
   @override
   int get hashCode => Object.hash(nombre, borde);
 }

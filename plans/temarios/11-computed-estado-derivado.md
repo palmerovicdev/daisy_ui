@@ -21,8 +21,8 @@ solo las piezas necesarias para entender las prácticas. Preparar esta guía no 
 
 ## Versiones y forma de practicar
 
-Se contrastaron las dependencias resueltas del proyecto: **`signals_flutter` 7.1.0**, **`signals_core` 7.0.0** y
-**`preact_signals` 7.0.0**. La explicación de caché, seguimiento y comparación se refiere a esas versiones. Los
+Se contrastaron las dependencias resueltas del proyecto: **`signals_flutter` 7.1.0**, **`signals_core` 7.0.0** y **
+`preact_signals` 7.0.0**. La explicación de caché, seguimiento y comparación se refiere a esas versiones. Los
 resultados de ejemplos con otras opciones, lotes, callbacks reentrantes u otras versiones pueden variar. Los enlaces
 a documentación `latest` pueden cambiar; consulta también `pubspec.lock` y el código instalado.
 
@@ -88,16 +88,18 @@ implementación con lecturas rastreadas y versiones.
 
 ## 11.2. Crear y leer un `computed`
 
-En `signals_flutter`, [`computed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/computed.html)
+En `signals_flutter`, [
+`computed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/computed.html)
 recibe una función `T Function()` y crea un `FlutterComputed<T>`. El objeto resultante representa un valor derivado;
 `.value` lo consulta. La API normal no ofrece un setter `value` para asignar ese resultado directamente: se cambian las
 fuentes utilizadas por la función. `FlutterComputed<T>` implementa `ValueListenable<T>`, por lo que puede escucharse
 con las interfaces de Flutter, y también dispone de capacidades propias de Signals.
 
 ```dart
+
 final tema = signal<String>('claro');
 final FlutterComputed<String> titulo = computed<String>(
-  () => 'Tema: ${tema.value}',
+      () => 'Tema: ${tema.value}',
 );
 ```
 
@@ -304,6 +306,7 @@ fuentes se usaron con afirmar que el `computed` permanece siempre suscrito activ
 **Fragmento con una captura incorrecta para actualizaciones:**
 
 ```dart
+
 final capturado = tema.value;
 final titulo = computed(() => 'Tema: $capturado');
 ```
@@ -321,8 +324,10 @@ exclusión es parte del diseño y comprendes cómo se actualizará el resultado.
 
 ## 11.6. El resultado derivado en Flutter
 
-`FlutterComputed<T>` implementa [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html).
-[`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) registra una escucha
+`FlutterComputed<T>` implementa [
+`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html).
+[`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) registra una
+escucha
 en ese objeto y recibe su valor para construir la interfaz. Otra integración posible es leer el derivado en un
 `SignalBuilder`, estudiado en la unidad 10. El cálculo no dibuja por sí mismo: hace falta un consumidor que conecte el
 aviso con Flutter.
@@ -442,7 +447,8 @@ void main() {
 ```
 
 El adaptador reenvía su getter a `_source.value`. Por eso, durante la evaluación del `computed` de este ejemplo, la
-lectura llega a la señal real y el contexto reactivo puede registrar esa dependencia. Al registrar el listener se obtiene
+lectura llega a la señal real y el contexto reactivo puede registrar esa dependencia. Al registrar el listener se
+obtiene
 `Tema: Light`; al cambiar el controlador a `dark`, el cálculo da `Tema: Dark` y llega un aviso. Esto es una práctica
 adicional basada en la implementación actual; **no significa que el controlador ya exponga ese `computed` ni que
 cualquier `ValueListenable` arbitrario se convierta en una dependencia de Signals al leerlo**. Si su getter no lee
@@ -470,15 +476,18 @@ Si el cálculo depende de colecciones mutadas por dentro sin que la fuente emita
 la caché descubra la mutación.
 
 En las prácticas, el test posee la señal y el derivado. Elimina listeners y desmonta widgets antes de liberar recursos;
-libera el derivado antes que sus fuentes. En estos tests, los callbacks de [`addTearDown`](https://pub.dev/documentation/test/latest/test/addTearDown.html)
+libera el derivado antes que sus fuentes. En estos tests, los callbacks de [
+`addTearDown`](https://pub.dev/documentation/test/latest/test/addTearDown.html)
 se ejecutan en orden inverso al registro: por eso se registra la limpieza del derivado después de la de sus fuentes.
-Las opciones de `autoDispose` pueden cambiar el ciclo de vida y se analizan en la unidad 13. No se deben crear nuevos `computed` repetidamente dentro de un `build` sin pensar quién los conserva y
+Las opciones de `autoDispose` pueden cambiar el ciclo de vida y se analizan en la unidad 13. No se deben crear nuevos
+`computed` repetidamente dentro de un `build` sin pensar quién los conserva y
 libera: un build puede ejecutarse muchas veces.
 
 ## Materiales de estudio seleccionados
 
 - **S1 · Signals:** [`computed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/computed.html)
-  y [`FlutterComputed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterComputed-class.html)
+  y [
+  `FlutterComputed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterComputed-class.html)
   — creación, valor de lectura y contrato Flutter. Verifica las versiones: las páginas `latest` pueden cambiar.
 - **S2 · Signals:** [documentación de `signals`](https://pub.dev/packages/signals) — derivaciones, lecturas
   rastreadas, efectos y lotes; úsala como contexto y contrasta las afirmaciones de versión con las fuentes instaladas.
@@ -631,7 +640,8 @@ interpolación dentro de un consumidor que ya observe el tema puede ser suficien
 
 ### Claves de la comprobación final
 
-1. El primero conserva un valor elegido; el segundo se obtiene a partir de fuentes; la vista delega la lectura y escucha.
+1. El primero conserva un valor elegido; el segundo se obtiene a partir de fuentes; la vista delega la lectura y
+   escucha.
 2. Un `FlutterComputed<T>`; `.value` devuelve el resultado calculado de tipo `T`.
 3. En el primer acceso y después del cambio pertinente cuando se vuelve a leer; entre ambos reutiliza el resultado.
 4. La suscripción necesita evaluar la fuente, pero el puente suprime la primera llamada externa por defecto.
@@ -655,6 +665,7 @@ interpolación dentro de un consumidor que ya observe el tema puede ser suficien
   `SignalBuilder`— y las tres pruebas existentes del controlador: **12 pruebas**. El analizador de Dart no encontró
   problemas en los ocho archivos temporales. Se verificó que los seis ejemplos completos de la guía coinciden con los
   archivos ejecutados; después se retiraron los archivos temporales.
-- Se revisaron enlaces locales, anclas, bloques de código y `git diff --check`. Las pruebas de widgets comprueban árboles
+- Se revisaron enlaces locales, anclas, bloques de código y `git diff --check`. Las pruebas de widgets comprueban
+  árboles
   y frames controlados, no una pantalla física ni sus repintados. El estudio sigue pendiente hasta resolver y explicar
   las prácticas.
