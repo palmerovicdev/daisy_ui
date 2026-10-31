@@ -1,84 +1,55 @@
-# 06. ValueListenable: avisos y valor actual
+# 06. `ValueListenable`: avisos y valor actual
 
 [Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 5](05-change-notifier-producir-avisos.md)
+[Repasar la unidad 5](05-change-notifier-producir-avisos.md) · **Estado:** pendiente
 
-- **Bloque:** el sistema de notificaciones de Flutter.
-- **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 29 de octubre de 2026.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+En la unidad 4 aprendimos a recibir avisos mediante `Listenable`. En la 5 creamos un contador que notificaba y cuyo
+listener consultaba la cantidad. Ahora vamos a reunir esas dos necesidades en un contrato: **escuchar y poder leer un
+valor actual**.
 
-Podrás leer `ValueListenable<T>` como un contrato que combina escucha y consulta de un valor tipado. Seguirás un
-cambio desde el productor hasta el listener, diferenciando el aviso sin argumentos de la lectura de `.value` realizada
-en el cuerpo del callback. Sabrás identificar qué puede hacer un consumidor con su referencia y qué decisiones
-pertenecen a la implementación concreta.
+Al terminar podrás explicar qué ofrece `ValueListenable<T>`, qué lee un listener cuando recibe un aviso y por qué una
+lectura guardada no se actualiza sola. También veremos un widget que escucha una fuente y la vista de tema de DaisyUI.
 
-La unidad desarrolla **valor actual**, **getter**, **tipo genérico**, **lectura puntual**, **vista de lectura** y **
-`ValueListenableBuilder`**. Utiliza las funciones de la unidad 2, los contratos de la 3 y las notificaciones de las
-unidades 4 y 5. `ValueNotifier` se usa como productor para algunos ejemplos: sus reglas de igualdad y mutabilidad se
-estudiarán con detalle en la unidad 7.
+Los programas de consola completos usan Flutter. Puedes copiar cada uno en [DartPad](https://dartpad.dev/), elegir
+**Flutter** y pulsar **Run**; observa la consola. Antes de ejecutar, intenta predecir la salida. Puedes hacer una pausa
+después del apartado 3 y continuar en otra sesión.
 
-## Ruta y progreso
+## 1. Escuchar y consultar no son lo mismo
 
-Antes de empezar, comprueba que distingues una referencia a una fuente de un valor obtenido al leerla, y que puedes
-explicar por qué `addListener(observar)` no es `addListener(observar())`. Repasa las unidades 1, 2 y 4 si hace falta.
+Imagina que un panel quiere saber cuál es el tema actual y enterarse cuando cambie. El contrato `Listenable` permite
+registrar una función para recibir avisos, pero no ofrece una propiedad común para consultar el tema.
 
-Los ejemplos **A–C** y la solución del proyecto son programas completos e independientes. Para ejecutarlos, abre
-[DartPad](https://dartpad.dev/), selecciona un ejemplo de **Flutter**, copia un programa por vez y observa la consola.
-Usan `package:flutter/foundation.dart`; la [documentación de DartPad](https://dart.dev/tools/dartpad) explica el soporte
-de Flutter. Los ejemplos **D y E** son pruebas completas para ejecutar en el repositorio con `flutter test`. Los demás
-bloques están identificados como fragmentos. No necesitas instalar `provider` ni copiar código al paquete de DaisyUI.
+`ValueListenable<T>` amplía ese contrato con un getter llamado `value`. Así, una fuente de este tipo permite:
 
-- [ ] [6.1. Del aviso a la lectura actual](#61-del-aviso-a-la-lectura-actual).
-- [ ] [6.2. Leer el contrato y el tipo genérico](#62-leer-el-contrato-y-el-tipo-genérico).
-- [ ] [6.3. Recibir un aviso y consultar el dato](#63-recibir-un-aviso-y-consultar-el-dato).
-- [ ] [6.4. Distinguir referencia, lectura y copia](#64-distinguir-referencia-lectura-y-copia).
-- [ ] [6.5. Separar contrato y productor](#65-separar-contrato-y-productor).
-- [ ] [6.6. Escuchar y construir un widget](#66-escuchar-y-construir-un-widget).
-- [ ] [6.7. Seguir la vista del tema de DaisyUI](#67-seguir-la-vista-del-tema-de-daisyui).
-- [ ] [6.8. Responsabilidad, límites y limpieza](#68-responsabilidad-límites-y-limpieza).
-- [ ] [Completar el proyecto de la unidad](#proyecto-de-la-unidad-un-marcador-observable).
-- [ ] [Superar la comprobación final](#comprobación-final).
+1. Leer el valor actual con `fuente.value`.
+2. Registrar un listener con `fuente.addListener(observar)`.
+3. Retirar ese listener con `fuente.removeListener(observar)`.
 
-Puedes dedicar una sesión a 6.1–6.3, otra a 6.4–6.5 y una tercera a 6.6–6.8 y el proyecto. Marca cada casilla
-cuando puedas justificar el recorrido y resolver las variaciones sin copiar la solución.
+El listener sigue siendo una función **sin argumentos**. El aviso no le entrega el valor como parámetro. Si necesita el
+dato, su cuerpo puede consultar `fuente.value` cuando se ejecuta.
 
-## 6.1. Del aviso a la lectura actual
+Puedes imaginar una pantalla con un dato y una campanilla de aviso: puedes mirar la pantalla y también apuntarte para
+escuchar la campanilla. El sonido no contiene el dato; necesitas mirar la pantalla. La analogía ayuda a separar aviso
+y lectura, pero no determina cómo compara valores una implementación ni cuándo entrega los avisos.
 
-### El problema
+### Practica 1
 
-Un panel escucha que el tema cambió. Con `Listenable` puede registrar su callback, pero el tipo no proporciona un
-getter común para consultar el tema. ¿Cómo expresar que una fuente permite **escuchar** y también **leer un valor
-actual**, sin exigirle al consumidor conocer toda la implementación?
+Si lees `fuente.value` una vez, ¿quedas registrado para recibir avisos futuros? Si ya estás registrado, ¿el listener
+recibe automáticamente el valor como argumento?
 
-### La idea
+<details>
+<summary>Ver respuesta</summary>
 
-[`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) extiende el contrato de
-`Listenable` y añade un getter llamado `value` de tipo `T`. Su documentación indica que, cuando cambia el valor, se
-invocan los callbacks registrados. Los listeners siguen teniendo la forma `void Function()`: el aviso no entrega un
-argumento con el valor. El cuerpo puede consultar `.value` cuando se ejecuta.
+No. Leer `.value` y registrar un listener son operaciones distintas. El listener no recibe argumentos; su cuerpo puede
+leer `.value` cuando lo llamen.
 
-Imagina un indicador con una pantalla y una campanilla: puedes mirar el dato actual y apuntarte para escuchar la
-campanilla. La campanilla no pronuncia el número; si quieres conocerlo, miras la pantalla. La analogía no determina
-si el aviso es síncrono, cómo se compara el dato ni si se conserva un historial: hay que consultar la implementación.
+</details>
 
-Leer `.value` una vez y registrar una función para avisos posteriores son dos acciones diferentes. Leer no equivale a
-suscribirse, y suscribirse no equivale a conservar una copia que se actualice sola.
+## 2. Leer el tipo `ValueListenable<T>`
 
-### Comprobación
-
-- ¿Qué posibilidad añade `ValueListenable` al contrato de escucha?
-- ¿Recibe el callback el valor como parámetro? ¿Dónde lo obtiene si lo necesita?
-- Si solo leo `.value`, ¿he registrado un listener para más adelante?
-
-**Puedes avanzar cuando:** distingues señal de aviso y consulta del dato sin confundirlas con una reconstrucción.
-
-## 6.2. Leer el contrato y el tipo genérico
-
-### Las firmas
-
-Fragmento para leer las operaciones relevantes del contrato:
+Estas son las operaciones relevantes del contrato, presentadas como fragmento para leer:
 
 ```dart
 T get value;
@@ -86,116 +57,107 @@ void addListener(VoidCallback listener);
 void removeListener(VoidCallback listener);
 ```
 
-El [getter `value`](https://api.flutter.dev/flutter/foundation/ValueListenable/value.html) devuelve el valor actual;
-se lee como `fuente.value`, sin paréntesis. `T` representa un tipo que se concreta al usar el contrato:
+`T` representa el tipo del valor. Es la misma idea de genéricos que vimos en la unidad 3:
 
-- `ValueListenable<int>`: `.value` tiene tipo `int`.
-- `ValueListenable<String>`: `.value` tiene tipo `String`.
-- `ValueListenable<DaisyThemeModel>`: `.value` tiene tipo `DaisyThemeModel`.
+- En `ValueListenable<int>`, leer `.value` produce un entero.
+- En `ValueListenable<String>`, produce un texto.
+- En `ValueListenable<DaisyThemeModel>`, produce un modelo de tema.
 
-Esto es la misma idea de tipos genéricos de la unidad 3. La [guía oficial de Dart](https://dart.dev/language/generics)
-explica el parámetro de tipo y los argumentos entre `< >`. Si el tipo es `String?`, la lectura puede devolver `null`;
-no significa que todas las fuentes permitan `null`.
+El contrato permite leer y escuchar. No declara un setter para escribir `value`, ni ofrece por su tipo métodos
+`dispose` o `notifyListeners`. Una implementación concreta puede tener otras operaciones, accesibles mediante una
+referencia cuyo tipo las incluya.
 
-`ValueListenable` es abstracto: declara el getter y hereda operaciones de escucha, pero no ofrece por sí mismo un
-objeto listo para almacenar, cambiar y notificar. Hay implementaciones distintas, como
-[`ValueNotifier<T>`](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html) y
-[`Animation<T>`](https://api.flutter.dev/flutter/animation/Animation-class.html).
+Que esta interfaz no tenga setter tampoco significa que el valor sea inmutable o que nadie pueda cambiar la fuente.
+Si el valor es, por ejemplo, una lista mutable, leerlo no crea por sí solo una copia independiente. Estudiaremos
+referencias e inmutabilidad con más detalle en la unidad 8.
 
-### Lo que permite el tipo declarado
+### Practica 2
 
-Para un parámetro `ValueListenable<int> fuente`, estos son fragmentos para leer, no un programa independiente:
+Una función recibe `ValueListenable<String> fuente`. ¿Qué tipo devuelve `fuente.value`? ¿Puede esa función escribir
+`fuente.value = 'oscuro'` usando solo ese tipo?
 
-```dart
-final int actual = fuente.value;
-fuente.addListener(observar);
-fuente.removeListener(observar);
-```
+<details>
+<summary>Ver respuesta</summary>
 
-El contrato no declara un setter `value`, `dispose` ni `notifyListeners`. Por eso `fuente.value = 3`,
-`fuente.dispose()` y `fuente.notifyListeners()` no son operaciones disponibles mediante ese tipo. Una clase concreta
-puede ofrecerlas por otra referencia: el tipo de la referencia limita qué se puede solicitar sin recurrir a otras
-operaciones, pero no cambia la clase real del objeto.
+La lectura devuelve un `String`. La asignación no está disponible mediante `ValueListenable<String>`, porque ese
+contrato declara el getter, pero no un setter para `value`.
 
-La ausencia de setter en el contrato tampoco hace inmutable el objeto devuelto por el getter: si `T` es una lista
-mutable, las operaciones permitidas sobre esa lista son otro asunto. La unidad 8 estudiará identidad e inmutabilidad.
+</details>
 
-### Comprobación
+## 3. Recibir un aviso y leer el valor
 
-- Si la fuente es `ValueListenable<String>`, ¿qué tipo tiene `fuente.value`?
-- ¿Por qué puedes pasarla a una función que recibe `Listenable`? ¿Qué lectura deja de estar disponible a través del
-  parámetro declarado solo como `Listenable`?
-- ¿Demuestra un getter sin setter que nadie puede modificar el dato ni que el objeto devuelto sea inmutable?
-
-**Puedes avanzar cuando:** lees las firmas y separas el tipo de una referencia de las capacidades del objeto real.
-
-## 6.3. Recibir un aviso y consultar el dato
-
-### Ejemplo A: una fuente, una vista y dos lecturas
-
-Programa completo. Predice la salida y marca cuándo se lee el valor y cuándo se ejecuta el listener.
+Vamos a utilizar `ValueNotifier<int>` como fuente concreta. Nos permite cambiar su valor y cumple el contrato
+`ValueListenable<int>`. Para centrarnos en la lectura, en este ejemplo asignaremos números diferentes; las reglas de
+igualdad de `ValueNotifier` se estudian en la unidad 7.
 
 ```dart
 import 'package:flutter/foundation.dart';
 
 void main() {
   final productor = ValueNotifier<int>(10);
-  final ValueListenable<int> lectura = productor;
-  final inicial = lectura.value;
-  var avisos = 0;
+  final ValueListenable<int> fuente = productor;
+  final inicial = fuente.value;
 
   void observar() {
-    avisos += 1;
-    print('Aviso $avisos: ${lectura.value}');
+    print('Aviso: ${fuente.value}');
   }
 
-  print('Al inicio: $inicial');
-  lectura.addListener(observar);
+  print('Inicial: $inicial');
+  fuente.addListener(observar);
   productor.value = 20;
   print('Lectura guardada: $inicial');
   productor.value = 30;
-  lectura.removeListener(observar);
+
+  fuente.removeListener(observar);
   productor.value = 40;
-  print('Actual: ${lectura.value}; avisos: $avisos');
+  print('Actual: ${fuente.value}');
   productor.dispose();
 }
 ```
 
-### Recorrido paso a paso
+La salida es:
 
-1. `productor` es un `ValueNotifier<int>` creado con diez. `lectura` es otra referencia al **mismo objeto**, vista
-   mediante el tipo `ValueListenable<int>`. Esta asignación no construye un adaptador independiente.
-2. `inicial` guarda el entero obtenido en esa lectura: diez. Todavía no hay suscripción.
-3. `addListener(observar)` registra la función. Su cuerpo no se ejecuta al registrarse en este ejemplo.
-4. `productor.value = 20` utiliza el setter de `ValueNotifier`. Para esta asignación concreta, el productor cambia
-   el valor y notifica. `observar` se ejecuta sin argumentos y lee `lectura.value`: encuentra veinte.
-5. `inicial` sigue siendo diez. Cambiar la fuente no vuelve a ejecutar la asignación que inicializó esa variable.
-6. El cambio a treinta produce otro aviso. Después se retira el callback, y el cambio a cuarenta ya no lo ejecuta.
-   Una lectura posterior de la misma fuente encuentra cuarenta. Finalmente el propietario libera el productor.
+```text
+Inicial: 10
+Aviso: 20
+Lectura guardada: 10
+Aviso: 30
+Actual: 40
+```
 
-Para este ejemplo se usan números distintos. La comparación de igualdad y las mutaciones de listas de `ValueNotifier`
-corresponden a la unidad 7; no se deducen del contrato `ValueListenable`. Tampoco se necesita crear un widget para
-recibir estos avisos.
+Sigue los pasos:
 
-### Comprobación
+1. `productor` y `fuente` permiten acceder al **mismo objeto**. La segunda variable lo presenta mediante el tipo
+   `ValueListenable<int>`; esa asignación no crea otro objeto ni un adaptador.
+2. `inicial = fuente.value` guarda el entero leído en ese momento: `10`. No registra ningún listener.
+3. `addListener(observar)` registra la función. Cuando el productor cambia a `20`, esta implementación notifica y
+   llama a `observar`.
+4. El callback consulta `fuente.value` al ejecutarse, por eso imprime `20`. La variable `inicial` sigue conservando
+   `10`: no vuelve a realizar la lectura.
+5. El cambio a `30` produce otro aviso. Tras retirar el listener, cambiar a `40` ya no ejecuta `observar`, pero una
+   lectura posterior obtiene `40`.
+6. `productor`, creado por `main`, se libera al final con `dispose()`.
 
-- ¿Por qué `inicial` sigue siendo diez y `lectura.value` termina siendo cuarenta?
-- Si retiras `observar` antes de escribir treinta, ¿qué avisos se imprimen y qué valor final se puede leer?
-- Si eliminas el registro y la retirada, ¿siguen cambiando los valores del productor? ¿Qué salidas desaparecen?
-- ¿Quién llama a `observar` y quién decide imprimir el valor?
+El tipo de `fuente` permite leer y escuchar. `productor` tiene el tipo concreto `ValueNotifier<int>`, que además
+permite escribir `.value` y liberarlo. El objeto real es el mismo; lo que cambia es qué operaciones expone cada tipo.
 
-**Puedes avanzar cuando:** puedes seguir por separado la referencia a la fuente, cada lectura y cada aviso.
+### Practica 3
 
-## 6.4. Distinguir referencia, lectura y copia
+En el programa anterior, retira `observar` justo después del cambio a `20`. ¿Qué avisos se imprimirán? ¿Qué mostrarán
+al final `inicial` y `fuente.value`?
 
-### El problema
+<details>
+<summary>Ver respuesta</summary>
 
-Una fuente contiene un `String`. Guardamos una lectura, cambiamos la fuente y luego leemos otra vez. ¿La variable
-anterior cambia con la fuente? ¿Qué se necesita para conservar una secuencia de valores observados?
+Solo se imprimirá `Aviso: 20`. `inicial` seguirá siendo `10` y la última lectura de `fuente.value` dará `40`.
+Retirar el listener deja de avisar a esa función; no impide los cambios posteriores de la fuente.
 
-### Ejemplo B: registrar lecturas en el momento del aviso
+</details>
 
-Programa completo. Predice las cinco líneas y dibuja el contenido de `historial` después de cada cambio.
+## 4. ¿Quién guarda el historial?
+
+Un aviso no contiene por sí solo el valor anterior ni crea un historial. Si queremos recordar lo que leímos en cada
+aviso, nuestro código debe guardar esas lecturas:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -210,53 +172,53 @@ void main() {
     historial.add(fuente.value);
   }
 
-  print('Inicial: ${fuente.value}');
   fuente.addListener(guardarActual);
   productor.value = 'oscuro';
   productor.value = 'cupcake';
   fuente.removeListener(guardarActual);
   productor.value = 'forest';
+
   print('Primera lectura: $primeraLectura');
   print('Actual: ${fuente.value}');
   print('Observados: ${historial.join(', ')}');
-  print('Cantidad: ${historial.length}');
   productor.dispose();
 }
 ```
 
-`historial` es una lista que **nuestro callback** mantiene: cada aviso lo lleva a leer el valor que haya en ese
-instante y añadirlo. El contrato no crea esa lista ni entrega automáticamente el valor anterior. La primera lectura
-se conserva aparte y el cambio posterior a la retirada no añade nada al historial.
+La salida es:
 
-Aquí los valores son cadenas. Si el valor fuera un objeto mutable, guardar la referencia no crearía una copia profunda:
-ese objeto podría modificarse más tarde. No confundas conservar una lectura con clonar cualquier objeto. Si necesitas
-el valor anterior o un historial fiable de objetos mutables, debes diseñar cómo copiar o representar esos datos.
+```text
+Primera lectura: claro
+Actual: forest
+Observados: oscuro, cupcake
+```
 
-El listener recibe un aviso, no un evento que contenga los valores anterior y nuevo. Si otra acción cambia de nuevo la
-fuente antes de una lectura posterior, esa lectura observa el estado disponible **en ese momento**, no necesariamente
-una fotografía de cada transición. El ejemplo B lee inmediatamente dentro de cada callback y sus cambios son
-secuenciales; no establece una regla sobre el orden temporal de todas las implementaciones.
+Cada vez que se ejecuta `guardarActual`, el callback lee la fuente y añade el texto obtenido a la lista. `forest` no
+aparece en el historial porque retiramos el listener antes de ese cambio. `primeraLectura` conserva el texto que se
+obtuvo antes de los cambios.
 
-### Comprobación
+En este ejemplo usamos cadenas y los cambios ocurren uno después de otro. Si el valor fuera un objeto mutable, guardar
+su referencia no garantizaría una copia independiente de sus datos. Y si el valor volviera a cambiar antes de una
+lectura, esa lectura obtendría el valor disponible en ese momento; el aviso no es una fotografía que contenga cada
+transición.
 
-- ¿Por qué `forest` es el valor actual pero no aparece en el historial?
-- ¿Qué cambia si se añade `historial.add(fuente.value)` antes de registrar el listener?
-- Si el callback dejara de leer `.value`, ¿aparecerían valores nuevos en la lista por tener tipo `ValueListenable`?
-- ¿Recibir un aviso prueba que el callback recibió también el dato anterior como argumento?
+### Practica 4
 
-**Puedes avanzar cuando:** puedes explicar quién conserva cada valor y cuándo se obtiene.
+Añade `historial.add(fuente.value);` antes de `fuente.addListener(guardarActual)`. ¿Qué mostrará ahora la línea
+`Observados`? ¿Esa lectura habrá registrado un listener?
 
-## 6.5. Separar contrato y productor
+<details>
+<summary>Ver respuesta</summary>
 
-### El problema
+Mostrará `Observados: claro, oscuro, cupcake`: añadimos explícitamente la lectura inicial a la lista. Esa lectura no
+registra ningún listener; la suscripción ocurre en la llamada siguiente a `addListener`.
 
-Una función necesita imprimir el valor inicial de una fuente y registrar un callback. ¿Debe conocer si el valor viene
-de `ValueNotifier` o de una clase que nosotros escribimos?
+</details>
 
-### Ejemplo C: dos implementaciones, un consumidor
+## 5. Un contrato puede tener distintas implementaciones
 
-Programa completo. Predice las cuatro líneas. La clase propia cumple el contrato con un getter y hereda de
-`ChangeNotifier` la escucha; `sumar` define su política de cambio y aviso.
+Una función que solo necesita leer un entero no tiene que conocer cómo se produce. Podemos entregarle tanto un
+`ValueNotifier<int>` como una clase propia que cumpla `ValueListenable<int>`:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -268,73 +230,76 @@ class Puntuacion extends ChangeNotifier implements ValueListenable<int> {
   int get value => _puntos;
 
   void sumar() {
-    _puntos += 1;
+    _puntos = _puntos + 1;
     notifyListeners();
   }
 }
 
-void mostrarActual(String nombre, ValueListenable<int> fuente) {
+void mostrar(String nombre, ValueListenable<int> fuente) {
   print('$nombre: ${fuente.value}');
 }
 
 void main() {
   final numero = ValueNotifier<int>(10);
-  final puntuacion = Puntuacion();
-  void observarNumero() => mostrarActual('Número', numero);
-  void observarPuntos() => mostrarActual('Puntos', puntuacion);
+  final puntos = Puntuacion();
 
-  mostrarActual('Número inicial', numero);
-  mostrarActual('Puntos iniciales', puntuacion);
+  void observarNumero() => mostrar('Número', numero);
+  void observarPuntos() => mostrar('Puntos', puntos);
+
+  mostrar('Número inicial', numero);
+  mostrar('Puntos iniciales', puntos);
   numero.addListener(observarNumero);
-  puntuacion.addListener(observarPuntos);
+  puntos.addListener(observarPuntos);
+
   numero.value = 11;
-  puntuacion.sumar();
+  puntos.sumar();
+
   numero.removeListener(observarNumero);
-  puntuacion.removeListener(observarPuntos);
+  puntos.removeListener(observarPuntos);
   numero.dispose();
-  puntuacion.dispose();
+  puntos.dispose();
 }
 ```
 
-`mostrarActual` solo necesita un `ValueListenable<int>`. Puede consultar el getter de ambas fuentes sin conocer sus
-métodos para cambiarlas. Para producir los cambios, `main` conserva las referencias concretas: usa el setter de
-`ValueNotifier` y el método `sumar` de `Puntuacion`.
+La salida es:
 
-Ambas cumplen la interfaz, pero su implementación y su política son distintas. En `Puntuacion` escribimos
-explícitamente el incremento y `notifyListeners`; `ValueNotifier` tiene su propio setter. No existe una regla general
-que exija a todo `ValueListenable` usar `ChangeNotifier`, almacenar el valor en un campo propio, exponer un setter,
-comparar con `==` o tener una operación `dispose` en su interfaz.
+```text
+Número inicial: 10
+Puntos iniciales: 0
+Número: 11
+Puntos: 1
+```
 
-Las dos fuentes del ejemplo se notifican antes de que regresen sus operaciones concretas porque se apoyan en
-`ChangeNotifier`. El contrato de `ValueListenable` no establece por sí solo esa misma temporización para todas las
-implementaciones. Para detalles de `ValueNotifier`, consulta
-su [API oficial](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html).
+`Puntuacion` hereda de `ChangeNotifier` el mecanismo de escucha e implementa el getter `value` que exige
+`ValueListenable<int>`. Su método `sumar()` cambia el campo y llama a `notifyListeners()`, como hicimos en la unidad 5.
 
-### Comprobación
+`mostrar` recibe el mismo tipo de contrato para ambos objetos y solo lee `fuente.value`. Para cambiar cada fuente,
+`main` utiliza sus referencias concretas: el setter de `ValueNotifier` y el método `sumar()` de `Puntuacion`. Pasar una
+fuente a `mostrar` no la convierte en otro objeto.
 
-- ¿Puede `mostrarActual` llamar a `sumar()` o escribir `fuente.value = 4`? ¿Por qué?
-- Si `Puntuacion.sumar` omite `notifyListeners()`, ¿qué valor muestra una lectura directa posterior? ¿Qué pasa con el
-  listener? ¿Cumpliría entonces la expectativa documentada de avisar cuando cambia el valor?
-- ¿De dónde obtiene cada implementación su mecanismo de escucha en este ejemplo?
+El contrato documenta que los listeners se llaman cuando cambia el valor. Una clase propia debe cumplir esa expectativa;
+si `sumar()` cambiara el valor y omitiera el aviso, una lectura directa vería el dato nuevo, pero el listener no se
+enteraría. El contrato no obliga a todas las implementaciones a usar `ChangeNotifier`, ni determina por sí solo todas
+sus reglas de igualdad, almacenamiento o temporización.
 
-**Puedes avanzar cuando:** puedes cambiar el productor manteniendo el consumidor, sin atribuir a la interfaz detalles
-que solo pertenecen a una clase concreta.
+### Practica 5
 
-## 6.6. Escuchar y construir un widget
+¿Puede `mostrar` llamar a `fuente.sumar()` o asignar `fuente.value = 5`? ¿Por qué `puntos.sumar()` sí es válido en
+`main`?
 
-### Del callback al builder
+<details>
+<summary>Ver respuesta</summary>
 
-[`ValueListenableBuilder<T>`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) es un widget
-que recibe una fuente `ValueListenable<T>`, escucha sus avisos y entrega un valor de tipo `T` a su callback `builder`.
-El `builder` no es el listener `void Function()`: es otra función con parámetros para construir un widget.
+Dentro de `mostrar`, el tipo de `fuente` es `ValueListenable<int>` y no ofrece `sumar` ni un setter `value`. En `main`,
+`puntos` tiene el tipo concreto `Puntuacion`, que sí declara `sumar()`.
 
-En su estado, el builder obtiene el valor inicial de la fuente y se registra como listener. Cuando recibe un aviso,
-lee el valor y solicita actualizar su estado; Flutter puede ejecutar la construcción en un frame posterior. Al
-actualizarse, si la fuente anterior y la nueva resultan distintas con `!=`, deja de escuchar la anterior y se registra
-en la nueva; al retirarse del árbol elimina su listener. El propietario sigue siendo responsable de liberar la fuente
-cuando corresponda. Esa secuencia se puede contrastar en el código enlazado por la documentación del widget.
+</details>
 
-Fragmento para leer: presupone un `ValueListenable<int> fuente` vivo y un contexto de construcción.
+## 6. Mostrar el valor en un widget
+
+Un [`ValueListenableBuilder<T>`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) es un widget
+que escucha una fuente `ValueListenable<T>` y entrega su valor a una función `builder` para construir parte de la
+interfaz. Este fragmento presupone una fuente viva y un contexto de Flutter:
 
 ```dart
 ValueListenableBuilder<int>(
@@ -345,26 +310,36 @@ ValueListenableBuilder<int>(
 )
 ```
 
-`cantidad` es el valor que el widget entrega al builder en esa construcción. Puedes pasar un subárbol independiente
-como `child` si tiene sentido; la API explica esa optimización. Una construcción no es lo mismo que un repintado y
-no se debe deducir un número universal de construcciones por contar avisos. Un widget también puede construirse por
-otras causas.
+El widget obtiene el valor inicial para la primera construcción. Cuando recibe un aviso, vuelve a leer la fuente y
+solicita una actualización; al construirse, el `builder` recibe el valor como `cantidad`.
 
-### Ejemplo D: comprobar lectura inicial y actualización en un widget
+No confundas las dos funciones: el **listener** de la fuente no recibe argumentos; el **builder** sí recibe
+`context`, el valor y `child`. El widget administra su propia escucha y la retira al desmontarse o cambiar de fuente.
+El propietario sigue siendo responsable de liberar la fuente cuando corresponda.
 
-Prueba completa para el repositorio. Crea temporalmente `test/value_listenable_practica_test.dart` con este código y
-ejecuta `flutter test --no-pub test/value_listenable_practica_test.dart` desde la raíz. Predice el texto antes y después
-del `pump` y el número de avisos antes de ejecutarla.
+Una notificación, una reconstrucción y un repintado son pasos distintos. Flutter puede agrupar trabajo entre frames o
+reconstruir por otros motivos; no deduzcas un número fijo de construcciones o repintados por contar avisos.
+
+### Prueba guiada
+
+Esta prueba es un archivo completo de **prueba de Flutter**, no un programa para DartPad. Puedes guardarla temporalmente
+como `test/value_listenable_practica_test.dart` y ejecutar desde la raíz del proyecto:
+
+```sh
+flutter test --no-pub test/value_listenable_practica_test.dart
+```
+
+Antes de ejecutarla, predice qué texto aparece antes y después de `pump`:
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('El builder muestra el valor inicial y el actualizado', (tester) async {
+  testWidgets('El widget muestra el valor inicial y el actualizado', (tester) async {
     final productor = ValueNotifier<int>(1);
     var avisos = 0;
-    void contarAviso() => avisos += 1;
+    void contarAviso() => avisos = avisos + 1;
     productor.addListener(contarAviso);
 
     await tester.pumpWidget(
@@ -393,252 +368,98 @@ void main() {
 }
 ```
 
-En esta prueba los dos cambios concretos notifican antes del `pump`. La inspección del árbol todavía encuentra el texto
-anterior hasta procesar el frame; después encuentra el valor más reciente. Esto verifica el árbol en una prueba de
-widgets, no la pintura física ni una garantía general de una construcción por aviso. Se desmonta el consumidor antes
-de liberar la fuente. El ejemplo oficial completo se puede crear con
-`flutter create --sample=widgets.ValueListenableBuilder.1 mysample`.
+`pumpWidget` monta el widget y comprueba la lectura inicial: aparece `Cantidad: 1` sin avisos. Los cambios concretos a
+`2` y `3` producen dos avisos antes de `pump`; hasta procesar el frame, la prueba todavía encuentra el texto anterior.
+Después de `pump` encuentra `Cantidad: 3`. Al final desmonta el consumidor, retira el listener adicional y libera la
+fuente.
 
-### Comprobación
+Esta prueba observa el árbol de widgets y las notificaciones en ese escenario; no prueba un repintado físico de
+pantalla ni establece que cada aviso produzca una construcción separada.
 
-- ¿Quién registra el listener del widget y quién entrega `cantidad` al builder?
-- ¿Por qué el callback de `addListener` y el parámetro `cantidad` del builder tienen firmas distintas?
-- ¿Qué comprueba D antes y después del frame? ¿Prueba que se repintó una pantalla física?
+### Practica 6
 
-**Puedes avanzar cuando:** localizas la lectura inicial, el puente al estado del widget y su limpieza.
+En el fragmento del builder, ¿quién entrega `cantidad` a la función que construye el texto? ¿Ese parámetro se lo pasa
+el `VoidCallback` del listener?
 
-## 6.7. Seguir la vista del tema de DaisyUI
+<details>
+<summary>Ver respuesta</summary>
 
-### El recorrido real
+`ValueListenableBuilder` entrega el valor a su función `builder`. El listener registrado sobre la fuente no recibe ese
+argumento: el widget lee el valor y después lo utiliza al llamar al builder.
 
-Lee [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart):
+</details>
 
-1. El controlador crea y posee `_palette`, una `FlutterSignal<DaisyThemeModel>`, con el tema inicial.
-2. `theme` expone un `ValueListenable<DaisyThemeModel>` mediante `_ThemeListenable`. Este adaptador es un objeto
-   distinto de `_palette` y conserva una referencia a la fuente.
-3. `_ThemeListenable.value` devuelve `_source.value`; `addListener` y `removeListener` reenvían el mismo callback a
-   `_source`. El adaptador no almacena otro tema ni implementa un setter para `value`.
-4. `setTheme(theme)` escribe en `_palette.value`. La señal es la fuente concreta que determina cómo se emiten avisos.
-5. El propietario llama a `controller.dispose()` cuando deja de usar el controlador; esa operación libera la señal.
+## 7. La vista del tema en DaisyUI
 
-La vista limita las operaciones expuestas por su tipo y, en esta implementación, el adaptador tampoco tiene setter ni
-`dispose`. Esto es más fuerte que solo asignar un `ValueNotifier` a una variable de tipo `ValueListenable`, como en A:
-en A el objeto real sigue siendo el mismo `ValueNotifier`. No confundas esa restricción de API con hacer inmutable por
-sí solo cualquier objeto que pueda devolver el getter.
-
-En [daisy_theme_scope.dart](../../../lib/themes/application/daisy_theme_scope.dart), el `notifier` del
-`InheritedNotifier` es la vista del controlador recibido o la del servicio por defecto. `DaisyThemeScope.of(context)`
-registra una dependencia del scope y lee `scope.notifier!.value`. El scope toma prestado un controlador explícito;
-no es su propietario. La unidad de scopes desarrollará ese puente y su ciclo de vida.
-
-### Ejemplo E: escuchar y leer la vista real
-
-Prueba completa. Crea temporalmente `test/value_listenable_tema_practica_test.dart` y ejecuta:
-
-```sh
-flutter test --no-pub test/value_listenable_tema_practica_test.dart
-```
-
-Predice los valores almacenados y el último valor leído. El cambio usa temas diferentes al inicial para centrarnos en
-el contrato de lectura y escucha.
+Abre el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart). Estos fragmentos pertenecen
+al archivo real; no forman un programa independiente:
 
 ```dart
-import 'package:daisy_ui/daisy_ui.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_test/flutter_test.dart';
+final FlutterSignal<DaisyThemeModel> _palette;
 
-void main() {
-  test('La vista permite leer el tema actual al recibir avisos', () {
-    final controller = DaisyThemeController();
-    addTearDown(controller.dispose);
-    final ValueListenable<DaisyThemeModel> fuente = controller.theme;
-    final inicial = fuente.value;
-    final observados = <DaisyThemeModel>[];
-    void observar() => observados.add(fuente.value);
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
 
-    expect(inicial, DaisyThemes.light);
-    fuente.addListener(observar);
-    controller.setTheme(DaisyThemes.dark);
-    controller.setTheme(DaisyThemes.cupcake);
-    fuente.removeListener(observar);
-    controller.setTheme(DaisyThemes.light);
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
-    expect(observados, [DaisyThemes.dark, DaisyThemes.cupcake]);
-    expect(inicial, DaisyThemes.light);
-    expect(fuente.value, DaisyThemes.light);
-  });
+void setTheme(DaisyThemeModel theme) {
+  _palette.value = theme;
 }
 ```
 
-La prueba comprueba estos cambios y lecturas concretas; no prueba una pantalla ni establece una política universal de
-igualdad o de temporización para todas las señales. La prueba existente
-[del controlador](../../../test/themes/daisy_theme_controller_test.dart) también comprueba el aislamiento de controladores,
-la retirada de listeners y que las vistas públicas no exponen operaciones de mutación o liberación.
+Sigue cada pieza:
 
-### Comprobación
+1. El controlador crea y posee `_palette`, una señal que conserva el tema actual.
+2. El getter `theme` ofrece una vista de tipo `ValueListenable<DaisyThemeModel>`: permite leer el tema y escuchar
+   avisos.
+3. Esa vista es `_ThemeListenable`, un **objeto adaptador distinto de la señal** que conserva una referencia a ella.
+   Su getter `value` devuelve `_source.value` y sus métodos de escucha reenvían el listener a `_source`.
+4. Para cambiar el tema, `setTheme` asigna el modelo a `_palette.value`. La señal es la fuente concreta que determina
+   cómo se producen los avisos; estudiaremos su funcionamiento en la unidad 9.
 
-- ¿Qué objeto escribe el controlador, qué objeto recibe `addListener` y hacia dónde reenvía ese registro?
-- ¿Por qué `inicial` no es una lectura que se actualiza después?
-- ¿Qué se pierde al guardar `controller.theme` en una referencia declarada solo como `Listenable`?
+La vista del controlador no almacena una copia separada del tema. Cada lectura consulta la fuente a través del
+adaptador. Una variable que guarda el resultado de `controller.theme.value`, en cambio, conserva el modelo que obtuvo
+en ese momento.
 
-**Puedes avanzar cuando:** describes la cadena sin decir que el adaptador es la señal o que `setTheme` modifica un
-`ChangeNotifier`.
+En el apartado 3, asignar un `ValueNotifier` a una variable `ValueListenable` conservaba una referencia al **mismo
+objeto**. Aquí el controlador ofrece un adaptador separado: su clase no implementa setter para `value` ni `dispose`.
+Esa diferencia no garantiza por sí sola que cualquier objeto devuelto por un getter sea inmutable.
 
-## 6.8. Responsabilidad, límites y limpieza
+La [prueba existente del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba, entre otras
+cosas, el registro y retirada de listeners y la lectura de un tema nuevo. En el
+[scope de temas](../../../lib/themes/application/daisy_theme_scope.dart), la vista también se conecta a los dependientes
+de Flutter; estudiaremos ese recorrido más adelante.
 
-- Una lectura obtiene el valor en ese momento; no registra un callback ni exige un frame.
-- El listener sin argumentos se registra sobre una fuente concreta y se retira de esa misma fuente con el callback
-  correspondiente. Si el consumidor cambia de fuente, debe resolver la suscripción anterior y la nueva.
-- Una fuente `ValueListenable<T>` promete el getter y la escucha; no ofrece por su tipo un `dispose` ni confiere la
-  propiedad del recurso. Quien crea o posee la implementación concreta debe decidir cuándo liberarla.
-- El contrato relaciona cambios de valor y avisos, pero no especifica todas las políticas de igualdad, duplicados,
-  entrega o almacenamiento. Busca esas reglas en la implementación antes de predecir casos límite.
-- Una vista de lectura limita la API disponible; no convierte necesariamente en inmutable el objeto `T` devuelto ni
-  impide que otro propietario autorizado cambie la fuente.
-- No presupongas que una lectura ordinaria de `.value` registra una dependencia en un widget. Necesitas un mecanismo
-  de observación, como el builder anterior o el scope concreto de DaisyUI.
+### Practica 7
 
-### Comprobación
+¿Qué tipo tiene `controller.theme.value`? Si guardas ese resultado antes de llamar a `setTheme`, ¿la variable guardada
+vuelve a consultar el controlador por sí sola?
 
-- ¿Quién retira el listener y quién dispone la fuente en el ejemplo D?
-- ¿Puede un consumidor de lectura observar un dato que otro objeto cambió? ¿Contradice eso el getter sin setter?
-- ¿Qué información adicional necesitas antes de predecir avisos de una fuente desconocida?
+<details>
+<summary>Ver respuesta</summary>
 
-**Puedes avanzar cuando:** puedes explicar el ciclo completo sin adjudicar al tipo capacidades que no promete.
+Tiene tipo `DaisyThemeModel`. La variable conserva el modelo obtenido en esa lectura; para obtener el tema vigente hay
+que volver a consultar `controller.theme.value`.
 
-## Materiales de estudio seleccionados
+</details>
 
-Todos los materiales son gratuitos y se consultaron durante la preparación. Las referencias oficiales están en inglés;
-la guía y las prácticas están en español. Lee la sección indicada y después contrasta una predicción propia.
+## Ejercicio final: un marcador observable
 
-- **F1 · Flutter: [ValueListenable](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
-  [value](https://api.flutter.dev/flutter/foundation/ValueListenable/value.html)** — 6.1–6.3. Localiza el getter,
-  las operaciones heredadas y la relación documentada entre cambio y callbacks.
-- **F2 · Flutter: [Listenable](https://api.flutter.dev/flutter/foundation/Listenable-class.html)** — 6.1–6.2.
-  Compara sus operaciones con el getter añadido por `ValueListenable`.
-- **D1 · Dart: [Genéricos](https://dart.dev/language/generics) y
-  [getters y setters](https://dart.dev/language/methods#getters-and-setters)** — 6.2. Sustituye `T` por `int`,
-  `String` y `DaisyThemeModel`, y diferencia leer una propiedad de escribirla.
-- **F3 · Flutter: [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)** — 6.3 y 6.5.
-  Reconoce una implementación concreta del contrato. Deja el análisis detallado de `==` y colecciones para la unidad 7.
-- **F4 ·
-  Flutter: [ValueListenableBuilder](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html)** —
-  6.6. Identifica la fuente, el callback de construcción, el valor entregado y el ejemplo completo disponible.
-- **F5 · Flutter: [Introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)** —
-  ejemplo D. Identifica `pumpWidget`, `pump`, un finder y una expectativa.
-- **P1 · [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad)** — A–C y proyecto en
-  modo Flutter; para D y E utiliza el proyecto local. DartPad no incluye automáticamente el paquete local `daisy_ui`.
-- **P2 · Código del proyecto:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
-  [pruebas](../../../test/themes/daisy_theme_controller_test.dart) — 6.7.
+Escribe un programa Flutter de consola que:
 
-## Proyecto de la unidad: un marcador observable
+1. Declare `Marcador extends ChangeNotifier implements ValueListenable<int>`, con `0` puntos iniciales y getter `value`.
+2. Añada `sumar()`: aumenta un punto y después llama a `notifyListeners()`.
+3. Declare `mostrar(String nombre, ValueListenable<int> fuente)`, que imprima el nombre y el valor actual.
+4. Guarde una lectura inicial y registre dos listeners, `panel` y `registro`, que llamen a `mostrar`.
+5. Sume dos veces, retire `panel`, sume una vez más y retire `registro`.
+6. Imprima la lectura inicial y el valor actual. El propietario debe liberar el marcador.
 
-Construye un marcador de puntos con un productor y dos consumidores. La clase productora extiende `ChangeNotifier` e
-implementa `ValueListenable<int>`. Sus consumidores necesitan leer y escuchar, pero el código que cambia los puntos
-conserva la referencia concreta.
+Antes de ejecutar, predice la salida y explica dónde se guarda el dato, qué línea avisa y dónde se lee el valor. Como
+variación, registra en una lista los valores observados por uno de los listeners.
 
-### Requisitos
-
-1. Comienza con cero y proporciona el getter `value`. Escribe `sumar()` para aumentar un punto y luego notificar.
-2. Crea una función `mostrar(String nombre, ValueListenable<int> fuente)` que imprima el nombre y el valor actual.
-3. Conserva una lectura inicial y registra dos callbacks: `panel` y `registro`. Cada uno llama a `mostrar`.
-4. Suma dos veces, retira `panel`, suma una vez más y retira `registro`.
-5. Lee el valor actual y la lectura inicial. Libera el productor desde su propietario.
-6. Antes de ejecutar, escribe la salida y cuenta por separado incrementos, avisos a cada consumidor y lecturas.
-
-### Variaciones
-
-- Usa un `ValueNotifier<int>` como productor alternativo para `mostrar`. ¿Debe cambiar la firma del consumidor?
-- Retira `registro` antes del segundo incremento. ¿Qué líneas desaparecen?
-- Guarda también los valores observados en una lista. ¿Qué hace falta añadir al callback para construir el historial?
-- Haz una lectura sin registrar callbacks. ¿Obtienes el dato actual? ¿Se crea alguna observación futura?
-- Como reto, crea un adaptador separado que implemente `ValueListenable<int>` y reenvíe getter y listeners al productor.
-  Compara esa vista con una segunda referencia al mismo objeto; especifica quién conserva y libera el productor.
-
-La solución está al final. No la copies antes de identificar dónde se almacena el dato, qué línea avisa y qué línea
-lee el valor.
-
-## Errores de comprensión que vamos a comprobar
-
-- Confundir el callback sin argumentos de `addListener` con un callback que recibe el valor nuevo.
-- Pensar que leer `.value` registra por sí solo una suscripción o reconstruye un widget.
-- Creer que una lectura guardada se vuelve a asignar cuando cambia la fuente.
-- Tratar `ValueListenable` como si fuera necesariamente `ValueNotifier` o `ChangeNotifier`.
-- Deducir que el getter garantiza un setter, un `dispose`, un historial o una política de igualdad específica.
-- Confundir una referencia con tipo de lectura al mismo objeto con un adaptador separado de solo lectura.
-- Suponer que un getter sin setter convierte en inmutable el objeto devuelto.
-- Confundir el listener del builder con su callback de construcción, o una notificación con un repintado.
-- Liberar una fuente prestada desde un consumidor que no es su propietario.
-
-## Comprobación final
-
-Responde sin mirar las soluciones y justifica cada respuesta con el código o una fuente:
-
-1. ¿Qué añade `ValueListenable<T>` a `Listenable`? ¿Qué significa `T`?
-2. ¿Qué firma tiene el listener y de dónde obtiene el valor cuando lo necesita?
-3. En A, ¿por qué `inicial` vale diez al final mientras la fuente devuelve cuarenta?
-4. En B, ¿quién crea el historial y por qué no contiene `forest`?
-5. ¿Puede una referencia `ValueListenable<int>` escribir `.value` o llamar a `dispose` por su tipo declarado?
-6. En C, ¿qué comparten las dos fuentes y qué operaciones concretas cambian sus datos?
-7. ¿Qué ocurre si cambia el valor pero la implementación olvida emitir el aviso? ¿Cumple la expectativa documentada?
-8. ¿Qué hace `ValueListenableBuilder` entre un aviso y una construcción? ¿Qué verifica la prueba D?
-9. En DaisyUI, ¿qué son `_palette`, `_ThemeListenable` y `controller.theme`? ¿Quién libera la señal?
-10. ¿Qué diferencia existe entre una referencia de lectura a un objeto mutable y un adaptador separado?
-11. Si el valor es una lista mutable, ¿el getter sin setter garantiza que esa lista no pueda cambiar?
-12. Explica el proyecto completo: estado, registro, cambio, aviso, lectura y limpieza.
-
-**Unidad dominada cuando:** puedes explicar el proyecto, resolver las variaciones y distinguir el contrato de las
-implementaciones sin copiar la solución. Elaborar la guía no marca la unidad como dominada.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
-
-```text
-Al inicio: 10
-Aviso 1: 20
-Lectura guardada: 10
-Aviso 2: 30
-Actual: 40; avisos: 2
-```
-
-Si se retira el listener antes de escribir treinta, solo aparece el primer aviso; la lectura final sigue siendo
-cuarenta y el contador de avisos es uno. Sin registro ni retirada, desaparecen las dos líneas de aviso; los cambios
-siguen ocurriendo y el contador queda en cero.
-
-### Ejemplo B
-
-```text
-Inicial: claro
-Primera lectura: claro
-Actual: forest
-Observados: oscuro, cupcake
-Cantidad: 2
-```
-
-Si guardas el valor antes de registrar, el historial comienza con `claro`. `forest` se escribe después de retirar el
-callback, por lo que no se añade automáticamente.
-
-### Ejemplo C
-
-```text
-Número inicial: 10
-Puntos iniciales: 0
-Número: 11
-Puntos: 1
-```
-
-Si `sumar` omite el aviso, la lectura directa posterior devuelve uno, pero el listener no se ejecuta. Una
-implementación que deja de avisar al cambiar su valor incumple la expectativa documentada del contrato.
-
-### Ejemplo D y E
-
-En D se muestra inicialmente `Cantidad: 1` sin avisos. Las dos asignaciones producen dos avisos en ese ejemplo;
-antes del frame el árbol aún contiene el texto anterior y, después de `pump`, contiene `Cantidad: 3`. En E las lecturas
-observadas son `dark` y `cupcake`, la lectura inicial permanece en `light` y el valor final consultado es `light`.
-
-### Una solución del proyecto
+<details>
+<summary>Ver una posible solución</summary>
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -650,7 +471,7 @@ class Marcador extends ChangeNotifier implements ValueListenable<int> {
   int get value => _puntos;
 
   void sumar() {
-    _puntos += 1;
+    _puntos = _puntos + 1;
     notifyListeners();
   }
 }
@@ -673,12 +494,12 @@ void main() {
   fuente.removeListener(panel);
   marcador.sumar();
   fuente.removeListener(registro);
-  print('Inicial: $inicial; actual: ${fuente.value}');
+
+  print('Inicial: $inicial');
+  print('Actual: ${fuente.value}');
   marcador.dispose();
 }
 ```
-
-La salida es:
 
 ```text
 Panel: 1
@@ -686,41 +507,38 @@ Registro: 1
 Panel: 2
 Registro: 2
 Registro: 3
-Inicial: 0; actual: 3
+Inicial: 0
+Actual: 3
 ```
 
-Hay tres incrementos y tres emisiones. El panel recibe dos avisos y el registro tres. Hay siete lecturas explícitas
-por el código mostrado: la inicial, cinco realizadas por `mostrar` y la final. La función `mostrar` acepta también un
-`ValueNotifier<int>`, porque exige el contrato y no la clase concreta.
+`_puntos` guarda el dato. `sumar()` lo cambia y llama a `notifyListeners()`; cada listener activo llama a `mostrar`, que
+consulta `.value`. Después de retirar `panel`, solo `registro` recibe el tercer aviso. `inicial` conserva la lectura
+anterior, mientras que la última consulta obtiene `3`.
 
-### Claves de la comprobación final
+</details>
 
-1. Añade un getter de valor actual; `T` determina su tipo.
-2. Es `void Function()`; su cuerpo puede leer `.value` desde la fuente.
-3. `inicial` guarda una lectura; `fuente.value` realiza otra consulta posterior.
-4. Lo mantiene el callback; `forest` llega después de retirarlo.
-5. No mediante ese tipo. Una implementación concreta puede ofrecer operaciones adicionales.
-6. Ambas implementan `ValueListenable<int>`; se cambian por el setter del `ValueNotifier` y por `sumar`.
-7. La lectura directa puede reflejar el cambio, pero el listener no se ejecuta; se incumple la expectativa del contrato.
-8. Escucha, lee y solicita una actualización; D comprueba texto y avisos en un árbol de prueba, no pintura física.
-9. `_palette` es la señal poseída; `_ThemeListenable` es el adaptador que reenvía; `theme` expone esa vista. El
-   propietario dispone el controlador, que libera la señal.
-10. En el primer caso el objeto real sigue siendo el mismo; en el segundo existe otro objeto que delega operaciones.
-11. No. El getter limita la asignación mediante esa interfaz, no garantiza inmutabilidad del objeto devuelto.
-12. El productor guarda y modifica; `notifyListeners` llama los callbacks, que leen; cada consumidor se retira y el
-    propietario libera el productor.
+## Comprueba si puedes avanzar
 
-## Qué se ha revisado y cómo se ha comprobado
+Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 
-- Se contrastaron el contrato, sus implementaciones y los materiales enlazados con la documentación oficial. Se
-  leyeron el controlador y el scope actuales, además de la implementación local de `ValueListenableBuilder`.
-- El servidor del grafo rechazó indexar esta raíz durante la unidad anterior por su configuración de acceso; las
-  afirmaciones sobre el controlador y el scope se contrastaron mediante lectura directa de esos archivos.
-- Se extrajeron A–C y la solución del proyecto y se comprobaron sus cuatro salidas. También pasaron los ejemplos D y E,
-  dos pruebas adicionales de cambio de fuente y objeto mutable, y las tres pruebas existentes del controlador:
-  **11 pruebas en total**. El analizador no encontró errores en los ejemplos completos; informó de avisos de estilo
-  por `print` en las prácticas de consola.
-- Se confirmó con el analizador que el tipo `ValueListenable<int>` rechaza el setter, `dispose` y `notifyListeners`.
-  Se comprobaron enlaces locales, anclas, bloques de código y espacios, además de `git diff --check`.
-- La prueba de widgets comprueba el árbol y los frames de prueba, no una pantalla física ni sus repintados. No se
-  ejecutaron los ejemplos en DartPad. El progreso de estudio se marca al resolver y explicar las prácticas.
+1. ¿Qué añade `ValueListenable<T>` a `Listenable`? ¿El listener recibe el valor como argumento? **Apartado 1.**
+2. ¿Qué tipo tiene `.value` en `ValueListenable<String>` y qué operaciones ofrece ese contrato? **Apartado 2.**
+3. ¿Por qué una lectura inicial puede ser distinta de una consulta posterior de la misma fuente? **Apartado 3.**
+4. ¿Quién añade valores al historial y qué precaución existe si el valor es mutable? **Apartado 4.**
+5. ¿Por qué `mostrar` puede aceptar dos implementaciones diferentes? **Apartado 5.**
+6. ¿Quién conecta la fuente con el widget y qué demuestra la prueba de `pump`? **Apartado 6.**
+7. En DaisyUI, ¿qué almacena el tema, qué ofrece el adaptador y dónde se cambia el valor? **Apartado 7.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
+La siguiente unidad estudia `ValueNotifier<T>` y su política al asignar valores.
+
+## Para consultar si necesitas reforzar
+
+- [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html): escucha y getter
+  `value`.
+- [`Listenable`](https://api.flutter.dev/flutter/foundation/Listenable-class.html): registro y retirada de listeners.
+- [`ValueNotifier<T>`](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html): una implementación concreta
+  que estudiaremos en la unidad 7.
+- [`ValueListenableBuilder<T>`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html): conexión de
+  una fuente con la construcción de un widget.
+- [Genéricos en Dart](https://dart.dev/language/generics): cómo concretar `T` con un tipo como `int` o `String`.

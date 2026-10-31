@@ -1,92 +1,61 @@
-# 05. ChangeNotifier: producir avisos
+# 05. `ChangeNotifier`: producir avisos
 
 [Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 4](04-listenable-recibir-avisos.md)
+[Repasar la unidad 4](04-listenable-recibir-avisos.md) · **Estado:** pendiente
 
-- **Bloque:** el sistema de notificaciones de Flutter.
-- **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 29 de octubre de 2026.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+En la unidad 4 construimos un avisador para entender cómo registrar, llamar y retirar listeners. Ahora usaremos
+`ChangeNotifier`, una clase de Flutter que ya proporciona un mecanismo de notificación.
 
-Podrás construir un objeto que conserva un contador y decide cuándo avisar a quienes escuchan. Seguirás cada paso
-entre una llamada a `incrementar()`, el cambio del dato, `notifyListeners()` y la ejecución de los callbacks.
-También podrás explicar qué ocurre si falta el aviso, si se emite sin cambiar el dato y cuando termina la vida del
-notificador.
+Al terminar podrás construir un contador que avisa a sus consumidores y explicar qué ocurre si cambia sin avisar o
+si avisa sin cambiar. También distinguirás quién decide notificar, quién escucha y quién conecta un aviso con una
+pantalla.
 
-Esta unidad desarrolla **`ChangeNotifier`**, **subclase**, **`notifyListeners`**, **política de avisos**, **notificación
-síncrona**, **`dispose`** y el puente hacia un widget consumidor. Utiliza los contratos de la unidad 3
-y los registros de la unidad 4. `ValueListenable`, `ValueNotifier` y Signals se estudiarán después.
+Los programas completos usan Flutter. Puedes copiarlos en [DartPad](https://dartpad.dev/), elegir **Flutter** y pulsar
+**Run**; observa la consola. Cada programa es independiente. Puedes hacer una pausa después del apartado 3 y continuar
+el resto en otra sesión.
 
-## Ruta y progreso
+## 1. De escuchar a producir un aviso
 
-Antes de comenzar, asegúrate de poder explicar la diferencia entre entregar `listener` y ejecutar `listener()`, y
-entre el tipo de una referencia y el objeto al que accede. Si hace falta, repasa las unidades 2–4.
+En la unidad anterior, `Listenable` nos permitió expresar que una fuente acepta listeners. Ese contrato indica cómo
+registrar y retirar funciones, pero no nos dice qué operación del objeto debe producir un aviso.
 
-Los ejemplos A–C y la solución del proyecto son programas completos e independientes. En
-[DartPad](https://dartpad.dev/) selecciona un ejemplo de **Flutter**, copia un programa a la vez y observa la
-consola. Importan `package:flutter/foundation.dart`, que requiere el entorno Flutter; no dependen del paquete
-DaisyUI. El fragmento del widget y el ejemplo del controlador real se leen en su contexto: no son programas
-independientes. Los materiales oficiales están en inglés; esta guía y los ejercicios están en español.
+`ChangeNotifier` implementa `Listenable` y aporta las operaciones para administrar listeners y notificarlos. Podemos
+crear una clase que lo extienda y añadirle el dato y las acciones que necesitemos:
 
-- [ ] [5.1. Del contrato al mecanismo de notificación](#51-del-contrato-al-mecanismo-de-notificación).
-- [ ] [5.2. Construir un contador que avisa](#52-construir-un-contador-que-avisa).
-- [ ] [5.3. Separar modificar y notificar](#53-separar-modificar-y-notificar).
-- [ ] [5.4. Seguir la ejecución de los listeners](#54-seguir-la-ejecución-de-los-listeners).
-- [ ] [5.5. Comprender la política de registros](#55-comprender-la-política-de-registros).
-- [ ] [5.6. Terminar la vida del notificador](#56-terminar-la-vida-del-notificador).
-- [ ] [5.7. Conectar un aviso con un widget](#57-conectar-un-aviso-con-un-widget).
-- [ ] [5.8. Comparar con el controlador de DaisyUI](#58-comparar-con-el-controlador-de-daisyui).
-- [ ] [Completar el proyecto de la unidad](#proyecto-de-la-unidad-un-contador-con-una-política-explícita).
-- [ ] [Superar la comprobación final](#comprobación-final).
+```dart
+class Contador extends ChangeNotifier {
+  // Aquí añadiremos el dato y las operaciones del contador.
+}
+```
 
-Puedes estudiar 5.1–5.3 en una sesión, 5.4–5.6 en otra y terminar con 5.7–5.8 y el proyecto. Marca las casillas
-cuando puedas explicar tus predicciones y resolver las variaciones sin copiar las soluciones.
+Este fragmento no es un programa completo. Por usar `extends ChangeNotifier`, nuestro contador heredará
+`addListener`, `removeListener` y el mecanismo de `notifyListeners()`.
 
-## 5.1. Del contrato al mecanismo de notificación
+La decisión de **cuándo** llamar a `notifyListeners()` sigue siendo nuestra. `ChangeNotifier` no sabe por sí solo qué
+significa incrementar un contador, ni vigila automáticamente todos los campos de la subclase.
 
-### El problema
+Piensa en una lista de personas a quienes se puede llamar: el mecanismo permite mantener la lista y hacer las llamadas.
+La clase que administra el dato decide en qué momento iniciar un aviso. La analogía sirve para separar esas
+responsabilidades; no describe llamadas telefónicas ni tiempos de espera.
 
-En la unidad 4 creamos una lista de callbacks y un método `emitir`. Eso permitió estudiar el contrato, pero la clase
-didáctica no resolvía casos como retirar un listener durante la emisión. ¿Cómo construir una fuente de avisos usando
-el mecanismo que Flutter ya ofrece?
+### Practica 1
 
-### La idea
+Queremos un contador que avise cuando aumente. ¿Quién aporta el mecanismo para llamar a los listeners y quién decide
+que debe usarse después del incremento?
 
-[`Listenable`](https://api.flutter.dev/flutter/foundation/Listenable-class.html) describe operaciones para registrar y
-retirar callbacks. [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html) es una
-clase de Flutter que implementa ese contrato y aporta un mecanismo para conservar los registros y notificarlos.
-Una subclase puede añadir sus propios datos y métodos; decide cuándo llamar a `notifyListeners()`.
+<details>
+<summary>Ver respuesta</summary>
 
-Imagina una libreta de avisos: ofrece apuntar y borrar destinatarios y una operación para llamar a los apuntados.
-La persona que administra el contador decide cuándo usar esa operación. La libreta no sabe qué significa incrementar
-ni comprueba por sí misma si cambió un número. Es una analogía del reparto de responsabilidades, no de llamadas
-telefónicas, tiempos de espera o concurrencia.
+`ChangeNotifier` aporta el mecanismo de notificación. Nuestro método `incrementar` decide usarlo llamando a
+`notifyListeners()` después de cambiar la cantidad.
 
-`ChangeNotifier` se puede extender o usar como mixin. Aquí empleamos `extends`: la subclase hereda las operaciones de
-escucha y de notificación. Esas operaciones no crean por sí solas un contador ni un getter `value`. El campo y los
-métodos de negocio los escribimos nosotros.
+</details>
 
-`notifyListeners()` está anotado con `@protected` y `@visibleForTesting`: en código de aplicación corresponde
-llamarlo desde la implementación/subclase, no usarlo como API pública de un consumidor. El analizador puede advertir
-si se invoca desde fuera; la anotación no es una barrera de privacidad en tiempo de ejecución. Véase
-[notifyListeners](https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html).
+## 2. Un contador que avisa
 
-### Comprobación
-
-- ¿Qué piezas aporta `ChangeNotifier` y cuáles tendrá que aportar nuestro contador?
-- ¿Por qué un parámetro de tipo `Listenable` no permite llamar a `notifyListeners()`?
-- ¿Quién decide que una operación del contador debe emitir un aviso?
-
-**Puedes avanzar cuando:** distingues el contrato de escucha, el mecanismo que distribuye avisos y la política que
-escribe la subclase.
-
-## 5.2. Construir un contador que avisa
-
-### Ejemplo A: una operación, dos consumidores
-
-Programa completo. Antes de ejecutarlo predice las siete líneas. Señala el valor del contador y los registros antes
-de cada llamada a `incrementar()`.
+Construyamos un contador con dos consumidores. Antes de ejecutarlo, intenta predecir qué número verá cada uno:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -97,67 +66,78 @@ class Contador extends ChangeNotifier {
   int get cantidad => _cantidad;
 
   void incrementar() {
-    _cantidad += 1;
+    _cantidad = _cantidad + 1;
     notifyListeners();
   }
 }
 
 void main() {
   final contador = Contador();
+
   void panel() => print('Panel: ${contador.cantidad}');
   void registro() => print('Registro: ${contador.cantidad}');
 
-  print('Inicial: ${contador.cantidad}');
   contador.addListener(panel);
   contador.addListener(registro);
-  print('Antes');
+
+  print('Antes: ${contador.cantidad}');
   contador.incrementar();
-  print('Después');
+  print('Después: ${contador.cantidad}');
+
   contador.removeListener(panel);
   contador.incrementar();
+
   contador.removeListener(registro);
   contador.dispose();
-  print('Fin');
 }
 ```
 
-### Recorrido paso a paso
+La salida es:
 
-1. `Contador()` crea un objeto con `_cantidad` igual a cero y sin listeners registrados.
-2. El getter `cantidad` permite leer el número; `_cantidad` es privado de su biblioteca Dart. El getter no registra
-   una escucha ni produce una copia que se mantenga actualizada.
-3. `addListener(panel)` y `addListener(registro)` entregan funciones. No ejecutan sus cuerpos en este ejemplo.
-4. `incrementar()` ejecuta primero `_cantidad += 1`: el dato pasa a uno.
-5. La línea `notifyListeners()` inicia la distribución. Flutter llama a los callbacks registrados; cada uno consulta
-   `contador.cantidad` al ejecutarse, por lo que ambos leen uno.
-6. Al terminar la distribución vuelve la ejecución a `incrementar`, después a `main` y se imprime `Después`.
-7. Retirar `panel` deja activo `registro`. El segundo incremento cambia el dato a dos y solo ese listener imprime.
-   Luego se retira el registro y el propietario libera el contador.
+```text
+Antes: 0
+Panel: 1
+Registro: 1
+Después: 1
+Registro: 2
+```
 
-Aquí hay una llamada a `notifyListeners` por incremento porque así está escrito el método. No es una regla universal
-para cualquier operación de `ChangeNotifier`. Las soluciones aparecen al final para que primero puedas predecir.
+Sigue la primera llamada a `incrementar()`:
 
-### Comprobación
+1. El campo `_cantidad` pasa de `0` a `1`.
+2. `notifyListeners()` inicia el aviso a los listeners registrados.
+3. Se ejecutan `panel` y `registro`. Cada función consulta `contador.cantidad` en ese momento y lee `1`.
+4. Al terminar los callbacks, la ejecución vuelve a `incrementar()` y luego a `main`, que imprime `Después: 1`.
 
-- Mueve `notifyListeners()` antes de `_cantidad += 1`. ¿Qué imprimen los listeners en el primer incremento y qué
-  valor queda al terminar?
-- Retira `registro` antes del primer incremento. ¿Cuántas veces se ejecuta cada función?
-- Guarda `final anterior = contador.cantidad` antes de incrementar. ¿Cambia ese entero al recibir el aviso?
-- ¿En qué línea se llama a cada listener: en `addListener` o durante la distribución?
+En este ejemplo, `ChangeNotifier` llama a los listeners durante `notifyListeners()`, antes de que esa llamada retorne.
+Después retiramos `panel`: el segundo incremento cambia el dato a `2`, pero solo `registro` sigue escuchando. Al final,
+`main`, que creó el contador, retira el listener restante y libera el contador con `dispose()`.
 
-**Puedes avanzar cuando:** puedes narrar quién cambia el dato, quién solicita la distribución y qué lee cada callback.
+El listener no recibe la cantidad como argumento: `VoidCallback` es una función sin argumentos. Cada consumidor del
+ejemplo la consulta mediante el getter `cantidad` cuando se ejecuta. El getter lo escribimos en `Contador`;
+`ChangeNotifier` no proporciona por sí mismo un campo `cantidad` ni un getter `value`.
 
-## 5.3. Separar modificar y notificar
+`notifyListeners()` es una operación protegida para la implementación. En el código de aplicación, la subclase decide
+cuándo llamarla dentro de sus métodos; el consumidor usa una operación como `incrementar()`. La anotación ayuda al
+analizador a detectar usos desde fuera, pero no es una barrera de privacidad en tiempo de ejecución.
 
-### El problema
+### Practica 2
 
-¿Cambiar un campo de una subclase obliga a `ChangeNotifier` a avisar? ¿Una llamada a `notifyListeners` demuestra que
-el valor ha cambiado?
+En `incrementar`, intercambia el orden de las dos instrucciones: primero notifica y después suma uno. ¿Qué mostrarán
+`panel` y `registro` en el primer aviso? ¿Qué cantidad quedará al terminar el método?
 
-### Ejemplo B: tres operaciones diferentes
+<details>
+<summary>Ver respuesta</summary>
 
-Programa completo. Predice las seis líneas y cuenta cambios del dato, llamadas a `notifyListeners` y ejecuciones del
-listener por separado.
+Ambos mostrarán `0`, porque los callbacks se ejecutan antes de que la instrucción de suma cambie el campo. Al terminar
+el método, la cantidad será `1`. El orden dentro de `incrementar` determina qué dato leen durante el aviso.
+
+</details>
+
+## 3. Cambiar y notificar son operaciones distintas
+
+¿Cambiar el contador obliga a que alguien reciba un aviso? ¿Un aviso demuestra que hubo un cambio? Probemos tres
+operaciones distintas:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -168,7 +148,7 @@ class Contador extends ChangeNotifier {
   int get cantidad => _cantidad;
 
   void incrementarSinAvisar() {
-    _cantidad += 1;
+    _cantidad = _cantidad + 1;
   }
 
   void avisarSinCambiar() {
@@ -176,7 +156,7 @@ class Contador extends ChangeNotifier {
   }
 
   void incrementar() {
-    _cantidad += 1;
+    _cantidad = _cantidad + 1;
     notifyListeners();
   }
 }
@@ -184,387 +164,66 @@ class Contador extends ChangeNotifier {
 void main() {
   final contador = Contador();
   var avisos = 0;
+
   void observar() {
-    avisos += 1;
+    avisos = avisos + 1;
     print('Aviso $avisos: ${contador.cantidad}');
   }
 
   contador.addListener(observar);
   contador.incrementarSinAvisar();
-  print('Tras cambio silencioso: ${contador.cantidad}');
+  print('Después del cambio: ${contador.cantidad}');
+
   contador.avisarSinCambiar();
   contador.avisarSinCambiar();
   contador.incrementar();
+
   contador.removeListener(observar);
   contador.incrementar();
-  print('Valor final: ${contador.cantidad}');
-  print('Avisos recibidos: $avisos');
+  print('Final: ${contador.cantidad}; avisos: $avisos');
   contador.dispose();
 }
 ```
 
-### Qué demuestra
-
-El primer método modifica el campo, pero no llama al mecanismo de distribución: no se ejecuta `observar` en ese
-momento. Los dos avisos siguientes ejecutan el callback aunque el número permanezca en uno. `incrementar` cambia y
-avisa; después de la retirada vuelve a cambiar y llama a `notifyListeners`, pero ese callback ya no está registrado.
-
-No hay comparación de igualdad incorporada para el campo `_cantidad`. La subclase decide si y cuándo notifica.
-Esto contrasta con las políticas de otras implementaciones; estudiaremos la comparación de `ValueNotifier` en la
-unidad 7, sin convertirla en una propiedad general de `Listenable` o `ChangeNotifier`.
-
-En una aplicación, omitir un aviso necesario puede dejar a un consumidor de interfaz mostrando una lectura anterior
-hasta que se reconstruya por otra causa. Emitir un aviso innecesario puede provocar trabajo adicional. Estas son
-consecuencias posibles del consumidor concreto, no una actualización de pantalla que `notifyListeners` haga por sí solo.
-
-### Comprobación
-
-- Elimina las dos llamadas a `avisarSinCambiar`. ¿Qué valor y cuántos avisos quedan al final?
-- Coloca dos `notifyListeners()` dentro de `incrementar`, uno detrás de otro. ¿Cuántas veces se ejecuta un listener
-  que permanece registrado? ¿Cuántos incrementos ocurrieron?
-- Si lees el valor tras `incrementarSinAvisar`, ¿encuentras el dato anterior o el nuevo? ¿Por qué?
-
-**Puedes avanzar cuando:** puedes contar cambios, emisiones y ejecuciones independientemente.
-
-## 5.4. Seguir la ejecución de los listeners
-
-### Ejemplo C: qué ocurre dentro de la llamada
-
-Programa completo. Predice todas las líneas antes de ejecutarlo. `otro` se añade durante el primer aviso.
-
-```dart
-import 'package:flutter/foundation.dart';
-
-class Campana extends ChangeNotifier {
-  void sonar() {
-    print('Entra sonar');
-    notifyListeners();
-    print('Sale sonar');
-  }
-}
-
-void main() {
-  final campana = Campana();
-  void otro() => print('Otro');
-  var agregado = false;
-  void primero() {
-    print('Primero');
-    if (!agregado) {
-      agregado = true;
-      campana.addListener(otro);
-    }
-  }
-  void segundo() => print('Segundo');
-
-  campana.addListener(primero);
-  campana.addListener(segundo);
-  print('Antes');
-  campana.sonar();
-  print('Entre avisos');
-  campana.sonar();
-  print('Después');
-  campana.removeListener(primero);
-  campana.removeListener(segundo);
-  campana.removeListener(otro);
-  campana.dispose();
-}
-```
-
-En la implementación documentada, `notifyListeners` recorre los registros y llama directamente a las funciones antes
-de regresar. Por eso `Sale sonar` aparece después de los callbacks de esa emisión. Esto describe esta implementación,
-no una promesa de ejecución síncrona aplicable a toda fuente `Listenable`.
-
-El primer recorrido comenzó antes de que `otro` fuera añadido, por lo que ese registro no se visita en ese recorrido.
-En el segundo ya estaba registrado al comenzar y sí se visita. Los listeners retirados durante el recorrido no se
-visitan después de su retirada, con la salvedad de los registros duplicados explicada en 5.5. Si un callback lanza
-una excepción, Flutter la captura y reporta mediante `FlutterError.reportError`; no significa que la operación del
-listener haya tenido éxito. Estas reglas proceden de
-[notifyListeners](https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html).
-
-Una llamada desde un listener que vuelve a provocar `notifyListeners` se denomina **reentrante**: comienza otra
-emisión antes de que termine la anterior. Puede producir recursión infinita si no existe una condición de parada.
-No necesitamos diseñar un flujo reentrante para el proyecto de esta unidad.
-
-### Comprobación
-
-- En C, ¿por qué `Otro` no aparece en el primer aviso y sí en el segundo?
-- Si `primero` retira `segundo` antes de que le toque en el primer recorrido, ¿recibirá `segundo` ese aviso,
-  suponiendo que solo estaba registrado una vez?
-- ¿Se imprime `Sale sonar` antes o después de los listeners? ¿Qué línea del método te ayuda a razonarlo?
-
-**Puedes avanzar cuando:** separas el recorrido actual de uno posterior y sabes dónde continúa la ejecución.
-
-## 5.5. Comprender la política de registros
-
-Según [addListener](https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html), registrar el mismo
-callback dos veces crea dos registros. Fuera de una emisión, retirarlo una vez elimina uno; hace falta retirarlo el
-mismo número de veces para que deje de ser llamado. Una retirada de un callback no registrado se ignora.
-
-Si la retirada ocurre **durante** la notificación y hay registros duplicados, la propia documentación advierte que el
-mismo callback puede volver a ser llamado en ese recorrido aunque se haya retirado una vez. No extrapoles al caso
-duplicado la intuición de «retiré la función, ya nunca se ejecutará». Consulta también
-[removeListener](https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html). Esta política es
-específica de `ChangeNotifier`; el contrato `Listenable` por sí solo no determina cómo otra implementación maneja
-duplicados.
-
-`hasListeners` existe, pero es un miembro protegido para la implementación. No es un contador público de registros y
-la documentación advierte que los consumidores no deben hacer depender su lógica de si existen otros listeners.
-Consulta [hasListeners](https://api.flutter.dev/flutter/foundation/ChangeNotifier/hasListeners.html).
-
-### Comprobación
-
-- Registra `panel` dos veces en A, retíralo una vez fuera de la emisión y vuelve a incrementar. ¿Recibe otro aviso?
-- ¿Cuántas retiradas compensan dos registros iguales?
-- ¿Puedes concluir que cualquier implementación de `Listenable` conserva duplicados igual? ¿Por qué?
-
-**Puedes avanzar cuando:** cuentas registros, no solo funciones distintas, y reconoces el caso especial durante la
-emisión.
-
-## 5.6. Terminar la vida del notificador
-
-### Propiedad y limpieza
-
-El **propietario** crea o recibe la responsabilidad de mantener un notificador y decide cuándo ha terminado su uso.
-El consumidor que solo lo escucha debe retirar su propio registro cuando deja de necesitarlo. Retirar un callback
-no destruye el notificador ni retira los demás. En A, `main` crea el contador, retira ambos callbacks y finalmente
-llama a `dispose()`.
-
-Según [dispose](https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html), el objeto ya no debe usarse
-tras liberarlo; la operación limpia la lista y **no envía** un último aviso. No se deben registrar nuevos listeners
-ni llamar a `notifyListeners` después. La documentación permite `removeListener` después de `dispose` para facilitar
-la limpieza de consumidores; eso no reactiva el objeto. No llames `dispose` durante una notificación en curso.
-
-Si una subclase sobrescribe `dispose` para limpiar recursos que posee, debe llamar a `super.dispose()`:
-
-```dart
-@override
-void dispose() {
-  // Liberar aquí los recursos adicionales que posee esta subclase.
-  super.dispose();
-}
-```
-
-Este fragmento pertenece al cuerpo de una subclase; por sí solo no es un programa. La anotación `@mustCallSuper`
-figura en la API. El ciclo de vida de widgets y los recursos prestados se tratarán con más detalle en la unidad 13.
-No uses fallos de `assert` como mecanismo de control de flujo: las comprobaciones de depuración no son una promesa de
-validación idéntica en todos los modos de ejecución.
-
-### Comprobación
-
-- ¿Envía `dispose` un aviso de despedida?
-- Si dos consumidores escuchan un contador compartido, ¿por qué uno no debería liberarlo al dejar de escucharlo?
-- ¿Qué debe hacer una subclase que añade su propia limpieza a `dispose`?
-
-**Puedes avanzar cuando:** diferencias terminar una suscripción de terminar la vida del objeto.
-
-## 5.7. Conectar un aviso con un widget
-
-Un `ChangeNotifier` puede funcionar sin ninguna pantalla, como muestran A–C. Para actualizar una interfaz hace
-falta un consumidor que escuche y conecte el aviso con el sistema de construcción de Flutter.
-[`ListenableBuilder`](https://api.flutter.dev/flutter/widgets/ListenableBuilder-class.html) acepta un `Listenable` y
-construye una parte de la interfaz al recibir sus avisos.
-
-Fragmento para leer: presupone un `contador` vivo y un contexto de construcción válido.
-
-```dart
-ListenableBuilder
-(
-listenable: contador,
-builder: (context, child) {
-return Text('Cantidad: ${contador.cantidad}');
-},
-)
-```
-
-El `builder` consulta el dato actual cuando Flutter lo ejecuta. El widget escuchador enlaza la notificación con una
-actualización de su subárbol; no es `notifyListeners()` pintando directamente. La primera construcción también muestra
-el valor inicial sin necesitar una notificación previa. Flutter puede construir widgets por otras causas y agrupar
-trabajo entre frames: no deduzcas un repintado ni un número fijo de construcciones solo por contar avisos.
-
-Si quitas el puente, un callback que imprime en consola puede seguir recibiendo avisos, pero no hay que atribuirle por
-ello la reconstrucción de ese `Text`. La API oficial incluye un ejemplo completo de contador y otro de lista;
-también ofrece `flutter create --sample=foundation.ChangeNotifier.1 mysample` para crear el primero localmente.
-
-### Comprobación
-
-- ¿Quién almacena la cantidad, quién solicita el aviso y quién conecta el aviso con el árbol?
-- Si un listener solo imprime, ¿qué prueba su impresión y qué no prueba?
-- ¿De dónde obtiene `Text` el número que muestra?
-
-**Puedes avanzar cuando:** puedes trazar dato, aviso, consumidor y lectura sin confundir notificar con pintar.
-
-## 5.8. Comparar con el controlador de DaisyUI
-
-La guía usa `ChangeNotifier` para aprender el mecanismo de Flutter; **el controlador actual de DaisyUI no hereda de
-`ChangeNotifier`**. Comprueba [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart):
-
-```dart
-final FlutterSignal<DaisyThemeModel> _palette;
-
-void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
-}
-```
-
-Este es un fragmento de la clase real. El controlador posee la señal `_palette` y escribe en ella mediante
-`setTheme`. Su getter `theme` ofrece una vista de lectura `ValueListenable<DaisyThemeModel>`: `_ThemeListenable`
-reenvía `addListener` y `removeListener` a la fuente. El consumidor puede escuchar esa vista; las reglas concretas
-de la señal deben estudiarse en su propia implementación, no suponerse idénticas a las de `ChangeNotifier`.
-
-En [daisy_theme_scope.dart](../../../lib/themes/application/daisy_theme_scope.dart), `DaisyThemeScope` entrega esa vista a
-`InheritedNotifier`, que conecta sus avisos con los dependientes del scope. La lectura `of(context)` registra una
-dependencia y consulta el tema. El scope toma prestado un controlador explícito; el propietario de ese controlador
-lo libera. La unidad 4 incluye una prueba local con listeners y las posteriores profundizan en Signals y scopes.
-
-La comparación conserva la pregunta central: **¿quién guarda el dato, quién provoca la emisión y quién escucha?**
-En el contador didáctico la subclase llama explícitamente a `notifyListeners`; en DaisyUI `setTheme` escribe en una
-señal. No hay una llamada equivalente a `notifyListeners` en ese método del controlador.
-
-### Comprobación
-
-- ¿Qué línea cambia el dato en cada caso?
-- ¿Por qué no podemos buscar `notifyListeners()` dentro de `setTheme` para explicar el recorrido real?
-- ¿Qué objeto conecta el tema de DaisyUI con los dependientes de Flutter?
-
-**Puedes avanzar cuando:** explicas la analogía sin atribuir al controlador una herencia o política que no tiene.
-
-## Materiales de estudio seleccionados
-
-Todos estos recursos se pueden consultar gratis. Las referencias técnicas son oficiales; las páginas están en inglés.
-Cada enlace apunta a un recurso concreto y contiene una tarea para convertir la lectura en práctica.
-
-- **F1 · Flutter: [ChangeNotifier](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html)** — 5.1–5.2.
-  Identifica el contrato que implementa, la posibilidad de extenderlo y los dos ejemplos ejecutables de la página.
-- **F2 · Flutter: [notifyListeners](https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html)** —
-  5.2–5.4. Lee cuándo se llama, las anotaciones y las reglas de altas, bajas y excepciones durante una emisión.
-- **F3 · Flutter: [addListener](https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html) y
-  [removeListener](https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html)** — 5.5. Explica
-  registros repetidos y el caso especial de retirarlos durante el recorrido.
-- **F4 · Flutter: [dispose](https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html)** — 5.6. Localiza
-  quién debe liberar el objeto y si esa operación envía un aviso.
-- **F5 · Flutter: [ListenableBuilder](https://api.flutter.dev/flutter/widgets/ListenableBuilder-class.html)** — 5.7.
-  Recorre su ejemplo de contador y localiza el widget que escucha y la lectura que construye el texto.
-- **F6 ·
-  Flutter: [Simple app state management](https://docs.flutter.dev/data-and-backend/state-mgmt/simple#changenotifier)** —
-  después de 5.3. Lee la sección `ChangeNotifier` del carrito y señala cada modificación y aviso; el resto del tutorial
-  utiliza el paquete adicional `provider`, que no hace falta instalar para esta unidad.
-- **F7 · Flutter: [Introducción a pruebas unitarias](https://docs.flutter.dev/cookbook/testing/unit/introduction)** —
-  para contrastar el proyecto: identifica la clase, la prueba y la expectativa sin confundir pruebas unitarias con
-  pruebas visuales.
-- **P1 · [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad)** — ejecuta A–C y el
-  proyecto seleccionando Flutter. El paquete local `daisy_ui` no está disponible simplemente por importarlo en un pad.
-- **P2 · Código del proyecto:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
-  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart). Son material local para 5.8.
-
-## Proyecto de la unidad: un contador con una política explícita
-
-Construye una clase `ContadorLimitado` que extienda `ChangeNotifier`. Su cantidad inicial es cero y su máximo es dos.
-Dos consumidores, `panel` y `registro`, consultan el contador cuando reciben un aviso.
-
-### Requisitos
-
-1. Expón un getter de lectura `cantidad` y escribe un método `incrementar()`.
-2. Si la cantidad es menor que dos, incrementa primero y después avisa una vez.
-3. Si ya es dos, no cambies el dato y no emitas aviso. Esta es **tu política**, no una comparación automática de
-   `ChangeNotifier`.
-4. Registra ambos listeners, intenta incrementar tres veces, retira el panel y llama a `reiniciar()`.
-5. `reiniciar()` cambia la cantidad a cero y avisa una vez solo si el valor no era cero. Llámalo dos veces.
-6. Retira el registro y libera el contador en el código propietario. Predice los valores y la salida antes de ejecutar.
-
-### Variaciones
-
-- ¿Qué ocurre si `reiniciar` siempre notifica, incluso con cero? Calcula el cambio en el número de avisos.
-- Registra `panel` dos veces y retíralo dos veces fuera de las emisiones. ¿Qué ocurriría tras una sola retirada?
-- Cambia el orden de modificación y aviso: ¿qué valores observan los callbacks y cuál queda finalmente?
-- Dibuja las relaciones fuente–callback y marca en qué momento cada relación deja de existir.
-
-Una solución completa está al final. Antes de verla explica qué líneas implementan la política y cuáles usan el
-mecanismo heredado.
-
-## Errores de comprensión que vamos a comprobar
-
-- Creer que `addListener` ejecuta inmediatamente la función entregada.
-- Suponer que modificar cualquier campo de un `ChangeNotifier` emite automáticamente un aviso.
-- Pensar que `notifyListeners` recibe o entrega el valor nuevo como argumento.
-- Confundir una emisión con una modificación, una ejecución de listener, una construcción o un repintado.
-- Suponer que `ChangeNotifier` compara todos los campos o que todas las fuentes `Listenable` tienen su política.
-- Llamar al método protegido como operación habitual del consumidor, en lugar de exponer una acción del modelo.
-- Liberar un notificador prestado o esperar un último aviso de `dispose`.
-- Atribuir `ChangeNotifier` al `DaisyThemeController` actual porque ambos permiten observar cambios.
-
-## Comprobación final
-
-Responde sin mirar las soluciones y justifica cada respuesta con una línea de código o una referencia:
-
-1. ¿Qué añade `ChangeNotifier` al contrato `Listenable` y qué decisiones siguen siendo de la subclase?
-2. En A, ¿qué valor ve cada listener en el primer incremento y por qué?
-3. En B, ¿cuántos cambios, llamadas a `notifyListeners` y ejecuciones de `observar` hay?
-4. ¿Puede producirse un aviso sin modificar el dato? ¿Y una modificación sin aviso?
-5. En C, ¿por qué `otro` se ejecuta solo en el segundo recorrido?
-6. ¿Qué ocurre con dos registros iguales y una retirada fuera de una emisión? ¿Qué precaución hay durante ella?
-7. ¿Qué hace y qué no hace `dispose`? ¿Quién debe llamarlo?
-8. ¿Qué pieza conecta un aviso con la construcción del texto en 5.7? ¿Demuestra una impresión que hubo repintado?
-9. ¿Dónde se escribe el tema en DaisyUI y qué papel cumple la vista `theme`?
-10. Explica de principio a fin un incremento del proyecto, desde la decisión de la política hasta la lectura del
-    consumidor. Después explica qué ocurre al intentar incrementar por encima del límite.
-
-**Unidad dominada cuando:** puedes construir y explicar el proyecto, justificar sus variaciones y responder estas
-preguntas sin copiar la solución. Preparar el material no marca la unidad como dominada.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
+La salida es:
 
 ```text
-Inicial: 0
-Antes
-Panel: 1
-Registro: 1
-Después
-Registro: 2
-Fin
-```
-
-Con la notificación antes del incremento, los primeros callbacks leen cero; al terminar el método la cantidad es
-uno. El orden forma parte de la implementación de nuestro método.
-
-### Ejemplo B
-
-```text
-Tras cambio silencioso: 1
+Después del cambio: 1
 Aviso 1: 1
 Aviso 2: 1
 Aviso 3: 2
-Valor final: 3
-Avisos recibidos: 3
+Final: 3; avisos: 3
 ```
 
-Hay tres cambios del dato, cuatro llamadas a `notifyListeners` y tres ejecuciones de `observar`: la última emisión
-ocurre después de retirar el callback. Sin los dos avisos sin cambio queda valor tres y un aviso recibido.
+La primera operación cambia el campo a `1` y no llama a `notifyListeners()`: el listener no se ejecuta entonces.
+Las dos llamadas a `avisarSinCambiar()` sí lo ejecutan, aunque el campo siga valiendo `1`. Después,
+`incrementar()` suma uno y avisa. La última llamada a `incrementar()` vuelve a cambiar el dato, pero el listener ya
+está retirado y no recibe ese aviso.
 
-### Ejemplo C
+En total hay **tres cambios del dato**, **cuatro llamadas a `notifyListeners()`** y **tres ejecuciones del listener**.
+La última notificación no encuentra registrado a `observar`. Contar estas cosas por separado nos ayuda a entender
+qué ha pasado.
 
-```text
-Antes
-Entra sonar
-Primero
-Segundo
-Sale sonar
-Entre avisos
-Entra sonar
-Primero
-Segundo
-Otro
-Sale sonar
-Después
-```
+En una aplicación, omitir un aviso que necesita un consumidor puede dejarlo mostrando un dato anterior hasta que vuelva
+a leerlo por otra causa. Avisar sin necesidad también puede provocar trabajo adicional. La política adecuada depende
+de lo que signifique cada operación.
 
-La primera emisión comienza con dos registros. `otro` se incorpora durante ese recorrido y participa en el
-siguiente. Si `primero` retira el único registro de `segundo` antes de su turno, `segundo` no se visita en ese
-recorrido.
+### Practica 3
 
-### Una solución del proyecto
+Elimina las dos llamadas a `avisarSinCambiar()`. ¿Qué cantidad queda al final y cuántos avisos recibe `observar`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+La cantidad final sigue siendo `3`: esas dos llamadas no modificaban el dato. `observar` recibe un solo aviso, el del
+primer `incrementar()`. El último incremento ocurre después de retirarlo.
+
+</details>
+
+## 4. Una política: cuándo merece la pena avisar
+
+Supongamos que nuestro contador solo admite cantidades de `0` a `2`. Queremos avisar cuando el número cambie, pero no
+cuando alguien intente incrementarlo estando ya en `2`:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -575,8 +234,260 @@ class ContadorLimitado extends ChangeNotifier {
   int get cantidad => _cantidad;
 
   void incrementar() {
-    if (_cantidad >= 2) return;
-    _cantidad += 1;
+    if (_cantidad == 2) {
+      return;
+    }
+    _cantidad = _cantidad + 1;
+    notifyListeners();
+  }
+}
+
+void main() {
+  final contador = ContadorLimitado();
+  void observar() => print('Cantidad: ${contador.cantidad}');
+
+  contador.addListener(observar);
+  contador.incrementar();
+  contador.incrementar();
+  contador.incrementar();
+  print('Final: ${contador.cantidad}');
+
+  contador.removeListener(observar);
+  contador.dispose();
+}
+```
+
+La salida es:
+
+```text
+Cantidad: 1
+Cantidad: 2
+Final: 2
+```
+
+Las dos primeras llamadas cambian la cantidad y notifican. En la tercera, la condición `_cantidad == 2` es verdadera:
+`return` termina el método antes de la suma y antes de `notifyListeners()`.
+
+Esta comparación es **la política de nuestra clase**. No es una comparación automática que `ChangeNotifier` aplique
+a todos sus campos. Otras fuentes pueden tener otras reglas; por ejemplo, estudiaremos la política de `ValueNotifier`
+en la unidad 7.
+
+### Practica 4
+
+Si quitamos `return` y dejamos el resto igual, ¿qué ocurre en la tercera llamada? ¿Mantendría el contador el límite?
+
+<details>
+<summary>Ver respuesta</summary>
+
+La tercera llamada sumaría uno y avisaría con `Cantidad: 3`. El contador ya no respetaría el límite de `2`: en este
+código, la condición y el `return` son los que impiden llegar a la suma.
+
+</details>
+
+## 5. ¿Qué pasa con los registros repetidos?
+
+`ChangeNotifier` permite registrar el mismo callback más de una vez. Si se registra dos veces y luego se retira una
+vez **fuera de una notificación**, queda un registro activo:
+
+```dart
+import 'package:flutter/foundation.dart';
+
+class Campana extends ChangeNotifier {
+  void sonar() => notifyListeners();
+}
+
+void main() {
+  final campana = Campana();
+  var llamadas = 0;
+  void escuchar() {
+    llamadas = llamadas + 1;
+    print('Llamada $llamadas');
+  }
+
+  campana.addListener(escuchar);
+  campana.addListener(escuchar);
+  campana.sonar();
+
+  campana.removeListener(escuchar);
+  campana.sonar();
+
+  campana.removeListener(escuchar);
+  campana.sonar();
+  campana.dispose();
+}
+```
+
+La salida es `Llamada 1`, `Llamada 2` y `Llamada 3`, cada una en su línea. La primera emisión encuentra dos registros;
+la segunda, uno; la tercera, ninguno. Para compensar dos registros iguales hacen falta dos retiradas.
+
+Esto describe `ChangeNotifier`, no una regla para todas las implementaciones de `Listenable`. Si se retira un callback
+duplicado **durante** una notificación, Flutter documenta que puede volver a llamarlo en ese mismo recorrido aunque
+se haya retirado una vez. Consulta [removeListener](https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html)
+si necesitas manejar ese caso. Aquí hacemos las retiradas entre emisiones.
+
+Un listener añadido durante una notificación no participa en ese recorrido; puede participar en el siguiente. Si un
+listener lanza una excepción, `ChangeNotifier` la captura y la reporta mediante Flutter. La documentación de
+[notifyListeners](https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html) explica estos casos.
+
+### Practica 5
+
+En el programa de la campana, ¿qué ocurriría en la segunda llamada a `sonar()` si quitamos la primera retirada?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Los dos registros seguirían presentes, así que el listener se ejecutaría dos veces más e imprimiría `Llamada 3` y
+`Llamada 4`. Habría que retirar ambos registros para que dejara de escuchar.
+
+</details>
+
+## 6. Dejar de escuchar y liberar el objeto
+
+`removeListener` retira un registro de escucha. No destruye el contador ni retira los listeners de otros consumidores.
+Por ejemplo, el panel puede dejar de escuchar mientras el registro de diagnóstico sigue recibiendo avisos.
+
+`dispose()` termina la vida útil del `ChangeNotifier` y limpia sus listeners; **no envía un último aviso**. Debe
+llamarlo quien sea responsable de ese objeto cuando ya nadie vaya a usarlo. Un consumidor que recibe un contador
+prestado normalmente retira su listener, pero no decide por su cuenta liberar el objeto compartido.
+
+Después de `dispose`, el notificador ya no debe usarse para registrar listeners ni para notificar. Flutter permite
+llamar a `removeListener` después de la liberación para facilitar la limpieza, pero eso no reactiva el objeto. Tampoco
+se debe llamar a `dispose` durante una notificación en curso. La propiedad y el ciclo de vida se estudian con más
+detalle en la unidad 13.
+
+Si una subclase necesita sobrescribir `dispose` para liberar recursos adicionales que posee, debe llamar también a
+`super.dispose()`. Este fragmento iría dentro de la subclase:
+
+```dart
+@override
+void dispose() {
+  // Liberar aquí los recursos adicionales que posee la subclase.
+  super.dispose();
+}
+```
+
+### Practica 6
+
+Dos pantallas comparten un contador que pertenece a otro objeto. Una de ellas deja de necesitarlo. ¿Debe retirar su
+listener o liberar el contador completo? ¿Recibirá un aviso de despedida al ejecutar `dispose()`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+La pantalla debe retirar su propio listener. El propietario decide cuándo liberar el contador compartido, una vez que
+ya no se necesite. `dispose()` no envía un aviso de despedida.
+
+</details>
+
+## 7. Del aviso a la pantalla
+
+Los programas anteriores funcionan sin una interfaz. Para que una pantalla muestre el nuevo contador necesitamos un
+widget que escuche la fuente y conecte el aviso con la construcción de la interfaz.
+
+Por ejemplo, [`ListenableBuilder`](https://api.flutter.dev/flutter/widgets/ListenableBuilder-class.html) escucha un
+`Listenable`. Este fragmento presupone un `contador` que ya existe y sigue vivo:
+
+```dart
+ListenableBuilder(
+  listenable: contador,
+  builder: (context, child) {
+    return Text('Cantidad: ${contador.cantidad}');
+  },
+)
+```
+
+El recorrido es:
+
+1. El contador guarda la cantidad y `incrementar()` la modifica.
+2. El método llama a `notifyListeners()`.
+3. `ListenableBuilder` escucha el aviso y lo conecta con una actualización de su parte de la interfaz.
+4. Cuando Flutter ejecuta el `builder`, este vuelve a leer `contador.cantidad` y construye el texto.
+
+La primera construcción también lee el contador inicial, sin necesitar un aviso previo. Una impresión en consola
+prueba que se ejecutó ese listener; por sí sola no prueba que se haya reconstruido o repintado un widget. Flutter
+puede reconstruir por otros motivos y agrupar trabajo entre frames: no deduzcas una cantidad fija de reconstrucciones
+o repintados contando llamadas a `notifyListeners()`.
+
+### Practica 7
+
+Si `incrementar()` cambia la cantidad pero no llama a `notifyListeners()`, ¿qué dato obtendrías al consultar el contador?
+¿Tiene garantizado el texto actualizarse en ese momento?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Una lectura del contador obtiene la cantidad nueva. El texto no tiene garantizada una actualización en ese momento:
+sin el aviso, `ListenableBuilder` no recibe esa señal para actualizarse. Otra causa podría provocar una reconstrucción
+más tarde y entonces leer el dato nuevo.
+
+</details>
+
+## 8. Comparación con DaisyUI
+
+Usamos `ChangeNotifier` para estudiar un mecanismo de Flutter. El [controlador real de DaisyUI](../../../lib/themes/application/daisy_theme_controller.dart)
+**no extiende `ChangeNotifier`**. Este fragmento pertenece a su clase:
+
+```dart
+final FlutterSignal<DaisyThemeModel> _palette;
+
+void setTheme(DaisyThemeModel theme) {
+  _palette.value = theme;
+}
+```
+
+El controlador conserva una señal en `_palette` y cambia su valor mediante `setTheme`. Además, su getter `theme`
+ofrece una vista `ValueListenable<DaisyThemeModel>`; el adaptador `_ThemeListenable` reenvía los registros y retiradas
+de listeners a la fuente.
+
+La pregunta sigue siendo útil: ¿quién guarda el dato, quién inicia el cambio y quién escucha? En nuestro contador,
+`incrementar()` asigna el número y llama explícitamente a `notifyListeners()`. En DaisyUI, `setTheme` asigna el tema
+a una señal. Las reglas concretas de esa señal se estudian en la unidad 9; no debemos asumir que sean las mismas de
+`ChangeNotifier`.
+
+El [scope de temas](../../../lib/themes/application/daisy_theme_scope.dart) utiliza la vista del controlador con
+`InheritedNotifier` para conectar los avisos con sus dependientes. Estudiaremos ese recorrido y el ciclo de vida del
+controlador más adelante.
+
+### Practica 8
+
+Si buscas `notifyListeners()` dentro de `DaisyThemeController.setTheme`, ¿lo encontrarás? ¿Qué línea cambia el tema?
+
+<details>
+<summary>Ver respuesta</summary>
+
+No hay una llamada a `notifyListeners()` en ese método. El tema se asigna mediante `_palette.value = theme`; `_palette`
+es una señal, cuya implementación de avisos estudiaremos más adelante.
+
+</details>
+
+## Ejercicio final: un contador con límite y reinicio
+
+Escribe un programa Flutter de consola que:
+
+1. Declare `ContadorLimitado extends ChangeNotifier`, con cantidad inicial `0`, getter `cantidad` y máximo `2`.
+2. En `incrementar()`, sume uno y avise si la cantidad es menor que `2`. Si ya es `2`, no cambie ni avise.
+3. En `reiniciar()`, ponga la cantidad en `0` y avise solo si antes no era `0`.
+4. Registre dos listeners: `panel` y `registro`, que impriman la cantidad actual con sus nombres.
+5. Llame tres veces a `incrementar()`, retire `panel` y llame dos veces a `reiniciar()`.
+6. Retire `registro` y libere el contador. Antes de ejecutar, predice toda la salida y explica qué operaciones no
+   producen aviso.
+
+Como variación, imagina que `reiniciar()` avisa siempre: ¿cuál sería la línea adicional de salida?
+
+<details>
+<summary>Ver una posible solución</summary>
+
+```dart
+import 'package:flutter/foundation.dart';
+
+class ContadorLimitado extends ChangeNotifier {
+  int _cantidad = 0;
+
+  int get cantidad => _cantidad;
+
+  void incrementar() {
+    if (_cantidad == 2) return;
+    _cantidad = _cantidad + 1;
     notifyListeners();
   }
 
@@ -597,15 +508,15 @@ void main() {
   contador.incrementar();
   contador.incrementar();
   contador.incrementar();
+
   contador.removeListener(panel);
   contador.reiniciar();
   contador.reiniciar();
+
   contador.removeListener(registro);
   contador.dispose();
 }
 ```
-
-La salida es:
 
 ```text
 Panel: 1
@@ -615,33 +526,36 @@ Registro: 2
 Registro: 0
 ```
 
-Hay tres emisiones: dos incrementos efectivos y un reinicio efectivo. El panel recibe dos avisos y el registro tres.
-Si el segundo reinicio también avisa, el registro recibe un cuarto aviso con cero. Si el panel se registra dos veces,
-una sola retirada fuera de la emisión deja un registro activo y ese panel recibe el aviso del reinicio.
+El tercer intento de incremento termina sin cambiar ni avisar porque la cantidad ya es `2`. El primer reinicio cambia
+a `0` y avisa solo a `registro`, porque `panel` fue retirado. El segundo reinicio no avisa: el dato ya es `0`. Si
+`reiniciar()` notificara siempre, aparecería una línea adicional `Registro: 0`.
 
-### Claves de la comprobación final
+</details>
 
-1. Implementa registro, retirada y distribución; la subclase define datos, operaciones y cuándo avisa.
-2. Ambos leen uno: el incremento precede a la distribución.
-3. Tres cambios, cuatro emisiones y tres ejecuciones; la última no tiene ese listener.
-4. Sí en ambos casos: B separa explícitamente las dos operaciones.
-5. Se añadió cuando el primer recorrido ya había comenzado.
-6. Queda un registro; durante el recorrido la documentación advierte del comportamiento conservador con duplicados.
-7. Libera recursos y borra registros sin notificar; lo llama el propietario cuando termina el uso.
-8. `ListenableBuilder` escucha y conecta con la construcción; una impresión solo prueba que se ejecutó ese callback.
-9. `setTheme` escribe `_palette.value`; `theme` ofrece lectura y escucha mediante una vista que delega en la señal.
-10. Si está bajo el límite, primero cambia el campo y luego notifica; los callbacks leen el valor actual. En el
-    límite, el retorno temprano evita tanto el cambio como el aviso.
+## Comprueba si puedes avanzar
 
-## Qué se ha revisado y cómo se ha comprobado
+Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 
-- Se contrastaron los contratos, las reglas de distribución, los registros duplicados y la liberación con las
-  referencias oficiales enlazadas. Se leyeron directamente el controlador y el scope actuales de DaisyUI.
-- El servidor del grafo rechazó indexar esta raíz por su configuración de acceso. Las afirmaciones sobre estos dos
-  archivos se contrastaron mediante lectura directa, no mediante cobertura del grafo.
-- Se extrajeron A–C y la solución del proyecto; cuatro pruebas temporales verificaron sus salidas y pasaron las tres
-  pruebas existentes del controlador. El analizador no señaló errores: informó de avisos de estilo por `print` en
-  estos ejemplos de consola y por nombres de parámetros en el arnés temporal.
-- Se comprobaron enlaces locales, anclas y bloques de código, además de `git diff --check`.
-- Estas comprobaciones no ejecutan DartPad ni validan pulsaciones, construcciones o repintados de una interfaz real.
-  Los ejemplos de consola verifican sus recorridos concretos; el progreso se marca al estudiar y resolver la unidad.
+1. ¿Qué aporta `ChangeNotifier` y quién decide llamar a `notifyListeners()`? **Apartado 1.**
+2. ¿Qué dato leen los listeners durante `incrementar()` y por qué importa el orden de las instrucciones? **Apartado 2.**
+3. ¿Puede cambiar un dato sin avisar? ¿Puede haber un aviso sin cambio? **Apartado 3.**
+4. ¿Dónde está escrita la regla que evita avisar al alcanzar el límite? **Apartado 4.**
+5. ¿Qué pasa con dos registros iguales y una retirada entre emisiones? **Apartado 5.**
+6. ¿Qué diferencia hay entre retirar un listener y liberar el notificador? **Apartado 6.**
+7. ¿Qué pieza conecta el aviso con la construcción del texto? ¿Prueba un aviso que hubo repintado? **Apartado 7.**
+8. ¿Cómo cambia el tema el controlador de DaisyUI y por qué no debemos atribuirle `ChangeNotifier`? **Apartado 8.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
+La siguiente unidad estudia `ValueListenable<T>`, un contrato que combina escucha con lectura de un valor actual.
+
+## Para consultar si necesitas reforzar
+
+- [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html): la clase que administra
+  listeners y permite notificarlos.
+- [`notifyListeners`](https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html): cuándo llamar a
+  los listeners y qué ocurre durante una notificación.
+- [`addListener`](https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html) y
+  [`removeListener`](https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html): registros y retiradas.
+- [`dispose`](https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html): fin de la vida del notificador.
+- [`ListenableBuilder`](https://api.flutter.dev/flutter/widgets/ListenableBuilder-class.html): conectar una fuente con
+  una parte de la interfaz.
