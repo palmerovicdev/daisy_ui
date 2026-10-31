@@ -310,16 +310,16 @@ queda almacenada tras la primera asignación? Compara tu respuesta con las soluc
 
 ## 8.8. Los temas reales de DaisyUI
 
-[`DaisyThemeModel`](../../lib/themes/domain/theme.dart) declara `id`, `name`, `description`, `colors`, `radius`, `size`
+[`DaisyThemeModel`](../../../lib/themes/domain/theme.dart) declara `id`, `name`, `description`, `colors`, `radius`, `size`
 y `border`; el archivo usa `@freezed`. En la salida generada actual
-[`theme.freezed.dart`](../../lib/themes/domain/generated/theme.freezed.dart), la igualdad comprueba identidad como
+[`theme.freezed.dart`](../../../lib/themes/domain/generated/theme.freezed.dart), la igualdad comprueba identidad como
 atajo y después tipo y esos campos mediante sus respectivas igualdades. El `hashCode` generado combina tipo y campos.
 Esto no significa que cualquier objeto anidado tenga automáticamente igualdad profunda: cada campo aporta su propia
 regla. Freezed genera `copyWith`; lo estudiaremos en detalle en la unidad 27.
 
-[`DaisyThemes.light`](../../lib/themes/domain/daisy_themes.dart) es un tema constante. `copyWith` permite proponer otro
+[`DaisyThemes.light`](../../../lib/themes/domain/daisy_themes.dart) es un tema constante. `copyWith` permite proponer otro
 modelo sin modificar el original. Compartir referencias a partes que no cambian no implica por sí solo una mutación ni
-una copia profunda. El [`DaisyThemeController`](../../lib/themes/application/daisy_theme_controller.dart) conserva una
+una copia profunda. El [`DaisyThemeController`](../../../lib/themes/application/daisy_theme_controller.dart) conserva una
 señal interna, expone una vista de lectura y asigna mediante `setTheme`.
 
 ### Ejemplo E: prueba en el proyecto
@@ -362,7 +362,7 @@ void main() {
 
 Predice cada `expect` antes de ejecutarla. La prueba observa estas instancias y operaciones concretas de la versión
 instalada; no demuestra todas las reglas internas de Signals ni que un widget se haya reconstruido. La prueba existente
-[del controlador](../../test/themes/daisy_theme_controller_test.dart) también verifica que una copia equivalente de
+[del controlador](../../../test/themes/daisy_theme_controller_test.dart) también verifica que una copia equivalente de
 `light` no avisa y que cambiar a `dark` sí avisa. No atribuyas sin verificar todas las ramas de `ValueNotifier` al
 setter de la señal: ese será nuestro estudio de la unidad 9.
 
@@ -388,10 +388,10 @@ Todos son gratuitos; las referencias oficiales están en inglés y esta guía en
   [setter de `ValueNotifier`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html) — 8.3 y 8.7.
 - **P1 · Freezed:** [documentación del paquete](https://pub.dev/packages/freezed) — 8.8; contrasta la documentación
   con el código generado por la versión resuelta en este proyecto.
-- **P2 · Proyecto:** [modelo](../../lib/themes/domain/theme.dart),
-  [código generado](../../lib/themes/domain/generated/theme.freezed.dart),
-  [controlador](../../lib/themes/application/daisy_theme_controller.dart) y
-  [pruebas](../../test/themes/daisy_theme_controller_test.dart).
+- **P2 · Proyecto:** [modelo](../../../lib/themes/domain/theme.dart),
+  [código generado](../../../lib/themes/domain/generated/theme.freezed.dart),
+  [controlador](../../../lib/themes/application/daisy_theme_controller.dart) y
+  [pruebas](../../../test/themes/daisy_theme_controller_test.dart).
 - **P3 · Práctica:** [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad) para A–D y
   el proyecto de la unidad; Flutter local para E.
 

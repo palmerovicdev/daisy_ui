@@ -396,7 +396,7 @@ también ofrece `flutter create --sample=foundation.ChangeNotifier.1 mysample` p
 ## 5.8. Comparar con el controlador de DaisyUI
 
 La guía usa `ChangeNotifier` para aprender el mecanismo de Flutter; **el controlador actual de DaisyUI no hereda de
-`ChangeNotifier`**. Comprueba [daisy_theme_controller.dart](../../lib/themes/application/daisy_theme_controller.dart):
+`ChangeNotifier`**. Comprueba [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart):
 
 ```dart
 final FlutterSignal<DaisyThemeModel> _palette;
@@ -411,7 +411,7 @@ Este es un fragmento de la clase real. El controlador posee la señal `_palette`
 reenvía `addListener` y `removeListener` a la fuente. El consumidor puede escuchar esa vista; las reglas concretas
 de la señal deben estudiarse en su propia implementación, no suponerse idénticas a las de `ChangeNotifier`.
 
-En [daisy_theme_scope.dart](../../lib/themes/application/daisy_theme_scope.dart), `DaisyThemeScope` entrega esa vista a
+En [daisy_theme_scope.dart](../../../lib/themes/application/daisy_theme_scope.dart), `DaisyThemeScope` entrega esa vista a
 `InheritedNotifier`, que conecta sus avisos con los dependientes del scope. La lectura `of(context)` registra una
 dependencia y consulta el tema. El scope toma prestado un controlador explícito; el propietario de ese controlador
 lo libera. La unidad 4 incluye una prueba local con listeners y las posteriores profundizan en Signals y scopes.
@@ -453,9 +453,9 @@ Cada enlace apunta a un recurso concreto y contiene una tarea para convertir la 
   pruebas visuales.
 - **P1 · [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad)** — ejecuta A–C y el
   proyecto seleccionando Flutter. El paquete local `daisy_ui` no está disponible simplemente por importarlo en un pad.
-- **P2 · Código del proyecto:** [controlador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart) y
-  [pruebas del controlador](../../test/themes/daisy_theme_controller_test.dart). Son material local para 5.8.
+- **P2 · Código del proyecto:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
+  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart). Son material local para 5.8.
 
 ## Proyecto de la unidad: un contador con una política explícita
 

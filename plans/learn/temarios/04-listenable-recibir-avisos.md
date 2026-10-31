@@ -589,7 +589,7 @@ escucha; los detalles de Signals y del ciclo de vida de Flutter se desarrollará
 
 ### La vista pública también puede usarse como Listenable
 
-En [daisy_theme_controller.dart](../../lib/themes/application/daisy_theme_controller.dart), `theme` ofrece un
+En [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart), `theme` ofrece un
 `ValueListenable<DaisyThemeModel>`. Ese contrato extiende `Listenable`, así que podemos conservar esta referencia:
 
 ```dart
@@ -679,7 +679,7 @@ Las comprobaciones establecen el comportamiento de los listeners en estas operac
 
 ### Encontrarlo en las pruebas existentes
 
-En [daisy_theme_controller_test.dart](../../test/themes/daisy_theme_controller_test.dart), localiza
+En [daisy_theme_controller_test.dart](../../../test/themes/daisy_theme_controller_test.dart), localiza
 `Theme views notify on changes and support listener removal`. Recorre el registro, la escritura equivalente,
 el cambio a otro tema, la retirada y el siguiente cambio.
 La prueba aplica el recorrido tanto a la vista del servicio global como a la de un controlador local.
@@ -690,11 +690,11 @@ Puedes ejecutar ese archivo sin crear ningún material adicional:
 flutter test --no-pub test/themes/daisy_theme_controller_test.dart
 ```
 
-El [servicio](../../lib/themes/application/daisy_theme_service.dart) delega en su controlador predeterminado.
-El [scope](../../lib/themes/application/daisy_theme_scope.dart) entrega la vista del controlador recibido, o la del
+El [servicio](../../../lib/themes/application/daisy_theme_service.dart) delega en su controlador predeterminado.
+El [scope](../../../lib/themes/application/daisy_theme_scope.dart) entrega la vista del controlador recibido, o la del
 servicio cuando no recibe uno, a `InheritedNotifier`.
-La [extensión de contexto](../../lib/themes/core/extension/build_context.dart)
-delega en `DaisyThemeScope.of` y el [ejemplo](../../example/lib/main.dart) utiliza esa lectura en sus construcciones.
+La [extensión de contexto](../../../lib/themes/core/extension/build_context.dart)
+delega en `DaisyThemeScope.of` y el [ejemplo](../../../example/lib/main.dart) utiliza esa lectura en sus construcciones.
 Así puedes localizar registro de escucha, fuente de estado y consumidor de interfaz por separado.
 
 ### Comprobación

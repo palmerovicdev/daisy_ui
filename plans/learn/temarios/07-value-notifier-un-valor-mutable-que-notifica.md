@@ -482,19 +482,19 @@ referencia mutable y qué objetos se entregan. El proyecto de esta unidad practi
 
 ## 7.9. Comparar con DaisyUI y limpiar recursos
 
-En [daisy_theme_controller.dart](../../lib/themes/application/daisy_theme_controller.dart),
+En [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart),
 `DaisyThemeController` crea `_palette` con `signal<DaisyThemeModel>(initialTheme)`. `setTheme` escribe
 `_palette.value = theme`; `theme` expone un adaptador `ValueListenable<DaisyThemeModel>` cuyo getter y operaciones de
 escucha se reenvían a la señal. **La señal no es el `ValueNotifier` del ejemplo**, y el controlador no hereda de
 `ChangeNotifier`.
 
-En [daisy_theme_controller_test.dart](../../test/themes/daisy_theme_controller_test.dart), la prueba
+En [daisy_theme_controller_test.dart](../../../test/themes/daisy_theme_controller_test.dart), la prueba
 `Theme views notify on changes and support listener removal` comprueba que una copia equivalente de `light` no produce
 un aviso y que el cambio a `dark` sí produce uno, para la vista global y un controlador local. Esa prueba demuestra
 esos casos concretos; no demuestra por sí sola que Signals y `ValueNotifier` implementen el mismo setter o todos los
 mismos casos límite. Las unidades 8 y 9 investigarán las reglas de igualdad del modelo y la señal.
 
-El [scope](../../lib/themes/application/daisy_theme_scope.dart) entrega la vista a `InheritedNotifier`; el controlador
+El [scope](../../../lib/themes/application/daisy_theme_scope.dart) entrega la vista a `InheritedNotifier`; el controlador
 explícito es prestado por el scope y lo libera su propietario. En A–E y el proyecto, el código que crea cada
 `ValueNotifier` es el propietario: retira sus listeners y llama a `dispose()` cuando termina. En E primero se desmonta
 el
@@ -535,9 +535,9 @@ explicaciones de esta guía están en español.
   el listener del widget y distingue `pumpWidget` de `pump`.
 - **P1 · [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad)** — A–D y proyecto en
   modo Flutter. El ejemplo E utiliza el repositorio local.
-- **P2 · DaisyUI:** [controlador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart) y
-  [pruebas del controlador](../../test/themes/daisy_theme_controller_test.dart) — 7.9.
+- **P2 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
+  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart) — 7.9.
 
 ## Proyecto de la unidad: una lista de favoritos observable
 

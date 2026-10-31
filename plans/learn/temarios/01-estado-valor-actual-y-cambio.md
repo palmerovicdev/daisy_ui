@@ -255,7 +255,7 @@ nuevo, la interfaz debe volver a construirse y leerlo. Otra causa podría provoc
 
 ## 6. La misma idea en DaisyUI
 
-Ahora mira el [controlador de temas](../../lib/themes/application/daisy_theme_controller.dart). Este fragmento procede
+Ahora mira el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart). Este fragmento procede
 de ese archivo; no es un programa completo:
 
 ```dart
@@ -280,7 +280,7 @@ El controlador también expone `theme`, una vista que permite consultar el tema 
 Si guardas el resultado de esa consulta y luego sustituyes el tema, la variable que guardaste sigue apuntando al modelo
 obtenido antes; tienes que consultar de nuevo para obtener el valor actual.
 
-El [servicio de temas](../../lib/themes/application/daisy_theme_service.dart) conserva un controlador predeterminado.
+El [servicio de temas](../../../lib/themes/application/daisy_theme_service.dart) conserva un controlador predeterminado.
 También puedes crear otro controlador para una selección independiente, como una vista previa. En las siguientes
 unidades estudiaremos cómo funcionan las señales, las vistas y los avisos; no hace falta dominarlos ahora.
 

@@ -354,7 +354,7 @@ contraste. Se estudian por separado, después de dominar el flujo reactivo.
 
 ### 29. Generación de código y configuración
 
-- **Conceptos:** `build_runner`, Freezed, `json_serializable`, archivos `part`, archivos generados, `build.yaml` y
+- **Conceptos:** `build_runner`, Freezed, `json_serializable`, archivos `part`, archivos generados, `../../build.yaml` y
   `explicit_to_json`.
 - **Debes comprender:** cómo una definición de modelo y su configuración producen los serializadores. Por qué los
   archivos generados se regeneran en lugar de corregirse manualmente.
@@ -407,7 +407,7 @@ Variantes que debes resolver:
 ### 32. Imports, exports y límites del paquete
 
 - **Conceptos:** biblioteca Dart, paquete Flutter, plugin, `import`, `export`, `show`, API pública, dependencias de
-  ejecución y de desarrollo, y `pubspec.yaml`.
+  ejecución y de desarrollo, y `../../pubspec.yaml`.
 - **Debes comprender:** cómo una aplicación consume `package:daisy_ui/daisy_ui.dart` y por qué publicar una API no
   requiere exponer toda la implementación.
 - **Práctica:** localizar qué símbolos se exportan y qué tipos pueden utilizar los consumidores. Relacionar cada
@@ -417,24 +417,24 @@ Variantes que debes resolver:
 
 ## Archivos para acompañar el estudio
 
-- [Controlador y vista de lectura](../lib/themes/application/daisy_theme_controller.dart): unidades 9, 13–16.
-- [Servicio global](../lib/themes/application/daisy_theme_service.dart): unidad 17.
-- [Scope](../lib/themes/application/daisy_theme_scope.dart): unidades 20–23 y 25.
-- [Extensión de BuildContext](../lib/themes/core/extension/build_context.dart): unidad 24.
-- [Modelo de tema](../lib/themes/domain/theme.dart): unidades 8 y 27–29.
-- [Colores y pares de color](../lib/themes/domain/theme_color.dart), [radios](../lib/themes/domain/theme_radius.dart), [tamaños](../lib/themes/domain/theme_size.dart)
-  y [bordes](../lib/themes/domain/theme_border.dart): unidad 26.
-- [Catálogo de temas](../lib/themes/domain/daisy_themes.dart): datos para los ejercicios.
-- [Ejemplo de aplicación y vista previa](../example/lib/main.dart): unidades 18–25 y 31.
-- [Pruebas de controladores](../test/themes/daisy_theme_controller_test.dart), [scopes](../test/themes/daisy_theme_scope_test.dart), [JSON](../test/themes/daisy_theme_json_test.dart)
-  y [ejemplo](../example/test/widget_test.dart): unidad 30.
-- [API pública](../lib/daisy_ui.dart), [dependencias](../pubspec.yaml) y [configuración de generación](../build.yaml):
+- [Controlador y vista de lectura](../../lib/themes/application/daisy_theme_controller.dart): unidades 9, 13–16.
+- [Servicio global](../../lib/themes/application/daisy_theme_service.dart): unidad 17.
+- [Scope](../../lib/themes/application/daisy_theme_scope.dart): unidades 20–23 y 25.
+- [Extensión de BuildContext](../../lib/themes/core/extension/build_context.dart): unidad 24.
+- [Modelo de tema](../../lib/themes/domain/theme.dart): unidades 8 y 27–29.
+- [Colores y pares de color](../../lib/themes/domain/theme_color.dart), [radios](../../lib/themes/domain/theme_radius.dart), [tamaños](../../lib/themes/domain/theme_size.dart)
+  y [bordes](../../lib/themes/domain/theme_border.dart): unidad 26.
+- [Catálogo de temas](../../lib/themes/domain/daisy_themes.dart): datos para los ejercicios.
+- [Ejemplo de aplicación y vista previa](../../example/lib/main.dart): unidades 18–25 y 31.
+- [Pruebas de controladores](../../test/themes/daisy_theme_controller_test.dart), [scopes](../../test/themes/daisy_theme_scope_test.dart), [JSON](../../test/themes/daisy_theme_json_test.dart)
+  y [ejemplo](../../example/test/widget_test.dart): unidad 30.
+- [API pública](../../lib/daisy_ui.dart), [dependencias](../../pubspec.yaml) y [configuración de generación](../../build.yaml):
   unidades 29 y 32.
 
 ## Referencia para profundizar en Signals
 
 Usar la [documentación oficial de Signals](https://dartsignals.dev/) para ampliar las unidades 9–13, contrastando los
-ejemplos con la versión instalada del proyecto. El rango declarado en `pubspec.yaml` y la versión efectivamente resuelta
+ejemplos con la versión instalada del proyecto. El rango declarado en `../../pubspec.yaml` y la versión efectivamente resuelta
 pueden ser distintos.
 
 ## Cómo decidir si podemos avanzar

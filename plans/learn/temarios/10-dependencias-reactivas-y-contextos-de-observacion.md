@@ -23,7 +23,7 @@ las unidades 18–25. Preparar la guía no marca el estudio como completado.
 
 Se han contrastado las dependencias resueltas: `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals`
 7.0.0. La descripción interna de `SignalElement` es específica de esa combinación; los enlaces a documentación
-`latest` pueden cambiar. `pubspec.yaml` declara rangos y `pubspec.lock` conserva las versiones resueltas.
+`latest` pueden cambiar. `../../../pubspec.yaml` declara rangos y `pubspec.lock` conserva las versiones resueltas.
 
 Los ejemplos A–E y la solución del proyecto son archivos de **pruebas de widgets completos e independientes**. Copia
 uno cada vez a `test/estudio_dependencias_test.dart` y ejecuta:
@@ -374,13 +374,13 @@ señal. La solución está al final.
 ## 10.7. El scope real de DaisyUI
 
 El flujo actual del proyecto usa otra relación. [
-`context.daisyTheme`](../../lib/themes/core/extension/build_context.dart)
+`context.daisyTheme`](../../../lib/themes/core/extension/build_context.dart)
 llama a `DaisyThemeScope.of(context)`. Este busca el ancestro más cercano con
 [
 `dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html),
 que registra una **dependencia heredada de Flutter**, y lee `scope.notifier!.value`.
 
-Por otra parte, [`DaisyThemeScope`](../../lib/themes/application/daisy_theme_scope.dart) extiende
+Por otra parte, [`DaisyThemeScope`](../../../lib/themes/application/daisy_theme_scope.dart) extiende
 [
 `InheritedNotifier<ValueListenable<DaisyThemeModel>>`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html).
 Su notifier es la vista pública del controlador. Flutter escucha esa vista; `_ThemeListenable` reenvía la escucha a
@@ -428,7 +428,7 @@ Después de `pump`, el `Builder` consumidor se reconstruye, vuelve a consultar e
 El método `of` debe llamarse desde un contexto adecuado para registrar esa dependencia, como `build` o
 `didChangeDependencies`, no desde el constructor o `initState`. Las unidades 19–23 profundizan en ciclo de vida,
 ancestros y sustitución de notifier. El test desmonta el scope; el controlador se libera después por su propietario.
-La prueba existente [de scopes](../../test/themes/daisy_theme_scope_test.dart) cubre scopes anidados, reemplazo del
+La prueba existente [de scopes](../../../test/themes/daisy_theme_scope_test.dart) cubre scopes anidados, reemplazo del
 controlador y desmontaje de un scope con controlador prestado.
 
 ### Comprobación
@@ -468,11 +468,11 @@ no es una garantía de que *ningún otro* widget se reconstruya, ni una medició
   — escucha y dependencia heredada, incluidas las restricciones de ciclo de vida.
 - **F2 · Flutter:** [introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)
   y [`WidgetTester.pump`](https://api.flutter.dev/flutter/flutter_test/WidgetTester/pump.html) — frames de prueba.
-- **P1 · DaisyUI:** [controlador y adaptador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart),
-  [extensión](../../lib/themes/core/extension/build_context.dart) y
-  [pruebas de scopes](../../test/themes/daisy_theme_scope_test.dart).
-- **P2 · Versiones:** [dependencias declaradas](../../pubspec.yaml) y [versiones resueltas](../../pubspec.lock).
+- **P1 · DaisyUI:** [controlador y adaptador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
+  [extensión](../../../lib/themes/core/extension/build_context.dart) y
+  [pruebas de scopes](../../../test/themes/daisy_theme_scope_test.dart).
+- **P2 · Versiones:** [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
 
 ## Proyecto de la unidad: un panel con dos fuentes
 

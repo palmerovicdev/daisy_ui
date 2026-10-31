@@ -411,7 +411,7 @@ de liberar la fuente. El ejemplo oficial completo se puede crear con
 
 ### El recorrido real
 
-Lee [daisy_theme_controller.dart](../../lib/themes/application/daisy_theme_controller.dart):
+Lee [daisy_theme_controller.dart](../../../lib/themes/application/daisy_theme_controller.dart):
 
 1. El controlador crea y posee `_palette`, una `FlutterSignal<DaisyThemeModel>`, con el tema inicial.
 2. `theme` expone un `ValueListenable<DaisyThemeModel>` mediante `_ThemeListenable`. Este adaptador es un objeto
@@ -426,7 +426,7 @@ La vista limita las operaciones expuestas por su tipo y, en esta implementación
 en A el objeto real sigue siendo el mismo `ValueNotifier`. No confundas esa restricción de API con hacer inmutable por
 sí solo cualquier objeto que pueda devolver el getter.
 
-En [daisy_theme_scope.dart](../../lib/themes/application/daisy_theme_scope.dart), el `notifier` del
+En [daisy_theme_scope.dart](../../../lib/themes/application/daisy_theme_scope.dart), el `notifier` del
 `InheritedNotifier` es la vista del controlador recibido o la del servicio por defecto. `DaisyThemeScope.of(context)`
 registra una dependencia del scope y lee `scope.notifier!.value`. El scope toma prestado un controlador explícito;
 no es su propietario. La unidad de scopes desarrollará ese puente y su ciclo de vida.
@@ -472,7 +472,7 @@ void main() {
 
 La prueba comprueba estos cambios y lecturas concretas; no prueba una pantalla ni establece una política universal de
 igualdad o de temporización para todas las señales. La prueba existente
-[del controlador](../../test/themes/daisy_theme_controller_test.dart) también comprueba el aislamiento de controladores,
+[del controlador](../../../test/themes/daisy_theme_controller_test.dart) también comprueba el aislamiento de controladores,
 la retirada de listeners y que las vistas públicas no exponen operaciones de mutación o liberación.
 
 ### Comprobación
@@ -528,9 +528,9 @@ la guía y las prácticas están en español. Lee la sección indicada y despué
   ejemplo D. Identifica `pumpWidget`, `pump`, un finder y una expectativa.
 - **P1 · [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad)** — A–C y proyecto en
   modo Flutter; para D y E utiliza el proyecto local. DartPad no incluye automáticamente el paquete local `daisy_ui`.
-- **P2 · Código del proyecto:** [controlador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart) y
-  [pruebas](../../test/themes/daisy_theme_controller_test.dart) — 6.7.
+- **P2 · Código del proyecto:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
+  [pruebas](../../../test/themes/daisy_theme_controller_test.dart) — 6.7.
 
 ## Proyecto de la unidad: un marcador observable
 

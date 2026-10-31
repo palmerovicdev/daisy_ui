@@ -420,7 +420,7 @@ listener antes de la segunda notificación, por lo que tampoco imprime entonces.
 
 ## 7. Estas funciones en DaisyUI
 
-Abre el [ejemplo de la aplicación](../../example/lib/main.dart). Dentro del `build` de `_ThemeExample` encontrarás este
+Abre el [ejemplo de la aplicación](../../../example/lib/main.dart). Dentro del `build` de `_ThemeExample` encontrarás este
 fragmento; depende del resto del archivo y no es un programa independiente:
 
 ```dart
@@ -442,7 +442,7 @@ Esa función utiliza la variable local `theme` de esa ejecución de `build`. Si 
 vuelve a obtener `theme` y se prepara otro callback para el botón. Estudiaremos la reconstrucción en detalle más
 adelante; aquí interesa reconocer qué variable usa la función y quién la llama.
 
-En el [controlador de temas](../../lib/themes/application/daisy_theme_controller.dart), la vista pública `theme`
+En el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart), la vista pública `theme`
 permite registrar y retirar listeners. En el adaptador interno aparecen estas líneas:
 
 ```dart

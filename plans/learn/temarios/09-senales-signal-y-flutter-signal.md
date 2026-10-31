@@ -20,7 +20,7 @@ y propiedad de recursos tienen unidades posteriores.
 
 ## Versiones y forma de practicar
 
-Esta guía se contrastó con el `pubspec.lock` y la implementación instalada: **`signals_flutter` 7.1.0**, **
+Esta guía se contrastó con el `../../../pubspec.lock` y la implementación instalada: **`signals_flutter` 7.1.0**, **
 `signals_core` 7.0.0** y **`preact_signals` 7.0.0**. `pubspec.yaml` declara un rango para `signals_flutter`; la
 versión resuelta y sus dependencias son las que determinan el comportamiento de estos ejemplos. La documentación con
 `latest` puede cambiar. Los comportamientos internos descritos aquí corresponden a esa combinación de versiones, no a
@@ -327,7 +327,7 @@ estas últimas pueden definir operaciones y políticas adicionales.
 
 ## 9.7. El recorrido en DaisyUI
 
-El [controlador](../../lib/themes/application/daisy_theme_controller.dart) contiene estas piezas:
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) contiene estas piezas:
 
 ```dart
 DaisyThemeController
@@ -361,10 +361,10 @@ _palette.value = theme;
 7. El dueño del controlador llama a `dispose()` cuando termina su uso. Un consumidor que solo pidió escuchar debe
    retirar su listener cuando deje de necesitarlo; poseer y escuchar son responsabilidades distintas.
 
-El [modelo de tema](../../lib/themes/domain/theme.dart) usa Freezed;
-su [igualdad generada](../../lib/themes/domain/generated/theme.freezed.dart)
+El [modelo de tema](../../../lib/themes/domain/theme.dart) usa Freezed;
+su [igualdad generada](../../../lib/themes/domain/generated/theme.freezed.dart)
 compara los campos actuales según las igualdades de sus valores. La prueba existente del
-[controlador](../../test/themes/daisy_theme_controller_test.dart) observa que `light.copyWith()` no avisa y que cambiar
+[controlador](../../../test/themes/daisy_theme_controller_test.dart) observa que `light.copyWith()` no avisa y que cambiar
 a `dark` sí. Un cambio de tema y una reconstrucción de interfaz son eventos distintos.
 
 ### Comprobación
@@ -376,7 +376,7 @@ a `dark` sí. Un cambio de tema y una reconstrucción de interfaz son eventos di
 
 ## 9.8. Avisos, widgets y ciclo de vida
 
-El [scope](../../lib/themes/application/daisy_theme_scope.dart) es un
+El [scope](../../../lib/themes/application/daisy_theme_scope.dart) es un
 `InheritedNotifier<ValueListenable<DaisyThemeModel>>`. Recibe la vista del controlador, escucha su notifier y permite a
 los consumidores registrar una dependencia heredada al consultar `DaisyThemeScope.of(context)`. Cuando llega un aviso,
 Flutter puede marcar dependientes para su actualización y reconstruirlos en un frame posterior. El adaptador no dibuja
@@ -413,10 +413,10 @@ recursos se estudiarán en la unidad 13. No escribas ni sigas usando una señal 
   [`InheritedNotifier`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html) — contratos, comparación
   del setter de Flutter y puente con los dependientes.
 - **D1 · Dart:** [igualdad y diseño](https://dart.dev/effective-dart/design#equality) — simetría y contrato de `==`.
-- **P1 · DaisyUI:** [controlador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart), [modelo](../../lib/themes/domain/theme.dart) y
-  [pruebas](../../test/themes/daisy_theme_controller_test.dart).
-- **P2 · Versiones:** [dependencias declaradas](../../pubspec.yaml) y [versiones resueltas](../../pubspec.lock).
+- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart), [modelo](../../../lib/themes/domain/theme.dart) y
+  [pruebas](../../../test/themes/daisy_theme_controller_test.dart).
+- **P2 · Versiones:** [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
   La documentación `latest` puede describir una versión posterior: comprueba siempre los paquetes resueltos.
 
 ## Proyecto de la unidad: un selector de tema

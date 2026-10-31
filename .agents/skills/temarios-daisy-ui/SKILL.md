@@ -9,7 +9,7 @@ Usa esta guía al crear o rehacer unidades del plan de estudio de este repositor
 
 ## Preparación
 
-- Lee la unidad solicitada, su entrada en `plans/plan-de-estudio-reactividad-daisy-ui.md` y, cuando ayude a situarla, las unidades vecinas. Mantén los objetivos, enlaces y límites del tema que sigan siendo pertinentes; si los anteriores dificultan enseñar, reorganízalos.
+- Lee la unidad solicitada, su entrada en `../../../plans/learn/plan-de-estudio-reactividad-daisy-ui.md` y, cuando ayude a situarla, las unidades vecinas. Mantén los objetivos, enlaces y límites del tema que sigan siendo pertinentes; si los anteriores dificultan enseñar, reorganízalos.
 - Comprueba en los archivos actuales de DaisyUI los fragmentos y comportamientos que atribuyas al proyecto. Distingue el ejemplo simplificado del código real y señala si un fragmento no es ejecutable por sí solo.
 - Adapta la profundidad a lo que el lector necesita en esa unidad. Introduce términos y sintaxis antes de depender de ellos; reserva los mecanismos de unidades posteriores como un puente breve, sin dar por aprendido lo que todavía no se explicó.
 

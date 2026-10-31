@@ -24,7 +24,7 @@ solo las piezas necesarias para entender las prácticas. Preparar esta guía no 
 Se contrastaron las dependencias resueltas del proyecto: **`signals_flutter` 7.1.0**, **`signals_core` 7.0.0** y **
 `preact_signals` 7.0.0**. La explicación de caché, seguimiento y comparación se refiere a esas versiones. Los
 resultados de ejemplos con otras opciones, lotes, callbacks reentrantes u otras versiones pueden variar. Los enlaces
-a documentación `latest` pueden cambiar; consulta también `pubspec.lock` y el código instalado.
+a documentación `latest` pueden cambiar; consulta también `../../../pubspec.lock` y el código instalado.
 
 Los ejemplos A–E y la solución del proyecto son archivos de **pruebas Flutter completos e independientes**. Copia uno
 cada vez a `test/estudio_computed_test.dart` dentro del repositorio y ejecuta:
@@ -396,9 +396,9 @@ repintado observado en un dispositivo físico.
 
 ## 11.7. El controlador real de DaisyUI
 
-El [controlador actual](../../lib/themes/application/daisy_theme_controller.dart) guarda una señal mutable privada
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) guarda una señal mutable privada
 `_palette`. Al exponer `theme`, construye una vez un `_ThemeListenable` que reenvía `value`, `addListener` y
-`removeListener` a esa señal. Su [scope](../../lib/themes/application/daisy_theme_scope.dart) escucha esa vista como
+`removeListener` a esa señal. Su [scope](../../../lib/themes/application/daisy_theme_scope.dart) escucha esa vista como
 `ValueListenable<DaisyThemeModel>`. La extensión `context.daisyTheme` consulta el scope, como vimos en la unidad 10.
 
 Un `computed(() => _palette.value)` hipotético leería la fuente y devolvería exactamente el mismo modelo. Podría
@@ -411,7 +411,7 @@ transformación o una proyección relevante.
 
 El hecho de que un `computed` no tenga setter público de `value` tampoco significa que sea una barrera completa para
 todas las capacidades propias de su tipo: el objeto concreto tiene otras operaciones, como `recompute` y `dispose`.
-Las [pruebas del controlador](../../test/themes/daisy_theme_controller_test.dart) comprueban que la vista pública
+Las [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueban que la vista pública
 actual no expone esas operaciones al intentar acceder dinámicamente. Una interfaz de lectura, un adaptador separado y
 un valor derivado resuelven necesidades relacionadas pero diferentes.
 
@@ -498,10 +498,10 @@ libera: un build puede ejecutarse muchas veces.
 - **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
   [`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) — contrato de
   escucha y consumidor del resultado.
-- **P1 · DaisyUI:** [controlador y adaptador](../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../lib/themes/application/daisy_theme_scope.dart),
-  [pruebas del controlador](../../test/themes/daisy_theme_controller_test.dart),
-  [dependencias declaradas](../../pubspec.yaml) y [versiones resueltas](../../pubspec.lock).
+- **P1 · DaisyUI:** [controlador y adaptador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
+  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart),
+  [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
 
 ## Proyecto de la unidad: una etiqueta derivada
 
