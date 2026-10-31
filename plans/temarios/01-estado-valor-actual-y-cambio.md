@@ -1,575 +1,180 @@
 # 01. Estado, valor actual y cambio
 
-[Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md)
+[Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) · **Estado:** pendiente
 
-- **Bloque:** las bases para comprender la observación.
-- **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 19 de octubre de 2026.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+Al terminar podrás seguir un dato que cambia, distinguir su valor actual de una lectura anterior y explicar por qué
+cambiar un dato no garantiza por sí solo que la pantalla se actualice. Usaremos el tema claro y oscuro como ejemplo.
 
-Podrás seguir un dato desde que se guarda hasta que se vuelve a leer, explicar por qué una lectura anterior puede
-conservar un valor distinto y reconocer qué falta para que una pantalla refleje un cambio.
+No necesitas conocer Signals, listeners ni el funcionamiento interno de Flutter para empezar. Si alguna parte se te
+hace pesada, para después de un ejercicio y continúa en otra sesión.
 
-Los cinco conceptos centrales son **estado**, **valor actual**, **lectura puntual**, **cambio** y **fuente de verdad**.
-Los estudiaremos con nombres de temas antes de entrar en los mecanismos de Signals y Flutter.
+## 1. ¿Qué es el estado?
 
-## Cómo seguiremos el enfoque de roadmap.sh
+Imagina una aplicación con un botón para cambiar entre el tema claro y el oscuro. Cuando la abres, la aplicación necesita
+saber cuál de los dos está seleccionado. Esa selección es un ejemplo de **estado**: información que describe una
+situación de la aplicación en un momento dado.
 
-Tomamos como referencia el [roadmap de Flutter](https://roadmap.sh/flutter), sus
-[temas con recursos asociados](https://roadmap.sh/flutter/state-management) y la práctica mediante
-[proyectos](https://roadmap.sh/projects). Esta unidad adapta esa estructura a nuestro proyecto: nodos pequeños, un orden
-explícito, recursos seleccionados y un ejercicio que conecta todo.
+El estado puede cambiar. Si eliges el tema oscuro, la selección pasa de «claro» a «oscuro». Otros ejemplos de estado
+son el texto escrito en un formulario, el número de productos en un carrito o si una petición está cargando.
 
-La explicación paso a paso, las preguntas y los criterios de dominio que aparecen aquí son nuestra adaptación docente.
+En nuestro ejemplo hay tres cosas diferentes:
 
-En cada nodo trabajaremos así:
+- El **dato**: el tema seleccionado. Puede valer `'claro'` o `'oscuro'`.
+- El **botón**: permite pedir un cambio.
+- La **etiqueta**: muestra en pantalla un texto como «Tema: claro».
 
-1. Partiremos de un problema concreto.
-2. Explicaremos una idea y el vocabulario que necesita.
-3. Predecirás el resultado de un ejemplo antes de ejecutarlo.
-4. Estudiarás el recurso indicado para contrastar la explicación.
-5. Resolverás una variación sin copiar y explicarás el resultado con tus palabras.
+El botón no es la selección. La etiqueta la representa, pero tampoco es necesariamente el lugar donde se guarda.
+Vamos a guardar la selección nosotros mismos para ver la diferencia.
 
-Una casilla marcada significa que puedes resolver y explicar la comprobación. Haber leído una página o terminado un
-vídeo sirve para estudiar; la comprobación demuestra qué has comprendido.
+> **Prueba rápida:** en un carrito que contiene tres productos, ¿qué información es el estado: el número `3`, el
+> botón «Añadir» o el texto que se muestra? **Respuesta:** la cantidad guardada es el estado; el botón pide una
+> acción y el texto presenta esa cantidad. Una pantalla puede tener más estado además de esa cantidad.
 
-## Ruta y progreso
+## 2. Guardar y cambiar un valor
 
-Antes de empezar basta con reconocer un texto entre comillas, una variable, una asignación con `=` y `print`.
-El nodo 1.2 incluye el repaso necesario. Si algo de esa sintaxis resulta nuevo, lo explicaremos al llegar a ella.
-
-- [ ] [1.1. Reconocer el estado](#11-reconocer-el-estado).
-- [ ] [1.2. Leer el valor que existe ahora](#12-leer-el-valor-que-existe-ahora).
-- [ ] [1.3. Seguir un cambio en el tiempo](#13-seguir-un-cambio-en-el-tiempo).
-- [ ] [1.4. Elegir la fuente de verdad](#14-elegir-la-fuente-de-verdad).
-- [ ] [1.5. Separar lectura, observación y actualización visual](#15-separar-lectura-observación-y-actualización-visual).
-- [ ] [1.6. Reconocer estas piezas en DaisyUI](#16-reconocer-estas-piezas-en-daisyui).
-- [ ] [Completar el proyecto de la unidad](#proyecto-de-la-unidad-un-tema-y-tres-lecturas).
-- [ ] [Superar la comprobación final](#comprobación-final).
-
-Puedes repartir la ruta en varias sesiones. Para empezar, trabaja solamente los nodos 1.1 y 1.2.
-
-## 1.1. Reconocer el estado
-
-### El problema
-
-Una aplicación muestra el tema claro. Pulsas un botón y quieres que muestre el oscuro. Antes de hablar de pantallas o
-notificaciones necesitamos responder: ¿qué dato representa la selección que está vigente?
-
-### La idea
-
-Para esta unidad, el estado es la información que necesitamos para describir cómo debe estar la aplicación en un
-momento determinado. Algunos ejemplos son el tema elegido, el contenido de un formulario o si una operación está
-cargando. Flutter propone una definición útil para la interfaz: los datos necesarios para poder reconstruirla.
-Consulta la introducción
-de [Ephemeral state and app state](https://docs.flutter.dev/data-and-backend/state-mgmt/ephemeral-vs-app).
-
-En nuestro ejemplo, el dato que interesa es el tema elegido. El botón permite solicitar un cambio; el texto que aparece
-en pantalla representa ese dato.
-
-Imagina una ficha donde se escribe «claro» u «oscuro». La ficha conserva la selección y un cartel muestra lo que alguien
-leyó de ella. Si se escribe otra selección en la ficha, hay que ocuparse también de actualizar el cartel. La analogía
-sirve para separar almacenamiento y presentación; los detalles de memoria y reconstrucción se estudiarán con código.
-
-### Vocabulario que debes separar
-
-- **Estado:** el dato o conjunto de datos que describe la situación que nos interesa.
-- **Valor:** el contenido concreto de ese dato en un momento: por ejemplo, `'claro'`.
-- **Variable:** un nombre con el que el programa puede acceder a una referencia. Puede utilizarse para representar
-  estado, un resultado temporal o una lectura anterior.
-- **Interfaz:** lo que la aplicación presenta a partir de los datos que leyó.
-
-El concepto general de estado también existe en un programa Dart sin pantalla. La clase `State` de Flutter es una pieza
-concreta del framework y la estudiaremos en las unidades de widgets. Aquí nos basta con distinguir ambos significados.
-
-### Comprobación
-
-En una pantalla hay un botón «Cambiar tema», una selección guardada como `'claro'` y una etiqueta «Tema: claro».
-Explica qué conserva la selección, qué solicita cambiarla y qué la representa visualmente.
-
-**Puedes avanzar cuando:** identificas el dato que interesa sin confundirlo con el botón o con su representación.
-
-## 1.2. Leer el valor que existe ahora
-
-### El problema
-
-Lees el tema actual, guardas el resultado y después cambias el tema. ¿La variable donde guardaste la lectura cambia
-también?
-
-### Repaso mínimo de Dart
-
-- `var temaActual = 'claro';` declara una variable y la inicializa con un texto.
-- `temaActual = 'oscuro';` vuelve a asignar esa variable.
-- `final lecturaAntes = temaActual;` evalúa la expresión de la derecha y guarda su resultado. Esa variable `final`
-  solo puede asignarse una vez.
-- `print(lecturaAntes);` muestra su valor en la consola.
-
-En Dart, las variables conservan referencias a objetos. Asignar una variable a otra no establece una relación que
-vuelva a ejecutar la expresión cuando cambie la primera. Puedes contrastarlo con
-[Variables](https://dart.dev/language/variables).
-
-### Ejemplo A: una lectura guardada
-
-Este programa está completo. Puedes ejecutarlo en un pad de **Dart** de [DartPad](https://dartpad.dev/).
-Antes de pulsar Run, escribe las cuatro líneas que esperas ver.
+Empecemos con Dart, sin pantalla. Una variable nos permite guardar un valor y acceder a él usando un nombre:
 
 ```dart
 void main() {
   var temaActual = 'claro';
-  final lecturaAntes = temaActual;
-
   print(temaActual);
 
   temaActual = 'oscuro';
-  final lecturaDespues = temaActual;
-
-  print(lecturaAntes);
   print(temaActual);
-  print(lecturaDespues);
 }
 ```
 
-Recorre el programa deteniéndote después de cada asignación:
+Puedes copiar el programa en [DartPad](https://dartpad.dev/), elegir **Dart** y pulsar **Run**. Antes, intenta decir
+qué imprimirá cada `print`.
 
-1. `temaActual` permite acceder al texto `'claro'`.
-2. `lecturaAntes` recibe el resultado de leer `temaActual` en ese momento.
-3. La nueva asignación hace que `temaActual` permita acceder a `'oscuro'`.
-4. `lecturaAntes` sigue conservando la referencia que recibió.
-5. `lecturaDespues` obtiene el resultado de una lectura nueva.
+La salida es:
 
-A esa consulta realizada en un momento concreto la llamaremos **lectura puntual**. El valor actual depende de cuándo
-vuelves a consultar la fuente.
+```text
+claro
+oscuro
+```
 
-En este ejemplo usamos textos, que son [objetos inmutables](https://api.dart.dev/dart-core/String-class.html). Guardar
-una
-referencia a un objeto mutable, como una lista, permite compartir ese mismo objeto: una lectura guardada no equivale a
-una copia profunda. Profundizaremos en referencias e inmutabilidad en las unidades 3 y 8.
+Léelo en este orden:
 
-### Comprobación
+1. `var temaActual = 'claro';` crea la variable `temaActual` con el texto `'claro'`. Las comillas indican que es texto.
+2. `print(temaActual);` consulta el valor que tiene en ese momento y lo muestra en la consola.
+3. `temaActual = 'oscuro';` asigna otro valor a la **misma variable**.
+4. El segundo `print` vuelve a consultarla y encuentra `'oscuro'`.
 
-Cambia `final lecturaAntes` por `var lecturaAntes`. Predice si eso hará que se actualice por sí sola. Después añade una
-asignación explícita `lecturaAntes = temaActual;` tras el cambio y explica qué diferencia introduce.
+Llamamos **valor actual** al que obtenemos al consultar el dato en un momento concreto. Al principio es `'claro'`;
+después de la asignación es `'oscuro'`. El programa se lee de arriba abajo: cuándo hacemos la lectura importa.
 
-**Puedes avanzar cuando:** justificas por qué una lectura anterior y otra nueva pueden dar resultados diferentes.
+### Practica 1
 
-## 1.3. Seguir un cambio en el tiempo
+Sin ejecutarlo, escribe qué se imprime:
 
-### El problema
+```dart
+void main() {
+  var tema = 'claro';
+  tema = 'oscuro';
+  tema = 'claro';
+  print(tema);
+}
+```
 
-Decir «el tema cambió» es ambiguo si no sabemos qué valor tenía antes, qué operación ocurrió y qué valor tiene después.
+<details>
+<summary>Ver respuesta</summary>
 
-### La idea
+Se imprime `claro`. Cuando llega a `print`, la última asignación ya ha puesto ese valor en `tema`. Las asignaciones
+anteriores ocurrieron, pero esta variable conserva el valor de la última.
 
-Un cambio de valor se describe comparando dos momentos de la misma fuente:
+</details>
 
-1. Antes de la operación, `temaActual` contiene `'claro'`.
-2. Se ejecuta `temaActual = 'oscuro';`.
-3. Una lectura posterior obtiene `'oscuro'`.
+## 3. Una lectura guardada no sigue los cambios
 
-Separa estas tres preguntas: **¿qué ocurrió?, ¿qué dato se modificó?, ¿quién se enteró?**
-
-Una pulsación es un evento. La asignación es una operación sobre el dato. Que otro participante reciba un aviso necesita
-un mecanismo de comunicación. El ejemplo A solo demuestra asignaciones y lecturas; no contiene una suscripción.
-
-También puedes ejecutar `temaActual = 'oscuro';` cuando ya tiene ese texto. Hay una asignación, aunque el valor textual
-antes y después sea el mismo. Qué avisos produce una implementación observable depende de su política; estudiaremos
-esas políticas en las unidades de notifiers y señales.
-
-### Comprobación
-
-Partiendo de `'claro'`, realiza estas operaciones y anota el valor después de cada una:
-
-1. Asignar `'oscuro'`.
-2. Leer y guardar el resultado en `primeraLectura`.
-3. Asignar otra vez `'oscuro'`.
-4. Asignar `'claro'`.
-5. Leer de nuevo la fuente.
-
-Explica qué conserva `primeraLectura` al terminar y qué pasos modificaron el valor textual respecto al anterior.
-
-**Puedes avanzar cuando:** describes la secuencia con valores concretos y distingues una asignación de una observación.
-
-## 1.4. Elegir la fuente de verdad
-
-### El problema
-
-La aplicación conserva un tema seleccionado y también una etiqueta guardada por separado. Cambias uno y olvidas
-actualizar el otro. Ahora una parte dice «oscuro» y otra sigue diciendo «Tema: claro».
-
-### La idea
-
-La **fuente de verdad** es la autoridad que consultamos para saber cuál es el dato vigente y a través de la cual
-administramos sus cambios. La documentación de Flutter presenta este principio como
-[Single source of truth](https://docs.flutter.dev/app-architecture/concepts#single-source-of-truth).
-
-Para el tema de este ejercicio elegiremos `temaActual`. El texto que lo describe puede calcularse a partir de una
-lectura de esa variable. Si además guardamos ese texto como otro dato que pretendemos mantener actualizado, tendremos
-dos valores que coordinar.
-
-### Ejemplo B: una descripción que quedó antigua
-
-Programa completo para un pad de Dart. Predice sus tres líneas de salida.
+Ahora queremos recordar qué tema había **antes** de cambiarlo. Para ello guardamos una lectura en otra variable:
 
 ```dart
 void main() {
   var temaActual = 'claro';
-  final etiquetaGuardada = 'Tema: $temaActual';
+  final temaAnterior = temaActual;
+
+  temaActual = 'oscuro';
+
+  print(temaAnterior);
+  print(temaActual);
+}
+```
+
+`final` significa que esa variable se asigna una sola vez. En la segunda línea, Dart lee el valor que tiene
+`temaActual` **en ese instante** y lo asigna a `temaAnterior`. Más tarde cambiamos `temaActual`, pero no asignamos
+nada nuevo a `temaAnterior`.
+
+| Momento | `temaActual` | `temaAnterior` |
+| --- | --- | --- |
+| Después de crear `temaActual` | `claro` | Todavía no existe |
+| Después de guardar la lectura | `claro` | `claro` |
+| Después de cambiar el tema | `oscuro` | `claro` |
+
+Por eso el programa imprime primero `claro` y después `oscuro`. La segunda línea no crea un enlace que mantenga ambas
+variables sincronizadas. A esta consulta hecha en un momento concreto la llamaremos **lectura puntual**.
+
+¿Y si usáramos `var` en vez de `final` para `temaAnterior`? El resultado sería el mismo: `var` permite reasignarla,
+pero no hace que se actualice sola. Para que reciba el valor nuevo tendríamos que escribir
+`temaAnterior = temaActual;` después del cambio.
+
+En estos ejemplos usamos textos (`String`), que son inmutables. Con un objeto mutable, como una lista, dos variables
+pueden referirse al mismo objeto y ver una modificación de su contenido. Guardar una lectura tampoco significa hacer
+una copia independiente de cualquier objeto. Estudiaremos referencias e inmutabilidad en las unidades 3 y 8.
+
+### Practica 2
+
+Predice las tres líneas de salida y explica cuándo se obtuvo cada valor:
+
+```dart
+void main() {
+  var tema = 'claro';
+  final primeraLectura = tema;
+  tema = 'oscuro';
+  final segundaLectura = tema;
+  tema = 'claro';
+
+  print(primeraLectura);
+  print(segundaLectura);
+  print(tema);
+}
+```
+
+<details>
+<summary>Ver respuesta</summary>
+
+```text
+claro
+oscuro
+claro
+```
+
+La primera lectura se guardó antes del primer cambio; la segunda, después. El último `print` consulta `tema` tras la
+última asignación. Ninguna asignación posterior volvió a ejecutar las dos lecturas guardadas.
+
+</details>
+
+## 4. ¿Cuál es la fuente de verdad?
+
+Supongamos que guardamos por separado el tema y una etiqueta ya construida:
+
+```dart
+void main() {
+  var temaActual = 'claro';
+  final etiqueta = 'Tema: $temaActual';
 
   temaActual = 'oscuro';
 
   print(temaActual);
-  print(etiquetaGuardada);
+  print(etiqueta);
   print('Tema: $temaActual');
 }
 ```
 
-La expresión `'Tema: $temaActual'` construye un texto utilizando el valor leído al evaluarla. El texto guardado conserva
-ese resultado. La última línea vuelve a evaluar la expresión y puede producir un texto distinto.
-La [API de String](https://api.dart.dev/dart-core/String-class.html) documenta esta interpolación.
-
-Conservar una lectura antigua es útil si queremos un historial o una comparación. El error aparece cuando la utilizamos
-como si representara necesariamente el valor vigente.
-
-Una fuente de verdad se elige para un dato y un ámbito. La selección de tema de toda la aplicación y la selección de una
-vista previa pueden ser dos estados independientes. Cada uno puede tener su propio responsable. Compartir el mismo
-tipo de dato no obliga a compartir una instancia global.
-
-### Comprobación
-
-Diseña en papel una selección de tema con un nombre y un texto «Tema seleccionado: …». Señala qué guardarás, qué
-calcularás al leer y por dónde aceptarás cambios. Después añade una vista previa con su propia selección.
-
-**Puedes avanzar cuando:** identificas una autoridad para cada selección y explicas qué datos se obtienen de ella.
-
-## 1.5. Separar lectura, observación y actualización visual
-
-### El problema
-
-Un `print` confirma que el dato ya contiene `'oscuro'`, pero la pantalla sigue mostrando «claro». ¿Cuál de las dos
-observaciones es incorrecta?
-
-### Las tres operaciones
-
-1. **Leer:** consultar el valor en ese momento.
-2. **Observar cambios:** establecer una relación para recibir avisos futuros según un mecanismo concreto.
-3. **Actualizar la interfaz:** conseguir que Flutter vuelva a construir la parte correspondiente utilizando los datos
-   que queremos mostrar.
-
-Las dos observaciones del problema pueden ser correctas: el dato cambió y la interfaz todavía presenta el resultado de
-una lectura anterior. Para comprender el modelo declarativo, lee
-[Start thinking declaratively](https://docs.flutter.dev/data-and-backend/state-mgmt/declarative).
-
-La expresión habitual `UI = f(state)` indica que describimos la interfaz a partir del estado. Para que refleje otro
-valor, el flujo de actualización debe provocar una construcción que lo vuelva a utilizar. Un texto creado antes no se
-reescribe por una asignación posterior a una variable.
-
-Flutter ofrece mecanismos distintos para conectar datos y consumidores. Como anticipo, el contrato
-[`Listenable`](https://api.flutter.dev/flutter/foundation/Listenable-class.html) permite registrar funciones que
-recibirán
-avisos. Leer un valor y registrar una función son operaciones diferentes. Su implementación será el centro de las
-unidades siguientes.
-
-### Un primer puente con Flutter
-
-Para estado local administrado en un objeto `State`, `setState` ejecuta inmediatamente la función que recibe y después
-solicita al framework una reconstrucción. La asignación ocurre durante esa función; la nueva interfaz se construye
-posteriormente. Consulta la descripción inicial de
-[`State.setState`](https://api.flutter.dev/flutter/widgets/State/setState.html).
-
-Una asignación ordinaria a un campo no solicita por sí sola esa reconstrucción. La pantalla puede llegar a mostrar el
-nuevo dato si otro motivo provoca una reconstrucción; ese resultado accidental no demuestra que exista una observación
-del campo. Reconstrucción y pintura son etapas diferentes que estudiaremos en la unidad 18.
-
-### Laboratorio guiado de Flutter
-
-Este código es un andamiaje para experimentar. Las clases, los callbacks y los métodos se explicarán en sus unidades.
-Ahora sigue el campo `temaActual`, las lecturas y las solicitudes de reconstrucción.
-
-Ejecuta el programa completo en un pad de **Flutter** de DartPad. Usa los botones, sin editar código ni hacer hot reload
-durante la secuencia.
-
-```dart
-import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MaterialApp(home: LaboratorioEstado()));
-}
-
-class LaboratorioEstado extends StatefulWidget {
-  const LaboratorioEstado({super.key});
-
-  @override
-  State<LaboratorioEstado> createState() => _LaboratorioEstadoState();
-}
-
-class _LaboratorioEstadoState extends State<LaboratorioEstado> {
-  String temaActual = 'claro';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Estado y lectura')),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Tema leído al construir: $temaActual'),
-            ElevatedButton(
-              onPressed: () {
-                temaActual = 'oscuro';
-                debugPrint('Valor actual: $temaActual');
-              },
-              child: const Text('1. Cambiar solamente el dato'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  temaActual = 'claro';
-                });
-              },
-              child: const Text('2. Cambiar y solicitar reconstrucción'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  // El dato ya cambió; queremos volver a mostrarlo.
-                });
-              },
-              child: const Text('3. Reconstruir con el valor actual'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
-
-Haz este recorrido:
-
-1. Al iniciar, predice el valor del campo y el texto mostrado.
-2. Pulsa el botón 1. Compara la consola con el texto. El campo ya contiene `'oscuro'`, aunque esta operación no ha
-   solicitado reconstruir el texto.
-3. Pulsa el botón 3. Explica por qué ahora puede mostrarse `'oscuro'` sin asignar otro valor.
-4. Pulsa el botón 2. Localiza la asignación y la solicitud de reconstrucción.
-
-El botón 3 sirve para aislar la reconstrucción en este experimento. En una actualización normal de este campo local,
-agruparemos el cambio y su solicitud como hace el botón 2.
-
-**Puedes avanzar cuando:** explicas por separado qué cambió en memoria, qué se leyó y quién pidió reconstruir.
-
-## 1.6. Reconocer estas piezas en DaisyUI
-
-Ahora abre el [controlador de temas](../../lib/themes/application/daisy_theme_controller.dart). Los fragmentos
-siguientes
-pertenecen a ese archivo; se leen dentro de su contexto y no son programas independientes.
-
-La inicialización y el campo interno son:
-
-```dart
-DaisyThemeController
-(
-{
-DaisyThemeModel
-initialTheme = DaisyThemes.light})
-    : _palette = signal<DaisyThemeModel>(initialTheme);
-
-final FlutterSignal<DaisyThemeModel> _palette;
-```
-
-Para esta unidad, reconoce que cada controlador posee una señal que conserva su tema actual. El tema inicial procede
-del argumento `initialTheme`. El [modelo](../../lib/themes/domain/theme.dart) describe los datos de un tema, entre ellos
-su identificador y su nombre.
-
-La operación de cambio es:
-
-```dart
-void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
-}
-```
-
-Localiza la autoridad para esa selección: el controlador administra las escrituras y su señal conserva el valor.
-La mecánica de notificaciones se estudiará en la unidad 9.
-
-La API pública `controller.theme` da acceso a una vista de lectura. En el adaptador privado, la lectura termina aquí:
-
-```dart
-DaisyThemeModel get value => _source.value;
-```
-
-Ese getter consulta la fuente cuando se ejecuta. Si guardas el resultado de `controller.theme.value`, conservas el
-modelo obtenido en esa lectura. Una consulta posterior puede devolver el tema nuevo. El adaptador no guarda otro tema
-que tengamos que sincronizar.
-
-El [servicio predeterminado](../../lib/themes/application/daisy_theme_service.dart) conserva un controlador y delega en
-él.
-Es una forma de compartir una selección. Crear otro controlador permite administrar otra selección independiente.
-
-### Comprobación sobre el archivo real
-
-Señala, en este orden:
-
-1. Dónde se recibe el tema inicial.
-2. Qué objeto conserva el valor actual.
-3. Qué método permite cambiarlo.
-4. Dónde termina una consulta del valor a través de la vista pública.
-5. Qué conservaría una variable que guardó el resultado antes de una sustitución del tema.
-
-**Puedes avanzar cuando:** conectas almacenamiento, escritura y lectura con líneas concretas del controlador.
-
-## Materiales de estudio seleccionados
-
-Los recursos de esta ruta son documentación pública, herramientas abiertas y lecciones de YouTube publicadas en abierto.
-Cada recurso tiene una tarea. Puedes elegir el apoyo audiovisual en el idioma que prefieras y consultar el otro para
-reforzar una duda.
-
-### Documentación y práctica oficial
-
-- **D1 ·
-  Flutter: [Ephemeral state and app state](https://docs.flutter.dev/data-and-backend/state-mgmt/ephemeral-vs-app)**
-  — inglés, lectura principal del nodo 1.1. Lee la definición inicial de estado y reconoce dos ejemplos propios.
-  Las secciones de estado local y compartido son una ampliación; la página explica que esa clasificación depende de las
-  necesidades de la aplicación.
-- **D2 · Dart: [Variables](https://dart.dev/language/variables)** — inglés, referencia del nodo 1.2. Lee el inicio y la
-  explicación de `final`. Responde qué guarda una variable y qué operación está permitida sobre ella.
-- **D3 · Dart: [String](https://api.dart.dev/dart-core/String-class.html)** — inglés, referencia de los nodos 1.2 y 1.4.
-  Busca los párrafos sobre inmutabilidad e interpolación; no necesitas recorrer todos sus métodos.
-- **D4 · Flutter: [Start thinking declaratively](https://docs.flutter.dev/data-and-backend/state-mgmt/declarative)**
-  — inglés, lectura principal del nodo 1.5. Explica la relación entre el estado y la descripción de la interfaz.
-- **D5 · Flutter: [Single source of truth](https://docs.flutter.dev/app-architecture/concepts#single-source-of-truth)**
-  — inglés, lectura principal del nodo 1.4. Lee esa sección y aplica el principio al tema y a su etiqueta.
-- **D6 · Flutter: [setState](https://api.flutter.dev/flutter/widgets/State/setState.html)** — inglés, consulta del
-  laboratorio. Lee hasta el primer ejemplo de persistencia. Identifica lo que sucede inmediatamente y lo que se
-  programa para después. La persistencia y el resto de detalles quedan como ampliación.
-- **P1 · Dart: [DartPad](https://dartpad.dev/)** y su [guía oficial](https://dart.dev/tools/dartpad) — herramienta
-  gratuita
-  para ejecutar los ejemplos A y B como Dart y el laboratorio como Flutter. No necesitan paquetes adicionales.
-- **P2 · Google
-  Codelabs: [Tu primera app de Flutter](https://codelabs.developers.google.com/codelabs/flutter-codelab-first?hl=es-419)**
-  — español, ampliación práctica. En el paso «Agrega un riel de navegación», localiza los apartados «setState» y
-  «Usa selectedIndex»: permiten comparar guardar la selección y utilizarla al construir. El codelab completo introduce
-  más conceptos y dependencias que esta unidad; esos fragmentos pueden estudiarse como lectura acompañada.
-- **D7 · Flutter: [Listenable](https://api.flutter.dev/flutter/foundation/Listenable-class.html)** — inglés, puente
-  opcional a las próximas unidades. Lee solamente la descripción inicial y reconoce que registrar una observación es
-  otra operación.
-
-### YouTube en español
-
-- **V-ES1 · [Widget: StatelessWidget y StatefulWidget](https://www.youtube.com/watch?v=kEFi_zXbvFc)**
-  — Yeison Developer, 22 de octubre de 2020. Apoyo introductorio: su descripción presenta el concepto de widgets con y
-  sin estado. Después de estudiarlo, explica qué dato cambia en nuestro ejemplo y dónde lo guardarías.
-  Contrasta la terminología con D4 y D6: un `StatelessWidget` también puede reconstruirse.
-- **V-ES2 · [12- StatefulWidget](https://www.youtube.com/watch?v=QaMaM1GVNrM)**
-  — Fernando Herrera, 3 de diciembre de 2021. Apoyo alternativo del nodo 1.5. Es una lección publicada como parte de su
-  curso; la ruta utiliza este vídeo abierto. Identifica el dato administrado por el objeto `State` y la operación que
-  solicita actualizar su presentación.
-
-### YouTube en inglés
-
-- **V-EN1 · [What is State?](https://www.youtube.com/watch?v=QlwiL_yLh6E)**
-  — canal oficial Flutter, 14 de abril de 2021. Apoyo conceptual de los nodos 1.1 y 1.5. La ficha incluye los capítulos
-  «Stateless widget misconceptions» en 2:20 y «What is State?» en 4:30. Comprueba si puedes explicar por qué cambiar un
-  dato y ver un cambio en pantalla son pasos que necesitan conectarse.
-- **V-EN2 · [Stateful widgets in Flutter](https://www.youtube.com/watch?v=Gzz8FwSlsUg)**
-  — canal oficial Flutter, 8 de abril de 2026. Es el vídeo enlazado por el
-  [tutorial oficial](https://docs.flutter.dev/learn/pathway/tutorial/stateful-widget). Para esta unidad, prioriza los
-  capítulos publicados de 0:58 sobre `StatefulWidget` y `State`, 1:32 sobre la finalidad de `State` y 2:27 sobre
-  `setState`. El ciclo de vida se estudiará después.
-
-### Qué se revisó de los recursos
-
-Se leyeron las páginas oficiales citadas y se revisaron los títulos, autores, fechas, descripciones y capítulos que
-ofrecían las fichas públicas indexadas de los vídeos. El acceso de investigación no permitió reproducir YouTube ni
-obtener sus transcripciones; la selección audiovisual es de apoyo y no supone una revisión completa de cada vídeo.
-La precisión técnica de la unidad se contrasta con las referencias oficiales.
-
-Los vídeos de 2020 y 2021 pueden mostrar herramientas o sintaxis de otra época. Utiliza los ejemplos de esta guía para
-la práctica y las referencias oficiales para resolver diferencias. La traducción del codelab también puede ir por detrás
-de la documentación principal; aquí aprovechamos sus explicaciones de estado y selección.
-
-Se ejecutaron los ejemplos A y B y sus salidas coinciden con las soluciones. Ambos ejemplos y el laboratorio de Flutter
-pasan el análisis estático. El recorrido interactivo del laboratorio queda para la práctica: no se ha validado mediante
-ejecución de la interfaz.
-
-## Proyecto de la unidad: un tema y tres lecturas
-
-Construye un programa pequeño de Dart en un pad nuevo. Escríbelo desde cero utilizando lo aprendido en A y B.
-
-### Requisitos
-
-1. Conserva una selección actual de tema con valor inicial `'claro'`.
-2. Guarda una primera lectura.
-3. Cambia la selección a `'oscuro'` y guarda una segunda lectura.
-4. Vuelve a cambiarla a `'claro'`.
-5. Muestra la primera lectura, la segunda y el valor actual, en ese orden.
-6. Construye una etiqueta con la selección actual al mostrarla.
-
-Antes de ejecutar, escribe la salida esperada. Después justifica cada línea indicando cuándo se obtuvo su valor.
-
-### Variaciones para demostrar comprensión
-
-- Añade otra variable que represente la selección de una vista previa y empieza también en `'claro'`. Cambia únicamente
-  el tema principal y explica el resultado de consultar ambas selecciones.
-- Guarda una etiqueta antes del cambio y genera otra al final. Explica cuál describe cada momento.
-- Relaciona ese recorrido con una consulta de `controller.theme.value` y una llamada a `setTheme` en DaisyUI.
-
-**Entrega de estudio:** tu código, tu predicción inicial y una explicación de qué valores guardaste y cuáles volviste
-a consultar. Si la predicción falla, localiza la primera asignación o lectura que interpretaste de otra manera.
-
-## Errores de comprensión que vamos a comprobar
-
-- Pensar que una variable que recibió una lectura queda vinculada a las futuras asignaciones de la fuente.
-- Atribuir a `final` el comportamiento de observar cambios o la capacidad de volver inmutable cualquier objeto.
-- Tratar una etiqueta calculada antes del cambio como si representara siempre el estado vigente.
-- Confundir el evento de pulsar un botón con el cambio del dato y con el aviso a sus consumidores.
-- Dar por hecho que cualquier escritura en memoria solicita reconstruir una pantalla.
-- Pensar que el nombre `StatelessWidget` impide que Flutter vuelva a ejecutar su `build`.
-- Interpretar «fuente de verdad» como la obligación de usar una única variable global para toda la aplicación.
-- Confundir conservar un valor en memoria con guardarlo entre ejecuciones. La persistencia necesita su propio mecanismo.
-
-## Comprobación final
-
-Responde sin mirar los ejemplos y utiliza una secuencia de valores cuando haga falta:
-
-1. ¿Qué representa el estado en el ejemplo del tema?
-2. ¿Qué diferencia hay entre el valor actual de la fuente y una lectura que guardaste antes?
-3. Si dos variables contienen `'claro'` y reasignas una a `'oscuro'`, ¿qué permite saber el valor de la otra?
-4. ¿Por qué cambiar `final` por `var` no crea una observación?
-5. ¿Qué problema produce mantener el tema y su etiqueta como datos que debes actualizar por separado?
-6. ¿Cómo pueden tener la aplicación y una vista previa fuentes independientes para sus selecciones?
-7. ¿Puede cambiar el dato sin que el texto de la pantalla se actualice todavía? Explica el recorrido.
-8. ¿Qué hace inmediatamente `setState` y qué solicita al framework después?
-9. En el controlador real, ¿quién conserva el tema, quién acepta el cambio y qué hace la vista de lectura?
-10. ¿Qué tendrías que añadir conceptualmente para enterarte de cambios futuros sin consultar una y otra vez?
-
-Marca la unidad como dominada cuando puedas explicar las diez respuestas, resolver el proyecto sin copiar y reconocer
-las tres operaciones del laboratorio. Si una respuesta falla, vuelve al nodo correspondiente.
-
-## Soluciones para contrastar después de practicar
-
-<details>
-<summary>Ver las salidas y las ideas que deben aparecer en las respuestas</summary>
-
-El ejemplo A imprime:
-
-```text
-claro
-claro
-oscuro
-oscuro
-```
-
-La primera línea ocurre antes del cambio. La segunda corresponde a la lectura guardada antes. Las dos últimas
-corresponden a la fuente ya reasignada y a la lectura posterior. Usar `var` para la lectura anterior permite
-reasignarla,
-pero hace falta ejecutar esa nueva asignación para que guarde otro resultado.
-
-En el nodo 1.3, los valores actuales después de cada paso son `'oscuro'`, `'oscuro'`, `'oscuro'`, `'claro'` y `'claro'`.
-`primeraLectura` conserva `'oscuro'`. Los pasos 1 y 4 cambian el contenido textual respecto al momento anterior.
-
-El ejemplo B imprime:
+Dentro de un texto, `$temaActual` inserta el valor de la variable **cuando se construye ese texto**. Por tanto, la salida
+es:
 
 ```text
 oscuro
@@ -577,18 +182,180 @@ Tema: claro
 Tema: oscuro
 ```
 
-La etiqueta guardada se construyó antes de reasignar la selección. La última expresión se evaluó después.
+`etiqueta` se construyó cuando el tema era claro y conserva ese texto. La última línea construye otro texto después del
+cambio. Una etiqueta antigua puede ser útil para un historial; el problema aparece si la tratamos como si siempre
+describiera el tema actual.
 
-En el proyecto, las tres lecturas mostradas deben ser `'claro'`, `'oscuro'` y `'claro'`; la etiqueta final debe
-describir
-`'claro'`. Una vista previa independiente conserva su propio valor cuando solo cambia la selección principal.
+Para saber qué tema está seleccionado en este ejemplo, tomamos `temaActual` como **fuente de verdad**: el dato que
+consultamos y actualizamos para esa selección. Cuando necesitemos una etiqueta actualizada, la construiremos a partir
+de una lectura actual. Así evitamos tener que mantener dos datos por separado y que se contradigan.
 
-En el laboratorio, el botón 1 modifica el campo y lo imprime. El botón 3 pide reconstruir para volver a leerlo; el botón
-2 agrupa una asignación con esa solicitud. En el flujo normal de este experimento, la pantalla recorre claro, oscuro
-tras usar 1 y luego 3, y claro tras usar 2.
+Esto no significa que toda la aplicación deba tener una única variable global. Una vista previa puede tener su propia
+selección de tema, independiente de la selección principal. Cada selección necesita una fuente clara para su ámbito.
 
-En DaisyUI, cada controlador posee `_palette`; `setTheme` asigna su `.value` y el adaptador consulta a su fuente.
-Guardar el modelo obtenido antes de una sustitución no vuelve a ejecutar esa consulta. Recibir avisos futuros requiere
-establecer una observación; después hay que conectar esos avisos con el consumidor que deba actualizarse.
+### Practica 3
+
+Una pantalla guarda `tema = 'claro'` y `mensaje = 'Tema: claro'`. Después cambia solo `tema` a `'oscuro'`.
+¿Qué problema aparece? ¿Cómo construirías un mensaje que refleje el valor al consultarlo?
+
+<details>
+<summary>Ver respuesta</summary>
+
+El mensaje guardado sigue diciendo «Tema: claro», aunque el tema ya sea oscuro. Podemos construir
+`'Tema: $tema'` cuando necesitemos mostrarlo: en ese momento la expresión lee el valor actual. Eso no significa que una
+pantalla que ya lo mostró vuelva a construirlo por sí sola; veremos esa conexión a continuación.
 
 </details>
+
+## 5. Del dato a la pantalla hay un paso más
+
+En los ejemplos anteriores nosotros decidíamos cuándo ejecutar cada `print`. ¿Qué pasa con un texto que ya está en
+pantalla si después cambiamos la variable?
+
+Imagina esta secuencia:
+
+1. El dato contiene `'claro'`.
+2. La pantalla lee ese dato y muestra «Tema: claro».
+3. El dato cambia a `'oscuro'`.
+4. Para mostrar «Tema: oscuro», la interfaz necesita volver a construirse usando el dato nuevo.
+
+La asignación del paso 3 cambia el dato. Una asignación ordinaria, por sí sola, no le dice a Flutter que reconstruya
+la interfaz. La pantalla podría reconstruirse por otro motivo y mostrar entonces el nuevo valor, pero no podemos
+depender de que eso ocurra justo cuando nos interesa.
+
+En un `State` de Flutter, una forma de conectar ambos pasos es `setState`:
+
+```dart
+setState(() {
+  temaActual = 'oscuro';
+});
+```
+
+La función que pasamos a `setState` se ejecuta inmediatamente: ahí cambia el dato. Después, `setState` solicita que
+Flutter reconstruya ese `State`; en una reconstrucción posterior, `build` puede leer el valor nuevo. Más adelante
+estudiaremos `State`, funciones y reconstrucción con calma. Aquí solo necesitamos separar **cambiar el dato** de
+**volver a construir la interfaz**.
+
+También existe otra necesidad: que alguien se entere de cambios futuros. Leer un dato una vez no registra por sí
+solo a nadie para recibir avisos. Los listeners y las señales de las próximas unidades ofrecen mecanismos para esa
+comunicación; recibir un aviso y reconstruir una pantalla siguen siendo pasos que hay que conectar.
+
+### Practica 4
+
+Una pantalla ya muestra «Tema: claro». El programa cambia la variable a `'oscuro'`, pero esa operación no solicita una
+reconstrucción. ¿Qué valor tiene la variable? ¿Tiene garantizado el texto actualizarse en ese momento?
+
+<details>
+<summary>Ver respuesta</summary>
+
+La variable contiene `'oscuro'`. El texto no tiene garantizada una actualización en ese momento: para mostrar el dato
+nuevo, la interfaz debe volver a construirse y leerlo. Otra causa podría provocar esa reconstrucción más tarde.
+
+</details>
+
+## 6. La misma idea en DaisyUI
+
+Ahora mira el [controlador de temas](../../lib/themes/application/daisy_theme_controller.dart). Este fragmento procede
+de ese archivo; no es un programa completo:
+
+```dart
+DaisyThemeController({DaisyThemeModel initialTheme = DaisyThemes.light})
+    : _palette = signal<DaisyThemeModel>(initialTheme);
+
+final FlutterSignal<DaisyThemeModel> _palette;
+
+void setTheme(DaisyThemeModel theme) {
+  _palette.value = theme;
+}
+```
+
+Aunque la sintaxis es nueva, puedes reconocer el recorrido:
+
+1. Al crear un controlador se recibe un tema inicial; si no se indica otro, se usa `DaisyThemes.light`.
+2. `_palette` es la señal que conserva el tema actual de **ese controlador**.
+3. `setTheme` recibe otro tema y lo asigna a `_palette.value`.
+
+El controlador también expone `theme`, una vista que permite consultar el tema actual mediante
+`controller.theme.value`. Internamente, esa consulta se delega a la señal; la vista no guarda otro tema independiente.
+Si guardas el resultado de esa consulta y luego sustituyes el tema, la variable que guardaste sigue apuntando al modelo
+obtenido antes; tienes que consultar de nuevo para obtener el valor actual.
+
+El [servicio de temas](../../lib/themes/application/daisy_theme_service.dart) conserva un controlador predeterminado.
+También puedes crear otro controlador para una selección independiente, como una vista previa. En las siguientes
+unidades estudiaremos cómo funcionan las señales, las vistas y los avisos; no hace falta dominarlos ahora.
+
+### Practica 5
+
+En el archivo del controlador, localiza el tema inicial, la señal, el método de cambio y el getter `value` del adaptador.
+Explica qué línea consultarías para encontrar el valor actual y qué operación usarías para cambiarlo.
+
+<details>
+<summary>Ver respuesta</summary>
+
+El constructor recibe `initialTheme` y crea `_palette` con ese valor. Desde fuera se consulta
+`controller.theme.value`: el getter del adaptador devuelve `_source.value`. Para cambiarlo se llama a
+`controller.setTheme(nuevoTema)`, que asigna el tema a `_palette.value`.
+
+</details>
+
+## Ejercicio final: tres momentos de una selección
+
+Escribe un programa Dart completo que:
+
+1. Empiece con el tema `'claro'` y guarde una primera lectura.
+2. Cambie el tema a `'oscuro'` y guarde una segunda lectura.
+3. Vuelva a cambiar el tema a `'claro'`.
+4. Imprima las dos lecturas, el tema actual y una etiqueta construida con el valor actual.
+
+Antes de ejecutarlo, escribe la salida esperada. Después explica por qué cada línea muestra ese valor. Como variación,
+añade una variable para el tema de una vista previa, cambia solo la selección principal y comprueba qué conserva la
+vista previa.
+
+<details>
+<summary>Ver una posible solución</summary>
+
+```dart
+void main() {
+  var tema = 'claro';
+  final primera = tema;
+
+  tema = 'oscuro';
+  final segunda = tema;
+
+  tema = 'claro';
+
+  print(primera);
+  print(segunda);
+  print(tema);
+  print('Tema: $tema');
+}
+```
+
+La salida es `claro`, `oscuro`, `claro` y `Tema: claro`, cada uno en su línea. Las dos primeras líneas conservan las
+lecturas hechas en momentos distintos; las otras dos consultan el valor tras el último cambio. Si la vista previa se
+guarda en otra variable y solo reasignas `tema`, la variable de la vista previa conserva su propio valor.
+
+</details>
+
+## Comprueba si puedes avanzar
+
+Intenta responder sin mirar. Si dudas, vuelve al apartado indicado y repite su práctica.
+
+1. ¿Qué dato representa el estado cuando elegimos entre tema claro y oscuro? **Apartado 1.**
+2. Si guardas una lectura y luego reasignas la variable original, ¿qué conserva la lectura? **Apartados 2 y 3.**
+3. ¿Por qué una etiqueta construida antes del cambio puede quedar antigua? **Apartado 4.**
+4. ¿Por qué cambiar el dato no garantiza actualizar inmediatamente la pantalla? **Apartado 5.**
+5. ¿Dónde se conserva el tema en el controlador y cómo se consulta o cambia? **Apartado 6.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques estas respuestas con tus palabras.
+La próxima unidad introduce las funciones que podremos registrar para recibir avisos.
+
+## Para consultar si necesitas reforzar
+
+- [Variables en Dart](https://dart.dev/language/variables): declaraciones, asignaciones y `final`.
+- [Estado en Flutter](https://docs.flutter.dev/data-and-backend/state-mgmt/ephemeral-vs-app): ejemplos de información
+  que una interfaz necesita recordar.
+- [`setState`](https://api.flutter.dev/flutter/widgets/State/setState.html): qué ocurre al ejecutar su función y cómo
+  se solicita una reconstrucción.
+- [Single source of truth](https://docs.flutter.dev/app-architecture/concepts#single-source-of-truth): el principio de
+  mantener una fuente autorizada para un dato.
