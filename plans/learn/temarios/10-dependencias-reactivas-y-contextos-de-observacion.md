@@ -1,95 +1,77 @@
 # 10. Dependencias reactivas y contextos de observación
 
 [Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 9](09-senales-signal-y-flutter-signal.md)
+[Repasar la unidad 9](09-senales-signal-y-flutter-signal.md) · **Estado:** pendiente
 
-- **Bloque:** Signals: almacenar y relacionar estado.
-- **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 31 de octubre de 2026.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+En la unidad 9 creamos una señal con un tema y aprendimos a escuchar sus cambios. Ahora imagina que queremos mostrar ese
+tema en un texto: ¿cómo sabe Flutter qué parte de la interfaz debe actualizar cuando cambia la señal?
 
-Podrás identificar **quién necesita qué dato** y cómo se establece esa relación. Compararás una lectura puntual, un
-listener explícito, las lecturas rastreadas por `SignalBuilder` y la dependencia heredada de `DaisyThemeScope`.
-Seguirás el cambio hasta la solicitud de reconstrucción y un frame de prueba, sin confundir almacenar, avisar,
-reconstruir y repintar.
+Al terminar podrás distinguir una lectura puntual de una lectura que un consumidor observa. Verás cómo
+`SignalBuilder` descubre las señales que lee su callback, qué cambia cuando una condición elige otra señal y por qué
+importa **cuándo** se realiza la lectura. Después compararemos ese mecanismo con el scope real de DaisyUI.
 
-Estudiaremos además qué sucede si se mueve una lectura fuera del callback, si la lectura está en el `build` posterior
-de un hijo o si una condición cambia las señales que se leen. `computed` y `effect` tienen mecanismos y unidades
-propios; aquí solo los situamos dentro del mapa. Los detalles del árbol de Flutter y `InheritedNotifier` se amplían en
-las unidades 18–25. Preparar la guía no marca el estudio como completado.
-
-## Versiones y forma de practicar
-
-Se han contrastado las dependencias resueltas: `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals`
-7.0.0. La descripción interna de `SignalElement` es específica de esa combinación; los enlaces a documentación
-`latest` pueden cambiar. `../../../pubspec.yaml` declara rangos y `pubspec.lock` conserva las versiones resueltas.
-
-Los ejemplos A–E y la solución del proyecto son archivos de **pruebas de widgets completos e independientes**. Copia
-uno cada vez a `test/estudio_dependencias_test.dart` y ejecuta:
+Los ejemplos completos son pruebas de widgets independientes. Copia **una cada vez** a
+`test/estudio_dependencias_test.dart` y ejecuta desde la raíz del proyecto:
 
 ```shell
 flutter test --no-pub test/estudio_dependencias_test.dart
 ```
 
-Requieren las dependencias ya resueltas del proyecto. No son programas independientes para DartPad. Lee cada test y
-predice los resultados antes de ejecutarlo; luego elimina tu archivo temporal o consérvalo con otro nombre. Los bloques
-marcados como fragmentos son para analizar y no son programas completos. `pumpWidget` monta o actualiza el árbol de
-prueba y procesa un frame; `pump` procesa un frame pendiente. No sustituye una inspección en un dispositivo físico.
+Necesitas las dependencias ya resueltas del proyecto. Antes de mirar cada resultado, intenta predecirlo. Los fragmentos
+identificados como tales sirven para razonar, pero no son archivos completos. Puedes estudiar los apartados 1–3 en
+una sesión, 4–6 en otra y terminar después con DaisyUI y el ejercicio final.
 
-## Ruta y progreso
+Usaremos `pumpWidget` para montar un árbol de prueba y `pump` para procesar un frame después de cambiar una señal.
+`expect` comprueba lo observado en ese árbol; no demuestra por sí solo el aspecto de una pantalla física. Los ejemplos
+se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0; consulta
+[pubspec.lock](../../../pubspec.lock) para las versiones resueltas. El controlador actual de DaisyUI usa
+`ValueNotifier`, no una señal de Signals.
 
-- [ ] [10.1. Qué es una dependencia](#101-qué-es-una-dependencia).
-- [ ] [10.2. Leer una vez y observar](#102-leer-una-vez-y-observar).
-- [ ] [10.3. `SignalBuilder` paso a paso](#103-signalbuilder-paso-a-paso).
-  - [ ] [10.3.1. Cómo descubre las señales leídas](#1031-cómo-descubre-las-señales-leídas).
-  - [ ] [10.3.2. Cómo reacciona a los cambios](#1032-cómo-reacciona-a-los-cambios).
-- [ ] [10.4. Las dependencias cambian con la ejecución](#104-las-dependencias-cambian-con-la-ejecución).
-- [ ] [10.5. La lectura debe suceder en el lugar observado](#105-la-lectura-debe-suceder-en-el-lugar-observado).
-- [ ] [10.6. Lecturas explícitas y desmontaje](#106-lecturas-explícitas-y-desmontaje).
-- [ ] [10.7. El scope real de DaisyUI](#107-el-scope-real-de-daisyui).
-- [ ] [10.8. Comparar los mecanismos](#108-comparar-los-mecanismos).
-- [ ] [Resolver el proyecto](#proyecto-de-la-unidad-un-panel-con-dos-fuentes).
-- [ ] [Superar la comprobación final](#comprobación-final).
+## 1. Una lectura no es una suscripción
 
-Puedes estudiar 10.1–10.3 en una sesión, 10.4–10.6 en otra y terminar con DaisyUI y el proyecto. Marca una casilla
-cuando puedas explicar los resultados y resolver sus variaciones sin copiar las respuestas.
+Supongamos que una señal guarda `'claro'` y que una parte de la aplicación necesita mostrar ese nombre. Esa parte
+**depende del dato** para construir su texto. Pero que una persona pueda identificar esa relación no significa que
+Flutter la conozca: hace falta algún mecanismo que registre la observación.
 
-## 10.1. Qué es una dependencia
+Este fragmento realiza una lectura puntual:
 
-Una **dependencia** es una relación: un consumidor necesita una fuente para producir un resultado o reaccionar a su
-cambio. Si un texto muestra el tema actual, su construcción depende de un dato de tema. Pero decir «depende» en
-lenguaje cotidiano no basta para que el sistema conozca esa relación: alguien debe registrarla, de una manera y en un
-momento concretos.
+```dart
+final tema = signal<String>('claro');
+final nombre = tema.value;
+tema.value = 'oscuro';
+```
 
-Una analogía: una biblioteca tiene libros y una persona que prepara una lista de novedades. Puede mirar un libro una
-vez o apuntarse a un aviso sobre él. Si consulta el libro antes de inscribirse y guarda solo su título, inscribirse
-más tarde con ese título no identifica automáticamente el libro. La analogía no describe los objetos internos de
-Signals ni cómo Flutter programa frames: los veremos por separado.
+No es un programa completo. Después de ejecutarlo, `nombre` conserva `'claro'` y `tema.value` devuelve `'oscuro'`, como
+en la unidad 9. Leer una vez no registra por sí solo un listener que actualice `nombre` ni un widget que deba
+reconstruirse.
 
-Hay varias relaciones posibles:
+Una analogía: puedes consultar el horario de una tienda y apuntarlo en un papel. Si la tienda cambia el horario, el
+papel no se actualiza solo. Para enterarte necesitas otra relación, como una suscripción a sus avisos. La analogía no
+describe cómo Flutter registra una dependencia o procesa un frame; lo veremos a continuación.
 
-- `addListener`: el código registra explícitamente un callback en una fuente y debe retirarlo cuando corresponda.
-- `SignalBuilder`: el mecanismo de la versión instalada recoge señales leídas durante su construcción y mantiene
-  suscripciones para ellas.
-- `DaisyThemeScope.of(context)`: Flutter registra una dependencia heredada entre el contexto consumidor y el scope.
+### Practica 1
 
-En todos los casos hay que distinguir la **fuente**, el **consumidor** y la relación de observación. No todas las
-lecturas son registros, ni todos los avisos hacen que se reconstruya una pantalla.
+Una función lee `tema.value` y guarda el texto en `nombre`. Si la señal cambia después, ¿qué más hace falta para que
+un consumidor se entere del cambio?
 
-### Comprobación
+<details>
+<summary>Ver respuesta</summary>
 
-- Si lees un tema en una variable local, ¿quién conserva después esa lectura?
-- ¿Qué hace falta además de leer para que una pieza de interfaz se entere de cambios?
-- ¿Un `Listenable` conoce necesariamente widgets o reconstrucciones?
+Hace falta una observación conectada a la señal, por ejemplo un listener registrado o un consumidor reactivo que
+registre la lectura. `nombre` contiene el resultado de la consulta anterior; no es una suscripción ni otra señal.
 
-## 10.2. Leer una vez y observar
+</details>
 
-En A se montan tres consumidores independientes de la misma señal. El primero es un `Builder` normal: lee el valor
-cuando se construye, sin registrar un listener para sí mismo. El segundo lee dentro de `SignalBuilder`. El tercero usa
-un valor `capturado` **antes** de montar el árbol; esa lectura se hace fuera de un observador reactivo.
+## 2. Leer dentro de `SignalBuilder`
 
-### Ejemplo A: lectura puntual, rastreada y capturada
+`SignalBuilder` es un widget del paquete `signals_flutter`. Recibe un callback llamado `builder`: ese callback
+describe qué widget mostrar. Durante su ejecución síncrona, el mecanismo de esta versión registra las señales leídas
+para poder observarlas.
+
+Compáralo con `Builder`, un widget de Flutter que ejecuta su propio callback para construir un hijo, pero que no
+registra automáticamente una lectura de Signals. En esta prueba ambos leen la misma señal:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -97,119 +79,71 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('lectura puntual frente a lectura rastreada', (tester) async {
-    final tema = signal('claro');
+  testWidgets('lectura puntual y lectura observada', (tester) async {
+    final tema = signal<String>('claro');
     addTearDown(tema.dispose);
-    final capturado = tema.value;
-    var puntuales = 0;
-    var rastreados = 0;
-    var capturados = 0;
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: Column(children: [
-        Builder(builder: (_) {
-          puntuales++;
-          return Text('puntual:${tema.value}');
-        }),
-        SignalBuilder(builder: (_) {
-          rastreados++;
-          return Text('rastreado:${tema.value}');
-        }),
-        SignalBuilder(builder: (_) {
-          capturados++;
-          return Text('capturado:$capturado');
-        }),
-      ]),
-    ));
-    expect([puntuales, rastreados, capturados], [1, 1, 1]);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(children: [
+          Builder(builder: (_) => Text('Puntual: ${tema.value}')),
+          SignalBuilder(builder: (_) => Text('Observado: ${tema.value}')),
+        ]),
+      ),
+    );
+    expect(find.text('Puntual: claro'), findsOneWidget);
+    expect(find.text('Observado: claro'), findsOneWidget);
+
     tema.value = 'oscuro';
     await tester.pump();
-    expect(find.text('puntual:claro'), findsOneWidget);
-    expect(find.text('rastreado:oscuro'), findsOneWidget);
-    expect(find.text('capturado:claro'), findsOneWidget);
-    expect([puntuales, rastreados, capturados], [1, 2, 1]);
+    expect(find.text('Puntual: claro'), findsOneWidget);
+    expect(find.text('Observado: oscuro'), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-### Recorrido y comprobación
+El resultado esperado después de cambiar el tema y procesar el frame es:
 
-1. `tema.value` se lee en el test y se guarda `claro` en `capturado` antes del montaje.
-2. En el primer frame, el `Builder` normal muestra `puntual:claro`. Su lectura aislada no instala un listener para
-   reconstruirlo; `SignalBuilder` sí rastrea su propia lectura y muestra `rastreado:claro`.
-3. El otro `SignalBuilder` recibe un `String` ya leído. En su callback no lee `tema`, por lo que en este ejemplo no
-   establece una dependencia de esa señal.
-4. Al escribir `oscuro`, el consumidor rastreado queda marcado para construir de nuevo. Después de `pump`, muestra
-   `oscuro`. En este montaje estable, los otros textos permanecen con `claro` y sus contadores no aumentan.
+```text
+Puntual: claro
+Observado: oscuro
+```
 
-Esa última observación es **limitada al escenario del test**. Un widget sin suscripción puede reconstruirse por otra
-razón, como una actualización de su padre; el `Builder` normal volvería a leer la señal y podría mostrar `oscuro`. El
-tercero seguiría mostrando el `String` capturado, salvo que el código que lo captura vuelva a ejecutarse y pase otro.
-Una variable local no es una suscripción ni una referencia a una celda que consulta el valor de nuevo.
+Paso a paso:
 
-- ¿Qué observador registra `tema` y en qué ejecución?
-- ¿Por qué el primer texto puede actualizarse más tarde si su padre reconstruye, aunque no haya observado la señal?
-- ¿Qué líneas cambiarías para que el tercer callback lea la señal dentro de su construcción?
+1. `pumpWidget` monta el árbol. Los dos callbacks leen `'claro'` y cada uno construye un `Text`.
+2. Durante el callback de `SignalBuilder`, se registra que ese consumidor ha leído `tema`. El `Builder` normal hace
+   una lectura, pero no establece una observación de Signals por el mero hecho de leer.
+3. `tema.value = 'oscuro'` cambia la señal. La observación del `SignalBuilder` solicita que su elemento vuelva a
+   construirse; `pump` procesa el frame y el callback vuelve a leer el valor actual.
+4. En este árbol aislado no hay otra causa que reconstruya el `Builder` normal, por eso su texto sigue mostrando la
+   lectura anterior. Finalmente desmontamos el árbol y el test libera la señal que creó.
 
-**Puedes avanzar cuando:** distingues una lectura antigua de una relación activa de observación.
+`Directionality` proporciona la dirección del texto que necesita este árbol de prueba. `find.text` busca un widget
+`Text` y `findsOneWidget` comprueba que haya uno. Si otra causa reconstruyera más tarde el `Builder` normal, su
+callback volvería a leer la señal y podría mostrar `'oscuro'`; el ejemplo no afirma que un widget sin suscripción jamás
+pueda reconstruirse.
 
-## 10.3. `SignalBuilder` paso a paso
+### Practica 2
 
-El [
-`SignalBuilder` instalado](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
-extiende `SignalWidget`, cuyo `createElement` crea un `SignalElement`. En esta versión el registro de lecturas de
-widgets **no se debe explicar simplemente diciendo que el builder crea un `effect` que envuelve su callback**. El
-código usa un gancho de lectura y luego suscripciones.
+Si el `Builder` normal se reconstruye más tarde porque su padre lo actualiza, ¿qué valor leerá de `tema` si sigue en
+`'oscuro'`? ¿Significa eso que se había suscrito a la señal?
 
-Esta explicación está basada en `signal_builder.dart`, `signal_widget.dart` y el getter `value` instalados. Es un
-detalle de implementación verificable, no una promesa de que futuras versiones deban usar los mismos campos. El
-mecanismo interno de dependencias de `effect` y `computed` también existe, pero se estudiará en sus propias unidades.
+<details>
+<summary>Ver respuesta</summary>
 
-### 10.3.1. Cómo descubre las señales leídas
+Leerá `'oscuro'` al ejecutar otra vez su callback. Eso no demuestra que se hubiera suscrito: la nueva lectura ocurrió
+porque otra causa reconstruyó el widget. En la prueba, la reconstrucción provocada por la señal corresponde al
+`SignalBuilder` que sí registró la dependencia.
 
-Simplificando solo lo necesario para el ejemplo A, los primeros tres pasos muestran cómo el elemento reúne las señales
-que se leen durante una construcción:
+</details>
 
-1. Al construir el elemento, `SignalElement.build` guarda el gancho anterior e instala `onSignalRead` para reunir, en
-   un conjunto, las señales leídas durante esa ejecución síncrona.
-2. `SignalBuilder.build` lee las señales de su lista opcional `dependencies` y ejecuta `builder(context)`.
-3. Al consultar `tema.value`, el getter del núcleo informa al gancho activo; el elemento añade esa señal al conjunto.
-   La lectura devuelve además el valor para construir el texto.
+## 3. El valor capturado no es la señal
 
-En este punto el elemento ya sabe qué señales usó el callback. El gancho se restaura en un `finally`; la lista se
-ajusta incluso si la construcción termina de forma inesperada. `SignalBuilder` no necesita que le entregues una lista
-para descubrir las lecturas del callback. La lista opcional `dependencies` sí puede forzar lecturas adicionales en esa
-construcción, como se prueba en 10.6.
-
-#### Comprobación
-
-- ¿Quién instala el gancho temporal y quién comunica que se ha leído una señal?
-- ¿Por qué el elemento sabe qué señales se leyeron sin que el callback lo declare explícitamente?
-
-### 10.3.2. Cómo reacciona a los cambios
-
-Una vez que el elemento conoce sus señales, los pasos siguientes muestran cómo mantiene la observación y reacciona:
-
-4. Al terminar, el elemento restaura el gancho anterior y ajusta sus suscripciones: retira las que ya no están en el
-   conjunto y se suscribe a las nuevas. Durante el establecimiento suprime la solicitud inicial de reconstrucción.
-5. Una escritura aceptada propaga el cambio; el callback de la suscripción del elemento llama a `markNeedsBuild`.
-   Flutter planifica la construcción del elemento, y el callback vuelve a leer los datos actuales en el frame.
-6. Al desmontar el elemento, este cancela sus suscripciones. La propiedad de las señales es una responsabilidad
-   separada; los ejemplos usan las opciones predeterminadas y el test que las creó las libera con `addTearDown`.
-
-#### Comprobación
-
-- ¿Quién conserva y cancela las suscripciones del widget? ¿Quién llama a `markNeedsBuild`?
-- ¿Qué hace Flutter después de que el elemento sea marcado? ¿Es lo mismo que repintar inmediatamente?
-- ¿Por qué la propiedad de las señales es una responsabilidad separada de la del widget?
-
-## 10.4. Las dependencias cambian con la ejecución
-
-En este test, el callback siempre lee `verA`, pero solo lee **una** de las otras dos señales en cada construcción.
-Piensa qué se ejecuta realmente, no qué nombres aparecen escritos en el archivo.
-
-### Ejemplo B: cambiar de rama
+Ahora moveremos la lectura **antes** del callback observado. El `SignalBuilder` recibirá un texto ya obtenido:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -217,65 +151,168 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('dependencias que cambian de rama', (tester) async {
-    final verA = signal(true);
-    final a = signal('A1');
-    final b = signal('B1');
-    addTearDown(verA.dispose);
-    addTearDown(a.dispose);
-    addTearDown(b.dispose);
+  testWidgets('usar un valor capturado antes del builder', (tester) async {
+    final tema = signal<String>('claro');
+    addTearDown(tema.dispose);
+    final nombre = tema.value;
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SignalBuilder(builder: (_) => Text(nombre)),
+      ),
+    );
+    tema.value = 'oscuro';
+    await tester.pump();
+
+    expect(find.text('claro'), findsOneWidget);
+    expect(tema.value, 'oscuro');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+```
+
+Después del cambio, el texto del árbol sigue siendo `claro`, aunque la señal contiene `oscuro`:
+
+1. `final nombre = tema.value` consulta la señal antes de montar el widget y conserva el texto `claro`.
+2. El callback de `SignalBuilder` utiliza `nombre`; durante ese callback no ejecuta `tema.value`.
+3. En este montaje no se registra una dependencia de `tema`, así que su cambio no provoca una nueva construcción de
+   ese consumidor. La señal sigue teniendo su valor actual, que la última comprobación consulta por separado.
+
+La diferencia no es el tipo de widget que devuelve el callback, sino dónde se hace la lectura. Si el código exterior
+volviera a ejecutarse y entregara otro texto, el resultado podría cambiar por esa otra actualización.
+
+### Practica 3
+
+¿Qué línea cambiarías para que `SignalBuilder` observe `tema` al construir su texto?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Por ejemplo: `SignalBuilder(builder: (_) => Text(tema.value))`. La lectura ocurre ahora durante el callback que se
+está observando, así que en el montaje del ejemplo cambiar la señal y hacer `pump` permite mostrar `oscuro`. Guardar
+`nombre` antes del callback no establece esa misma relación.
+
+</details>
+
+## 4. ¿Quién registra la dependencia?
+
+Hasta aquí usamos `SignalBuilder` sin abrir su implementación. Sigamos ahora qué hace la versión instalada cuando
+construye el texto del apartado 2:
+
+1. Flutter construye el elemento asociado al `SignalBuilder`. Mientras ejecuta su construcción, ese elemento activa
+   un mecanismo temporal para detectar las lecturas de señales.
+2. El callback ejecuta `tema.value`. La señal entrega su valor e informa de esa lectura al mecanismo activo.
+3. Al terminar el callback, el elemento ajusta sus suscripciones a las señales que se leyeron en esa construcción.
+4. Si `tema` cambia y la suscripción recibe el aviso, el elemento solicita una nueva construcción. Flutter la procesa
+   cuando corresponda; en nuestras pruebas avanzamos el frame con `pump`.
+5. Cuando el `SignalBuilder` se desmonta, su elemento cancela sus suscripciones. Eso no convierte al widget en
+   propietario de las señales que recibió para leer.
+
+En `signals_flutter` 7.1.0, el elemento se llama `SignalElement`; recoge las lecturas mediante `onSignalRead` y usa
+`markNeedsBuild` para solicitar la construcción. Es un detalle de esa implementación, no una promesa de que todas las
+versiones deban usar los mismos nombres internos. No hace falta suponer que el callback esté envuelto en un `effect`:
+el mecanismo del widget y los efectos tienen responsabilidades distintas.
+
+### Practica 4
+
+Un `SignalBuilder` lee dos señales durante su construcción. Si una de ellas cambia, ¿quién solicita una nueva
+construcción y quién ejecuta el siguiente `builder`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+En la versión estudiada, la suscripción gestionada por `SignalElement` marca ese elemento para volver a construir.
+Flutter procesa el frame y ejecuta de nuevo el callback `builder`. La señal guarda y propaga el cambio, pero no dibuja
+ni reconstruye directamente toda la aplicación.
+
+</details>
+
+## 5. Las dependencias pueden cambiar
+
+Un callback puede elegir qué señal leer. En este ejemplo, `usarLocal` decide si mostramos el tema local o el global:
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  testWidgets('el builder cambia de fuente', (tester) async {
+    final usarLocal = signal(true);
+    final local = signal('local claro');
+    final global = signal('global claro');
+    addTearDown(usarLocal.dispose);
+    addTearDown(local.dispose);
+    addTearDown(global.dispose);
     var builds = 0;
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SignalBuilder(builder: (_) {
-        builds++;
-        return Text(verA.value ? a.value : b.value);
-      }),
-    ));
-    expect(find.text('A1'), findsOneWidget);
-    b.value = 'B2';
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SignalBuilder(builder: (_) {
+          builds++;
+          return Text(usarLocal.value ? local.value : global.value);
+        }),
+      ),
+    );
+    expect(find.text('local claro'), findsOneWidget);
+    expect(builds, 1);
+
+    global.value = 'global oscuro';
     await tester.pump();
     expect(builds, 1);
-    verA.value = false;
+
+    usarLocal.value = false;
     await tester.pump();
-    expect(find.text('B2'), findsOneWidget);
+    expect(find.text('global oscuro'), findsOneWidget);
     expect(builds, 2);
-    a.value = 'A2';
+
+    local.value = 'local bosque';
     await tester.pump();
     expect(builds, 2);
-    b.value = 'B3';
+    global.value = 'global nieve';
     await tester.pump();
-    expect(find.text('B3'), findsOneWidget);
+    expect(find.text('global nieve'), findsOneWidget);
     expect(builds, 3);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-### Recorrido y comprobación
+`builds` cuenta cuántas veces se ejecuta el callback en esta prueba. La expresión `condicion ? primero : segundo` lee
+solo la rama elegida. El recorrido es:
 
-- Primera construcción: `verA` es `true`, de modo que se leen `verA` y `a`; no se lee `b`. Cambiar `b` por sí
-  solo no marca este builder.
-- Cambiar `verA` a `false` sí lo marca. Al hacer `pump`, el callback lee `verA` y `b`, que ya contiene `B2`.
-- Al concluir esa construcción, el elemento deja de observar `a` y observa `b`. Cambiar `a` no aumenta el contador;
-  cambiar `b` sí reconstruye y muestra `B3`.
+1. Al principio `usarLocal` es `true`: el callback lee `usarLocal` y `local`, muestra `local claro` y el contador es 1.
+2. Cambiar `global` no provoca un build en este paso porque esa rama aún no se leyó; el contador sigue en 1.
+3. Cambiar `usarLocal` a `false` sí provoca otra construcción. Después de `pump`, el callback lee el valor actual de
+   `global`, que ya es `global oscuro`, y el contador pasa a 2.
+4. Tras esa construcción se observan `usarLocal` y `global`. Cambiar `local` no aumenta el contador; cambiar `global`
+   produce el tercer build y muestra `global nieve`.
 
-La retirada se establece **al terminar la construcción que tomó la nueva rama**, no en el mero instante en que se
-escribió `verA`. Para razonar sobre cambios antes del siguiente frame, hay que considerar que las suscripciones de la
-construcción anterior todavía pueden estar activas. En A y B hacemos `pump` entre los pasos que necesitan una nueva
-construcción. Si hay varias causas antes del frame, no debe confundirse el número de avisos con el número de builds.
+Las suscripciones se ajustan al terminar la nueva construcción, no en el mismo instante en que se escribe
+`usarLocal`. Por eso la prueba hace `pump` antes de analizar los cambios de la nueva rama. Varios avisos antes de un
+frame no implican necesariamente el mismo número de builds.
 
-- ¿Qué dos señales observa el elemento después del primer `pumpWidget`?
-- Después del `pump` que cambia de rama, ¿por qué modificar `a` no lo reconstruye?
-- ¿Por qué aparece `B2` si el cambio a `b` no provocó la reconstrucción anterior?
+### Practica 5
 
-## 10.5. La lectura debe suceder en el lugar observado
+Después de cambiar a la rama global y hacer `pump`, ¿por qué se muestra `global oscuro` si aquel cambio de `global` no
+había provocado un build por sí solo?
 
-Tener un callback dentro de otro no significa que se ejecuten a la vez. En Flutter, el callback de un `Builder` hijo
-se ejecuta cuando Flutter construye ese **otro elemento**, después de que el callback exterior haya devuelto el widget.
-El contexto temporal de recogida del `SignalBuilder` ya terminó.
+<details>
+<summary>Ver respuesta</summary>
 
-### Ejemplo C: un `Builder` hijo
+El cambio anterior dejó `global oscuro` guardado en la señal. La escritura de `usarLocal` solicitó la nueva
+construcción; al ejecutarse la rama global, el callback leyó el valor que `global` tenía en ese momento. Leer un valor
+actual y ser la causa que solicitó el build son cosas distintas.
+
+</details>
+
+## 6. La lectura debe ocurrir durante el callback observado
+
+Estar escrito dentro de un callback no garantiza que otro callback se ejecute en ese mismo momento. Aquí el
+`SignalBuilder` devuelve un `Builder` hijo; Flutter construye ese hijo después y ejecuta su propio callback:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -283,32 +320,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('la lectura del hijo ocurre fuera del builder reactivo', (tester) async {
+  testWidgets('la lectura ocurre en el hijo', (tester) async {
     final tema = signal('claro');
     addTearDown(tema.dispose);
-    var builds = 0;
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SignalBuilder(builder: (_) {
-        builds++;
-        return Builder(builder: (_) => Text(tema.value));
-      }),
-    ));
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SignalBuilder(
+          builder: (_) => Builder(builder: (_) => Text(tema.value)),
+        ),
+      ),
+    );
     tema.value = 'oscuro';
     await tester.pump();
     expect(find.text('claro'), findsOneWidget);
-    expect(builds, 1);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-En este montaje, el `SignalBuilder` exterior no lee `tema` durante su callback. Crea un `Builder` cuyo propio callback
-lo lee más tarde, sin un observador reactivo que haga dependiente al elemento exterior. Cambiar `tema` y hacer `pump` no
-cambia ese texto por sí solo. Esto no implica que el hijo jamás se reconstruya por otras causas.
+El resultado esperado tras el cambio es que el texto siga siendo `claro` en este montaje. El callback exterior solo
+crea y devuelve un `Builder`; la lectura de `tema.value` ocurre más tarde, cuando se ejecuta el callback del hijo. Esa
+lectura no quedó registrada por el `SignalBuilder` exterior. De nuevo, otra causa podría reconstruir el hijo.
 
-**Fragmento para corregirlo:** la lectura ocurre ahora durante el callback reactivo, y el `Builder` hijo recibe un
-valor ya obtenido:
+Una posible corrección es leer antes de devolverlo. Este es un **fragmento**, no un programa completo:
 
 ```dart
 SignalBuilder(
@@ -319,25 +356,28 @@ SignalBuilder(
 )
 ```
 
-Otra opción es colocar `SignalBuilder` alrededor de la lectura del hijo. La ubicación efectiva de la lectura importa
-más que la indentación del código. Del mismo modo, una lectura realizada después por un callback de botón, una tarea
-diferida o tras un `await` no pertenece simplemente por su posición textual a la construcción síncrona anterior.
+Ahora la lectura ocurre durante el callback observado y el hijo recibe el valor obtenido. Otra opción es situar un
+`SignalBuilder` en el punto donde el hijo lee la señal. La misma distinción temporal importa para lecturas en un
+callback de botón o una tarea diferida: no pertenecen al build anterior solo por estar escritas dentro de él.
 
-### Comprobación
+### Practica 6
 
-- ¿Cuándo se ejecuta el callback del hijo con respecto al callback de `SignalBuilder`?
-- ¿Qué ocurre si se lee `tema.value` antes de devolver el hijo? ¿Cuál de los dos elementos se observa?
-- ¿Por qué una lectura en un botón no establece por sí sola la dependencia del build anterior?
+¿Por qué añadir más sangría a `Text(tema.value)` dentro del callback del hijo no cambia el resultado? ¿Qué habría que
+cambiar?
 
-## 10.6. Lecturas explícitas y desmontaje
+<details>
+<summary>Ver respuesta</summary>
 
-La lista `dependencies` de `SignalBuilder` es opcional. En la versión instalada, su método `build` lee `dep.value`
-para cada entrada **dentro** de la construcción rastreada; así se observan aunque el callback solo use `peek()` u otro
-dato. [`peek`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html) permite
-consultar sin registrar esa lectura como dependencia. En D, sin embargo, `dependencies: [tema]` ya añade la señal:
-`peek()` no cancela una dependencia establecida por otra lectura.
+La sangría no cambia cuándo se ejecuta la función del hijo. Hay que mover la lectura al callback del
+`SignalBuilder` exterior o crear una observación en el lugar donde el hijo realiza la lectura. Lo decisivo es la
+secuencia de ejecución, no la posición visual del código.
 
-### Ejemplo D: dependencia explícita y retirada
+</details>
+
+## 7. Una lectura que no se rastrea: `peek`
+
+Hasta ahora leímos con `.value` durante el callback observado. Signals también ofrece `peek()` para consultar el
+valor sin que **esa lectura** registre una dependencia. Comparemos dos `SignalBuilder`:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -345,66 +385,74 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('dependencies y desmontaje', (tester) async {
+  testWidgets('peek y dependencia explícita', (tester) async {
     final tema = signal('claro');
     addTearDown(tema.dispose);
-    var builds = 0;
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SignalBuilder(
-        dependencies: [tema],
-        builder: (_) {
-          builds++;
-          return Text(tema.peek());
-        },
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(children: [
+          SignalBuilder(builder: (_) => Text('Peek: ${tema.peek()}')),
+          SignalBuilder(
+            dependencies: [tema],
+            builder: (_) => Text('Explícita: ${tema.peek()}'),
+          ),
+        ]),
       ),
-    ));
+    );
     tema.value = 'oscuro';
     await tester.pump();
-    expect(find.text('oscuro'), findsOneWidget);
-    expect(builds, 2);
+    expect(find.text('Peek: claro'), findsOneWidget);
+    expect(find.text('Explícita: oscuro'), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
     tema.value = 'bosque';
-    await tester.pump();
-    expect(builds, 2);
     expect(tema.value, 'bosque');
-    expect(tester.takeException(), isNull);
   });
 }
 ```
 
-`tema` cambia y la lista explícita provoca que el builder se marque; tras `pump`, `peek()` lee el valor actual y el
-contador es 2. Al desmontar el builder se cancelan sus suscripciones. Cambiar la señal después sigue siendo válido en
-este ejemplo porque el test posee la señal y no ha habilitado `autoDispose`; ya no hay un builder montado que aumentar.
-El test libera la señal al terminar. `dependencies` no es un mecanismo de propiedad de recursos.
+El resultado esperado tras el primer cambio y `pump` es:
 
-**Variación:** quita `dependencies: [tema]` y conserva solo `tema.peek()` en el callback. Predice si cambiar `tema`
-provoca una reconstrucción. Después reemplaza `peek()` por `value` y razona cuál de las lecturas registra ahora la
-señal. La solución está al final.
+```text
+Peek: claro
+Explícita: oscuro
+```
 
-### Comprobación
+El primer callback consulta `tema.peek()` sin otra lectura rastreada de la señal; en este árbol, el cambio no lo marca
+para construir de nuevo. El segundo incluye `tema` en `dependencies`. En la versión instalada, `SignalBuilder` lee
+cada señal de esa lista durante su construcción observada, así que sí registra la dependencia; su callback vuelve a
+consultar con `peek()` el valor actual.
 
-- ¿Quién lee la señal cuando figura en `dependencies` aunque el callback solo llame a `peek()`?
-- ¿Por qué `peek()` no borra la suscripción creada por otra lectura de la misma construcción?
-- ¿Quién cancela la escucha al desmontar? ¿Quién libera la señal en esta práctica?
+`peek()` no elimina una dependencia registrada por otra lectura. Al desmontar el árbol se cancelan sus observaciones;
+el test todavía posee la señal y puede cambiarla a `bosque` antes de que `addTearDown` la libere. Estas conclusiones
+usan las opciones predeterminadas; la propiedad y `autoDispose` se estudian en la unidad 13.
 
-## 10.7. El scope real de DaisyUI
+### Practica 7
 
-El flujo actual del proyecto usa otra relación. [
-`context.daisyTheme`](../../../lib/themes/core/extension/build_context.dart)
-llama a `DaisyThemeScope.of(context)`. Este busca el ancestro más cercano con
-[
-`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html),
-que registra una **dependencia heredada de Flutter**, y lee `scope.notifier!.value`.
+Si quitamos `dependencies: [tema]` del segundo builder y mantenemos solo `tema.peek()`, ¿qué texto esperamos después de
+cambiar a `oscuro` en este montaje? ¿Qué cambiaría si usamos `tema.value`?
 
-Por otra parte, [`DaisyThemeScope`](../../../lib/themes/application/daisy_theme_scope.dart) extiende
-[
-`InheritedNotifier<ValueListenable<DaisyThemeModel>>`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html).
-Su notifier es el `ValueNotifier` devuelto por `controller.theme` bajo el tipo `ValueListenable`. Son dos relaciones
-complementarias: el scope escucha al notifier y el consumidor queda registrado como dependiente del scope.
-`context.daisyTheme` no almacena otro tema ni registra una dependencia de Signals.
+<details>
+<summary>Ver respuesta</summary>
 
-### Ejemplo E: controlador, scope y consumidor
+Sin la lista, esa lectura de `peek()` no registra la señal y el segundo texto también permanecería en `claro` si no
+hay otra causa de build. Si leemos `tema.value` dentro de ese callback, la lectura sí queda rastreada y en este
+escenario el texto puede actualizarse después del cambio y `pump`.
+
+</details>
+
+## 8. La dependencia en DaisyUI sigue otro camino
+
+En DaisyUI, el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) conserva un
+`ValueNotifier<DaisyThemeModel>` y lo expone como `ValueListenable`. El
+[scope](../../../lib/themes/application/daisy_theme_scope.dart) extiende `InheritedNotifier` y escucha esa vista.
+Cuando un consumidor usa `context.daisyTheme`, la
+[extensión](../../../lib/themes/core/extension/build_context.dart) llama a `DaisyThemeScope.of(context)`, que busca el
+scope y registra una dependencia heredada de Flutter.
+
+Esta prueba usa los objetos reales del proyecto:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -412,174 +460,72 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('el scope actualiza a su consumidor', (tester) async {
+  testWidgets('el consumidor lee el scope de DaisyUI', (tester) async {
     final controller = DaisyThemeController();
     addTearDown(controller.dispose);
-    var builds = 0;
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: DaisyThemeScope(
-        controller: controller,
-        child: Builder(builder: (context) {
-          builds++;
-          return Text(context.daisyTheme.id);
-        }),
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DaisyThemeScope(
+          controller: controller,
+          child: Builder(
+            builder: (context) => Text(context.daisyTheme.name),
+          ),
+        ),
       ),
-    ));
-    expect(find.text('light'), findsOneWidget);
+    );
+    expect(find.text('Light'), findsOneWidget);
+
     controller.setTheme(DaisyThemes.dark);
     await tester.pump();
-    expect(find.text('dark'), findsOneWidget);
-    expect(builds, 2);
+    expect(find.text('Dark'), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-El test crea el controlador, monta el scope y construye un hijo que consulta el tema. Al cambiar a `dark`, el
-`ValueNotifier` acepta el valor, el aviso llega al `InheritedNotifier` y Flutter marca a sus dependientes.
-Después de `pump`, el `Builder` consumidor se reconstruye, vuelve a consultar el scope y muestra `dark`. No hay un
-`SignalBuilder` en este ejemplo.
+Primero se muestra `Light`. Al llamar a `setTheme`, el controlador cambia el valor de su notificador. El scope escucha
+ese notificador; Flutter puede actualizar el consumidor que registró una dependencia heredada. Después de `pump`, el
+callback vuelve a leer el tema y se muestra `Dark`. El test desmonta el scope y después libera el controlador que creó.
 
-El método `of` debe llamarse desde un contexto adecuado para registrar esa dependencia, como `build` o
-`didChangeDependencies`, no desde el constructor o `initState`. Las unidades 19–23 profundizan en ciclo de vida,
-ancestros y sustitución de notifier. El test desmonta el scope; el controlador se libera después por su propietario.
-La prueba existente [de scopes](../../../test/themes/daisy_theme_scope_test.dart) cubre scopes anidados, reemplazo del
-controlador y desmontaje de un scope con controlador prestado.
+Aquí no interviene `SignalBuilder`: la dependencia de `context.daisyTheme` pertenece al mecanismo heredado de Flutter,
+no al rastreo de señales de Signals. Más adelante estudiaremos con detalle contextos, ancestros e
+`InheritedNotifier`; por ahora basta con identificar quién escucha y quién consulta el scope.
 
-### Comprobación
+### Practica 8
 
-- ¿Qué objeto registra el callback en la vista del controlador?
-- ¿Qué llamada registra al consumidor como dependiente del scope?
-- ¿Por qué la reconstrucción de E no necesita `SignalBuilder`?
-- ¿Qué diferencia hay entre desmontar el scope y liberar el controlador que se le prestó?
+Si el controlador de DaisyUI usa `ValueNotifier`, ¿por qué esta prueba no necesita envolver `context.daisyTheme` en un
+`SignalBuilder` para que el consumidor del scope se actualice?
 
-## 10.8. Comparar los mecanismos
+<details>
+<summary>Ver respuesta</summary>
 
-| Mecanismo        | Cómo se establece la relación                                                              | Qué sucede cuando cambia la fuente                                                             |
-|------------------|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
-| Lectura puntual  | Se consulta `.value` sin un observador activo ni registro explícito.                       | Esa lectura por sí sola no solicita un build; otra causa sí puede reconstruir y volver a leer. |
-| `addListener`    | Un consumidor registra una función en un `Listenable`.                                     | La implementación llama al callback según sus reglas; el callback decide qué hacer.            |
-| `SignalBuilder`  | Su elemento reúne lecturas síncronas y mantiene suscripciones; también lee `dependencies`. | Una suscripción marca ese elemento; Flutter procesa la construcción en un frame.               |
-| Scope de DaisyUI | `InheritedNotifier` escucha la vista; `of(context)` registra una dependencia heredada.     | El aviso llega al scope y Flutter puede actualizar sus dependientes en un frame.               |
+El scope ya escucha el notificador y la consulta registra una dependencia heredada mediante Flutter. Esa relación
+permite actualizar al consumidor cuando llega el aviso. Añadir `SignalBuilder` no convierte ese `ValueNotifier` en una
+señal de Signals ni sustituye la relación del scope.
 
-Un consumidor puede tener varias dependencias o recibir reconstrucciones por razones distintas a una señal. Los
-resultados de los ejemplos se refieren al árbol y a la secuencia controlada de cada prueba. Una relación de observación
-no es una garantía de que *ningún otro* widget se reconstruya, ni una medición de repintado.
+</details>
 
-## Materiales de estudio seleccionados
+## Ejercicio final: un panel con dos temas
 
-- **S1 · Signals:** [
-  `SignalBuilder`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
-  y [`SignalWidget`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalWidget-class.html) —
-  lecturas síncronas, callback, lista explícita y desmontaje. En la caché local revisa los archivos
-  `signals_flutter-7.1.0/lib/src/widgets/signal_builder.dart` y `signal_widget.dart` para los pasos concretos.
-- **S2 · Signals:** [
-  `FlutterSignal`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
-  y [`signals_core`](https://pub.dev/packages/signals_core) — lectura, suscripción y `peek`. Las versiones de la
-  documentación `latest` pueden cambiar.
-- **F1 · Flutter:** [`InheritedNotifier`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html) y
-  [
-  `dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html)
-  — escucha y dependencia heredada, incluidas las restricciones de ciclo de vida.
-- **F2 · Flutter:** [introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)
-  y [`WidgetTester.pump`](https://api.flutter.dev/flutter/flutter_test/WidgetTester/pump.html) — frames de prueba.
-- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
-  [extensión](../../../lib/themes/core/extension/build_context.dart) y
-  [pruebas de scopes](../../../test/themes/daisy_theme_scope_test.dart).
-- **P2 · Versiones:** [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
+Escribe una prueba de widgets que:
 
-## Proyecto de la unidad: un panel con dos fuentes
+1. Cree `usarLocal = true`, `local = 'local claro'` y `global = 'global claro'` como señales.
+2. Monte un `SignalBuilder` que muestre la fuente local o global según `usarLocal`, y cuente las construcciones.
+3. Cambie `global` a `'global oscuro'` mientras se muestra local; procese un frame y compruebe el contador.
+4. Cambie `local` a `'local oscuro'`; procese un frame. Después cambie `usarLocal` a `false` y procese otro.
+5. Cambie otra vez `local` y finalmente `global` a `'global bosque'`, con un `pump` tras cada cambio. Compruebe qué
+   texto se muestra y cuántas veces se construyó el callback.
+6. Desmonte el árbol y libere las señales creadas por el test.
 
-Construye un `SignalBuilder` que muestre el valor de `local` o de `global` según una señal booleana `usarLocal`.
-Mantén las tres señales vivas durante la prueba y cuenta las construcciones del callback. No uses el scope real en
-esta práctica: estamos aislando las dependencias dinámicas de `SignalBuilder`.
+Predice el texto y el contador antes de abrir la solución. Como variaciones, añade `dependencies: [local, global]` y
+razona qué pasaría al cambiar local cuando se muestra global; después imagina que se captura `local.value` antes de
+montar el árbol. ¿Qué lectura deja de registrarse?
 
-### Requisitos
-
-1. Inicializa `usarLocal` en `true`, `local` en `local claro` y `global` en `global claro`.
-2. Cambia `global` mientras se muestra la fuente local y procesa un frame. Predice el texto y los builds.
-3. Cambia `local` a `local oscuro` y procesa un frame. Cambia `usarLocal` a `false` y procesa otro.
-4. Cambia `local` de nuevo; después cambia `global` a `global bosque`. Procesa un frame tras cada escritura y
-   justifica cuándo se construye y qué muestra.
-5. Desmonta el árbol antes de liberar las señales. Una solución aparece al final: intenta escribir la tuya primero.
-
-### Variaciones
-
-- Añade `dependencies: [local, global]`. Después de cambiar a la rama global, ¿qué ocurre al cambiar `local`?
-- Captura `final nombre = local.value` antes de montar y úsalo en la rama local. ¿Qué pierde el builder?
-- Si ambos valores cambian antes de un solo `pump`, ¿por qué no debes deducir dos builds solo por contar escrituras?
-- Si se desmonta el panel y el test conserva las señales con configuración predeterminada, ¿quién las libera?
-
-## Errores de comprensión que vamos a comprobar
-
-- Suponer que cualquier lectura de `.value` se convierte en una dependencia de reconstrucción.
-- Confundir un `String` capturado antes del build con la señal que lo produjo.
-- Suponer que un callback de hijo, botón o tarea diferida se ejecuta durante el callback reactivo exterior.
-- Creer que se observan todas las señales mencionadas en una condición, incluso la rama no ejecutada.
-- Olvidar que la rama anterior sigue observada hasta que una nueva construcción reajusta suscripciones.
-- Creer que `peek()` borra otra lectura rastreada o que `dependencies` transfiere propiedad de las señales.
-- Atribuir al `SignalBuilder` concreto un mecanismo interno de otra versión o de `effect`/`computed`.
-- Confundir la dependencia heredada de DaisyUI con una lectura rastreada por `SignalBuilder`.
-- Identificar avisos, builds y repintados como el mismo evento o suponer exclusividad de reconstrucciones.
-
-## Comprobación final
-
-1. ¿Qué es una dependencia y por qué una lectura puntual no implica una suscripción del widget?
-2. En A, ¿qué consumidor observa `tema`, qué contiene `capturado` y por qué los otros textos permanecen iguales?
-3. ¿Cómo puede cambiar el texto de un `Builder` normal más tarde sin haber escuchado la señal?
-4. En la versión instalada, ¿quién instala el gancho de lectura, quién informa del getter y quién mantiene las
-   suscripciones del `SignalBuilder`?
-5. ¿Qué paso ocurre entre la escritura aceptada y la siguiente ejecución del callback de construcción?
-6. En B, ¿cuáles son las dependencias antes y después de cambiar la rama y hacer `pump`?
-7. ¿Por qué `B2` aparece al cambiar la rama aunque esa escritura no reconstruyera el panel en su momento?
-8. En C, ¿por qué el `Builder` hijo no transfiere su lectura al `SignalBuilder` exterior? Propón una corrección.
-9. En D, ¿por qué `peek()` no impide observar `tema` y qué sucede si se elimina `dependencies`?
-10. En DaisyUI, ¿quién escucha el notifier y qué llamada registra la dependencia del consumidor?
-11. ¿Quién retira las suscripciones del widget y quién posee y libera las señales de los ejemplos?
-12. ¿Qué demuestran los `pump` y los contadores de estas pruebas y qué no demuestran?
-
-**Unidad dominada cuando:** puedes explicar cada relación y resolver el proyecto sin copiar las soluciones, indicando
-si la lectura ocurre en una construcción observada, quién registra la dependencia y qué evento provoca la siguiente
-construcción.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
-
-Después de cambiar a `oscuro` y hacer `pump`, los textos son `puntual:claro`, `rastreado:oscuro` y `capturado:claro`;
-los contadores son `[1, 2, 1]`. El primer `Builder` puede volver a leer el valor si otra causa lo reconstruye; el
-tercero
-necesita que se le entregue otra captura o que lea la señal dentro del contexto observado.
-
-### Ejemplo B
-
-Al principio las dependencias son `verA` y `a`. Cambiar `b` no construye; al cambiar `verA` y hacer `pump`, el panel
-lee el valor actual `B2` y pasa a depender de `verA` y `b`. `a` deja de producir builds en el siguiente paso; `b`
-produce uno y muestra `B3`. Los contadores son 1, 2, 2 y 3 en los puntos indicados.
-
-### Ejemplo C
-
-El callback exterior devuelve un `Builder` y termina. Flutter ejecuta después el callback del elemento hijo; esa lectura
-no fue recogida por el `SignalElement` exterior. En el montaje del test, cambiar la señal deja el texto `claro` y el
-contador exterior en 1. Mover `final actual = tema.value` al callback exterior o colocar otro `SignalBuilder` en el
-punto de lectura permite establecer una observación en el elemento correspondiente.
-
-### Ejemplo D
-
-La lista explícita causa la lectura rastreada; `peek()` consulta sin añadir otra. Hay dos builds antes del desmontaje;
-después de desmontar, una nueva escritura no ejecuta el callback y el test todavía puede leer `bosque`. Sin la lista y
-con solo `peek()`, no se registra esa señal y el cambio no provoca build en este montaje. Sustituir `peek()` por
-`value` dentro del callback vuelve a registrar la dependencia.
-
-### Ejemplo E
-
-El primer build muestra `light`. La escritura a `dark` emite el aviso por la vista; el `InheritedNotifier` actualiza
-la relación heredada y, tras `pump`, el consumidor se reconstruye y muestra `dark`; el contador pasa a 2. El scope toma
-prestado el controlador y el test lo libera al final.
-
-### Una solución del proyecto
+<details>
+<summary>Ver una posible solución</summary>
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -587,7 +533,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('panel que cambia de fuente', (tester) async {
+  testWidgets('un panel cambia entre dos temas', (tester) async {
     final usarLocal = signal(true);
     final local = signal('local claro');
     final global = signal('global claro');
@@ -596,15 +542,18 @@ void main() {
     addTearDown(global.dispose);
     var builds = 0;
 
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SignalBuilder(builder: (context) {
-        builds++;
-        final nombre = usarLocal.value ? local.value : global.value;
-        return Text(nombre);
-      }),
-    ));
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SignalBuilder(builder: (_) {
+          builds++;
+          return Text(usarLocal.value ? local.value : global.value);
+        }),
+      ),
+    );
     expect(find.text('local claro'), findsOneWidget);
+    expect(builds, 1);
+
     global.value = 'global oscuro';
     await tester.pump();
     expect(builds, 1);
@@ -623,47 +572,53 @@ void main() {
     await tester.pump();
     expect(find.text('global bosque'), findsOneWidget);
     expect(builds, 4);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-La rama local observa `usarLocal` y `local`, así que el primer cambio global no construye. Cambiar local produce el
-segundo build. Al seleccionar global, el tercero lee `global oscuro` y sustituye la dependencia local por global.
-El cambio posterior local no construye; `global bosque` causa el cuarto build. En la variación con ambas señales en
-`dependencies`, cambiar local sí marca el builder aun cuando la rama seleccionada sea global: las lecturas explícitas
-se suman a las del callback. Si se captura antes el valor local y ya no se lee `local` dentro, desaparece esa
-observación salvo que exista otra lectura registrada, por ejemplo en `dependencies`.
+Al montar se observan `usarLocal` y `local`: cambiar solo `global` no provoca un build. El cambio de `local` produce el
+segundo. Al pasar a la rama global, el tercero lee `global oscuro`; cambiar local después no produce otro, pero cambiar
+global muestra `global bosque` en el cuarto.
 
-### Claves de la comprobación final
+Si ambas señales aparecen en `dependencies`, la lectura explícita de `local` también mantiene esa dependencia al
+mostrar global; cambiar local puede marcar el builder. Si se captura el texto local antes de montar y la rama utiliza
+solo esa captura, el callback deja de leer la señal local, salvo que otra lectura —por ejemplo en `dependencies`— la
+registre. Si varias escrituras ocurren antes de un solo `pump`, no se puede deducir un build por cada escritura.
 
-1. Es la relación entre consumidor y fuente; leer sin un mecanismo de registro no conecta cambios futuros con builds.
-2. Solo el segundo builder observa `tema`; `capturado` guarda `claro`; no hubo otra causa de build para los demás.
-3. Su padre u otra dependencia puede causar una reconstrucción, durante la que lee de nuevo.
-4. `SignalElement` instala `onSignalRead`, el getter de Signals informa de la lectura y el elemento ajusta las
-   suscripciones.
-5. La suscripción marca el elemento; Flutter lo construye al procesar el frame.
-6. Primero `verA` y `a`; después del build de cambio de rama, `verA` y `b`.
-7. El segundo build consulta el valor actual de `b`, aunque el cambio previo no hubiera provocado ese build.
-8. Su callback corre al construir otro elemento, después del callback exterior. Lee en el exterior o usa un observador
-   en el hijo.
-9. `dependencies` ya leyó `tema`; sin esa lista y usando solo `peek()` no se registra esa fuente en el ejemplo.
-10. El elemento de `InheritedNotifier` escucha la vista; `dependOnInheritedWidgetOfExactType` registra al consumidor.
-11. El elemento desmontado cancela sus observaciones; el test que creó las señales las libera.
-12. Demuestran los builds y textos de esos árboles y secuencias; no demuestran comportamiento en dispositivo ni
-    repintado, ni que otros árboles no puedan reconstruirse por otras causas.
+</details>
 
-## Qué se ha revisado y cómo se ha comprobado
+## Comprueba si puedes avanzar
 
-- Se contrastaron las fuentes oficiales enlazadas y el código actual del controlador, scope, extensión y pruebas.
-  También se leyeron las implementaciones instaladas de `signals_flutter` 7.1.0, `signals_core` 7.0.0 y
-  `preact_signals` 7.0.0 para separar el gancho del elemento del mecanismo interno de `effect`.
-- El grafo rechazó indexar esta carpeta por su configuración de acceso; los archivos citados se verificaron mediante
-  lectura directa.
-- Pasaron los cinco ejemplos, la solución del proyecto, tres pruebas de variaciones y las cuatro pruebas existentes del
-  scope: **13 pruebas de widgets**. El analizador de Dart no encontró problemas en los siete archivos temporales;
-  después
-  se retiraron. Se verificó que los seis ejemplos completos de la guía coinciden con los archivos ejecutados.
-- Se comprobaron los enlaces locales, las anclas, los bloques de código y `git diff --check`. Las pruebas verifican
-  árboles y frames controlados, no una pantalla física ni sus repintados. El estudio permanece pendiente hasta resolver
-  y explicar las prácticas.
+Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
+
+1. ¿Por qué leer `.value` una vez no implica una suscripción? **Apartado 1.**
+2. ¿Qué diferencia hubo entre `Builder` y `SignalBuilder` en el árbol de prueba? **Apartado 2.**
+3. ¿Por qué usar un texto capturado antes del callback no rastrea la señal que lo produjo? **Apartado 3.**
+4. ¿Quién recoge las lecturas, quién solicita un build y cuándo lo procesa Flutter? **Apartado 4.**
+5. ¿Qué señales observa el panel de la rama local y cuáles después de construir la rama global? **Apartado 5.**
+6. ¿Por qué una lectura en el callback de un `Builder` hijo puede quedar fuera del callback observado? **Apartado 6.**
+7. ¿Qué hace `peek()` y por qué `dependencies` puede mantener una observación de esa misma señal? **Apartado 7.**
+8. ¿Qué escucha el scope de DaisyUI y qué tipo de dependencia registra `context.daisyTheme`? **Apartado 8.**
+9. ¿Qué demuestran las pruebas con `pump` y qué haría falta para valorar una pantalla física? **Apartados 2 y 8.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques dónde ocurre cada lectura,
+quién registra la observación y qué provoca la siguiente construcción. La unidad 11 estudia valores derivados con
+`computed`.
+
+## Para consultar si necesitas reforzar
+
+- [`SignalBuilder`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html):
+  callback de construcción y dependencias explícitas. Compara `latest` con la versión instalada.
+- [`FlutterSignal`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html):
+  lectura de la señal y `peek()`.
+- [`InheritedNotifier`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html) y
+  [`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html):
+  escucha y dependencia heredada de Flutter.
+- [Pruebas de widgets de Flutter](https://docs.flutter.dev/cookbook/testing/widget/introduction): montaje y frames de
+  prueba.
+- [Controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
+  [extensión de contexto](../../../lib/themes/core/extension/build_context.dart) y
+  [pruebas del scope](../../../test/themes/daisy_theme_scope_test.dart): comportamiento del proyecto.

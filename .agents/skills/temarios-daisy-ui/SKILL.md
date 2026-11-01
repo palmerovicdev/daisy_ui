@@ -13,6 +13,14 @@ Usa esta guía al crear o rehacer unidades del plan de estudio de este repositor
 - Comprueba en los archivos actuales de DaisyUI los fragmentos y comportamientos que atribuyas al proyecto. Distingue el ejemplo simplificado del código real y señala si un fragmento no es ejecutable por sí solo.
 - Adapta la profundidad a lo que el lector necesita en esa unidad. Introduce términos y sintaxis antes de depender de ellos; reserva los mecanismos de unidades posteriores como un puente breve, sin dar por aprendido lo que todavía no se explicó.
 
+## Formato de las guías
+
+- Sigue el estilo didáctico de las unidades 07–09: organiza el tema en apartados numerados, cada uno con una idea, un ejemplo legible y su explicación paso a paso. Mantén el lenguaje cercano y adapta la profundidad al tema.
+- Después de cada idea o bloque coherente, incluye una práctica breve de predicción o modificación y, junto a ella, su respuesta razonada en `<details><summary>Ver respuesta</summary>...</details>`. El lector debe poder resolverla con lo enseñado hasta ese punto.
+- Presenta los programas completos como independientes; muestra su salida o resultado esperado y explica las líneas nuevas. Para pruebas de widget, muestra los resultados esperados y explica qué demuestran y qué no. Identifica los fragmentos y proporciona instrucciones de ejecución que funcionen con las dependencias reales.
+- Cierra con un ejercicio que combine las ideas, su solución explicada en un desplegable junto al enunciado, preguntas para comprobar si se puede avanzar y recursos pertinentes. Evita concentrar las únicas soluciones al final o sustituir ejemplos pedagógicos por listas de preguntas.
+- Conserva los objetivos y las variaciones existentes; no sacrifiques exactitud o comportamiento específico de una versión para uniformar el formato. No conviertas una unidad extensa en una plantilla rígida: agrupa subapartados relacionados cuando ayude a enseñar.
+
 ## Enseñar paso a paso
 
 - Empieza por una situación concreta y di qué podrá hacer el estudiante al terminar. Explica el problema y la idea con palabras sencillas antes de introducir el nombre técnico.

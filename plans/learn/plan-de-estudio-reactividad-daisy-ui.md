@@ -26,6 +26,12 @@ aprender todo su contenido de una vez.
 No daremos por explicado un mecanismo diciendo solamente que ocurre «automáticamente»: identificaremos quién conserva el
 dato, quién registra la dependencia, quién avisa y quién solicita reconstruir la interfaz.
 
+Las guías siguen el formato de las unidades 07–09: presentan una idea cada vez con ejemplos pequeños, salida o
+resultado esperado y explicación paso a paso. Cada apartado incluye una práctica breve y su respuesta explicada en un
+desplegable próximo; el ejercicio final también tiene una solución accesible. Los ejemplos completos indican cómo
+ejecutarlos, los fragmentos se identifican como tales y las pruebas de widget explican qué demuestran. Ajustaremos la
+profundidad al tema sin adelantar mecanismos de unidades posteriores como si ya se conocieran.
+
 ## Bloque 1. Las bases para comprender la observación
 
 ### 1. Estado, valor actual y cambio
@@ -123,7 +129,7 @@ El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`
 - **Debes comprender:** que una referencia sea `final` no hace inmutable cualquier objeto al que apunte. La igualdad
   influye en si un cambio merece una notificación.
 - **Práctica:** comparar el mismo objeto, dos objetos con los mismos datos y una copia con un campo distinto.
-- [ ] **Dominado cuando:** puedes separar «es el mismo objeto», «tiene los mismos datos» y «no se puede modificar».
+- [X] **Dominado cuando:** puedes separar «es el mismo objeto», «tiene los mismos datos» y «no se puede modificar».
 
 **Guía y materiales:** [08. Identidad, igualdad e inmutabilidad](temarios/08-identidad-igualdad-e-inmutabilidad.md).
 
@@ -137,7 +143,7 @@ El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`
   que Flutter puede escuchar.
 - **Práctica:** crear una señal con el tema claro, registrar un listener, cambiar al tema oscuro y comprobar el orden de
   ejecución.
-- [ ] **Dominado cuando:** puedes explicar cómo una señal de ejemplo almacena el valor y avisa a sus observadores.
+- [X] **Dominado cuando:** puedes explicar cómo una señal de ejemplo almacena el valor y avisa a sus observadores.
 
 El controlador actual usa `ValueNotifier`, no una señal de Signals; esta unidad estudia Signals por separado.
 
@@ -179,6 +185,8 @@ desde un cálculo de Signals no registra por sí solo una dependencia reactiva.
 
 Es una profundización del ecosistema Signals; nuestro flujo actual de temas no necesita un `effect` propio.
 
+**Guía y materiales:** [12. Efectos y suscripciones](temarios/12-efectos-y-suscripciones.md).
+
 ### 13. Propiedad de los recursos y `dispose`
 
 - **Conceptos:** propietario, recurso prestado, registro de listeners, retirada de listeners y liberación.
@@ -187,6 +195,8 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
 - **Práctica:** crear un controlador y un consumidor; retirar el consumidor, reutilizar el controlador y liberarlo
   cuando termina su uso.
 - [ ] **Dominado cuando:** puedes identificar qué objeto debes liberar y cuál solamente debes dejar de escuchar.
+
+**Guía y materiales:** [13. Propiedad de los recursos y `dispose`](temarios/13-propiedad-de-los-recursos-y-dispose.md).
 
 ## Bloque 4. Controladores, encapsulación y servicio global
 

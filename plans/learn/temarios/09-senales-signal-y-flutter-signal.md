@@ -1,520 +1,621 @@
 # 09. Señales: `signal<T>` y `FlutterSignal<T>`
 
 [Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 8](08-identidad-igualdad-e-inmutabilidad.md)
+[Repasar la unidad 8](08-identidad-igualdad-e-inmutabilidad.md) · **Estado:** pendiente
 
-- **Bloque:** Signals: almacenar y relacionar estado.
-- **Estado de estudio:** pendiente.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+En la unidad 7 vimos un `ValueNotifier`: guarda un valor, permite sustituirlo y avisa a sus listeners. Ahora
+aprenderemos otra forma de guardar estado observable: una **señal** del paquete Signals.
 
-Podrás seguir la creación de una señal, su valor inicial, una lectura, el registro de un listener y una escritura.
-Identificarás qué objeto almacena el valor, qué compara la implementación instalada, cuándo el listener puede leer el
-nuevo valor y por qué un aviso no equivale por sí solo a una reconstrucción de Flutter.
+Al terminar podrás crear una señal, leer y cambiar su valor, registrar y retirar un listener y seguir el orden de los
+avisos. También sabrás reconocer el objeto señal, el valor que contiene y una lectura hecha en un momento anterior.
+Después compararemos estos ejemplos con el controlador de temas que usa DaisyUI.
 
-Estudiaremos Signals con ejemplos independientes y los compararemos con el controlador actual, que usa
-`ValueNotifier` para sus temas. Las dependencias rastreadas y `SignalBuilder` se estudian en la unidad 10;
-`computed`, `effect` y propiedad de recursos tienen unidades posteriores.
-
-## Cómo practicar
-
-Las pruebas completas de A y C están en las soluciones; las de B y D aparecen en sus secciones. La solución del
-proyecto también es una prueba completa. Copia una de ellas a la vez en `test/estudio_senales_test.dart` dentro del
-repositorio y ejecuta:
-
-```shell
-flutter test --no-pub test/estudio_senales_test.dart
-```
-
-La opción `--no-pub` presupone que las dependencias ya están resueltas e instaladas; si aún no lo están, ejecuta antes
-`flutter pub get` en la raíz del proyecto. Las pruebas importan `signals_flutter` y `flutter_test`, por lo que
-necesitan el entorno Flutter del proyecto; no funcionan en DartPad. Los fragmentos de 9.1, los enunciados de A y C y
-el fragmento del controlador en 9.7 sirven para leer y predecir: no son programas completos ejecutables por sí solos.
-
-Esta guía se contrastó con `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0 (resueltas en
-`pubspec.lock`); si tu proyecto usa otra versión, algunos detalles internos pueden diferir.
-
-## Índice
-
-- [9.1. Qué problema resuelve una señal](#91-qué-problema-resuelve-una-señal)
-- [9.2. Crear, leer y escribir](#92-crear-leer-y-escribir)
-- [9.3. Observar una señal desde Flutter](#93-observar-una-señal-desde-flutter)
-- [9.4. Orden de ejecución y valor actual](#94-orden-de-ejecución-y-valor-actual)
-- [9.5. Igualdad y conservación del valor](#95-igualdad-y-conservación-del-valor)
-- [9.6. Mutación interna y sustitución](#96-mutación-interna-y-sustitución)
-- [9.7. Comparar con DaisyUI](#97-comparar-con-daisyui)
-- [9.8. Avisos, widgets y ciclo de vida](#98-avisos-widgets-y-ciclo-de-vida)
-- [Proyecto de la unidad](#proyecto-de-la-unidad-un-selector-de-tema)
-- [Comprobación final](#comprobación-final)
-
-Escribe tus predicciones antes de mirar las soluciones y anota qué secciones puedes explicar con tus palabras.
-
-## 9.1. Qué problema resuelve una señal
-
-Una variable guarda una referencia que podemos consultar y, si es reasignable, cambiar. Pero un consumidor que leyó
-esa variable en otro momento no recibe por ello un aviso de cambios. Una señal añade una fuente observable: conserva
-un valor actual y ofrece formas de relacionar observadores con cambios aceptados de ese valor.
-
-Piensa en una pizarra con el tema actual y un sistema para avisar a quienes se apuntaron. Leer la pizarra una vez no
-es lo mismo que apuntarse para escuchar. Esta analogía no explica por sí sola cómo se registran observadores, cómo se
-compara un valor ni cuándo Flutter decide reconstruir: esas decisiones pertenecen a implementaciones concretas.
-
-En este proyecto, [`signal<T>` de
-`signals_flutter`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
-crea un [
-`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
-mutable con un valor inicial. `T` describe el tipo del **valor que contiene**, no el tipo de la variable que contiene
-la referencia a la señal.
+Los programas de consola completos son independientes. Para ejecutarlos en este proyecto, copia **uno cada vez** a
+`test/estudio_senal_test.dart`, añade `import 'package:flutter_test/flutter_test.dart';` junto a sus imports y cambia el
+nombre de su `void main()` a `void ejemplo()`. Deja las clases, si las hay, fuera de esa función y añade al final:
 
 ```dart
-
-final FlutterSignal<int> contador = signal<int>(0);
-```
-
-Aquí `contador` referencia el objeto señal; `contador.value` lee el entero que la señal contiene. `final` impide
-reasignar la variable `contador`, pero no impide cambiar `contador.value`. La señal es la celda; el entero es el dato
-actual. No son el mismo objeto ni tienen el mismo papel.
-
-### Comprobación
-
-- ¿Qué se conserva en `contador` y qué devuelve `contador.value`?
-- ¿Por qué se puede escribir `contador.value = 1` si `contador` es `final`?
-- ¿Leer una vez `contador.value` equivale a registrar un listener?
-
-## 9.2. Crear, leer y escribir
-
-### Ejemplo A: una lectura antigua y otra nueva
-
-Sin ejecutar el fragmento, anota qué contiene `lecturaAnterior` al leerla y qué contienen `tema.value` y
-`lecturaAnterior` después de la asignación. Después contrasta tus tres respuestas con la prueba completa de las
-[soluciones](#ejemplo-a).
-
-```dart
-final FlutterSignal<String> tema = signal<String>('claro');
-final lecturaAnterior = tema.value;
-tema.value = 'oscuro';
-```
-
-La escritura `tema.value = 'oscuro'` llama al setter de la señal; no sustituye la variable `tema`. En esta combinación
-de versiones el setter delega en `set`, que comprueba si acepta la propuesta y actualiza el valor en caso afirmativo.
-Crear una segunda señal con el mismo valor inicial crea otra celda independiente; no crea otra referencia a la primera.
-
-### Comprobación
-
-- ¿Qué vale `lecturaAnterior` después de la asignación y por qué?
-- ¿Qué se sustituye: la señal o su valor?
-- Si hay dos señales creadas por separado, ¿escribir en una cambia la otra?
-
-## 9.3. Observar una señal desde Flutter
-
-Una `FlutterSignal<T>` también puede usarse como [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html).
-Desde ese tipo puedes leer `value`, registrar un callback con `addListener` y retirarlo con `removeListener`, usando
-la misma referencia a la función. El tipo `ValueListenable` no expone un setter ni `dispose`, aunque el objeto real
-pueda ofrecerlos.
-
-En el siguiente ejemplo, registrar el callback no lo ejecuta. Cuando la señal acepta un cambio, lo avisa y el callback
-lee el valor actual; tras retirarlo, la señal puede seguir cambiando sin llamarlo. Ese comportamiento al registrar
-corresponde a la configuración predeterminada usada aquí, no a todos los `Listenable`.
-
-### Ejemplo B: registrar, cambiar y retirar
-
-```dart
-import 'package:flutter/foundation.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
-
 void main() {
-  test('un listener observa los cambios aceptados', () {
-    final FlutterSignal<String> tema = signal<String>('claro');
-    final ValueListenable<String> lectura = tema;
-    addTearDown(tema.dispose);
-    final eventos = <String>[];
-    void escuchar() => eventos.add('aviso: ${lectura.value}');
-
-    lectura.addListener(escuchar);
-    eventos.add('antes');
-    tema.value = 'oscuro';
-    eventos.add('después');
-    lectura.removeListener(escuchar);
-    tema.value = 'bosque';
-
-    expect(eventos, ['antes', 'aviso: oscuro', 'después']);
-    expect(lectura.value, 'bosque');
-  });
+  test('práctica de señales', ejemplo);
 }
 ```
 
-La variable `lectura` y `tema` apuntan a la **misma señal**; cambiar el tipo declarado no crea un adaptador ni elimina
-las capacidades del objeto real. El tipo `ValueListenable` restringe qué operaciones se pueden escribir a través de
-esa variable, pero un consumidor podría reconocer el tipo real mediante un cast. El controlador actual de DaisyUI
-expone de forma similar su `ValueNotifier` mediante el tipo `ValueListenable`; no usa un adaptador separado.
+Después ejecuta `flutter test --no-pub test/estudio_senal_test.dart` desde la raíz. El test llama a `ejemplo` y
+muestra sus `print` en la consola; `--no-pub` requiere las dependencias ya resueltas. La prueba guiada de widgets y la
+del controlador ya tienen su propio `main` de test: cópialas sin envolverlas de nuevo. DartPad no incluye
+necesariamente `signals_flutter`, por lo que no asumimos que pueda ejecutar estos ejemplos. Predice la salida antes
+de mirarla. Puedes estudiar los apartados 1–3 en una sesión, 4–6 en otra y terminar después con Flutter, DaisyUI y el
+ejercicio final. Borra tu archivo de práctica cuando termines si no necesitas conservarlo.
 
-### Un detalle de la implementación
+Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals`
+7.0.0. Puedes consultar las versiones resueltas en [pubspec.lock](../../../pubspec.lock). Los detalles de las
+notificaciones se refieren a las opciones predeterminadas y las secuencias que se muestran. El controlador actual de
+DaisyUI usa `ValueNotifier`, no una señal: las señales de esta unidad son ejemplos independientes.
 
-`FlutterSignal<T>` extiende la señal del núcleo y, en la versión instalada, implementa la interfaz
-`ValueNotifier<T>` mediante `ValueNotifierSignalMixin<T>`. Esto también la hace compatible con `ChangeNotifier`, por lo
-que `senal is ChangeNotifier` resulta verdadero. **Implementar esa interfaz no significa heredar su implementación:**
-`FlutterSignal` no extiende `ChangeNotifier`; su almacenamiento, comparación y escucha proceden de Signals.
+## 1. Una caja que conserva un valor
 
-En `signals_flutter` 7.1.0, `addListener(callback)` crea una suscripción interna y guarda en un mapa cómo cancelarla.
-Con `runCallbackOnListen: false`, la opción predeterminada, el puente suprime la primera llamada al callback del
-consumidor; con `runCallbackOnListen: true`, lo llama al registrar. Volver a registrar el mismo callback no crea otra
-entrada en el mapa y una retirada cancela la suscripción. Otras implementaciones de `Listenable`, como
-`ChangeNotifier`, pueden tratar los registros duplicados de otra forma.
-
-### Comprobación
-
-- ¿Por qué el callback puede leer `oscuro` sin recibir argumentos?
-- ¿Por qué `lectura.value` termina siendo `bosque` aunque el listener ya no reciba el aviso?
-- ¿Qué pasa si eliminas `removeListener`? ¿Qué ocurre con el tipo real al declarar `lectura` como `ValueListenable`?
-
-## 9.4. Orden de ejecución y valor actual
-
-En B, sin un `batch` externo ni escrituras reentrantes, el cambio aceptado se guarda y el callback se ejecuta durante
-la asignación, antes de añadir `después`. El listener lee el valor actual a través de la fuente. La suscripción del
-puente de Flutter se implementa con el mecanismo reactivo del paquete, no con una llamada directa a
-`ChangeNotifier.notifyListeners()`.
-
-El código de `preact_signals` inicia y termina internamente un lote de actualizaciones al propagar una escritura. Si
-el código llama explícitamente a `batch` alrededor de varios cambios, las notificaciones pueden agruparse y el orden
-que acabamos de observar no debe generalizarse a ese escenario. Tampoco garantizamos aquí un orden entre varios
-listeners ni analizamos callbacks que escriben de nuevo en la misma señal. Esos casos necesitan sus propias pruebas.
-
-La cadena de B, para **esta ejecución concreta**, es:
-
-1. El test registra `escuchar` mediante `lectura`; el objeto real es la señal.
-2. El puente crea una suscripción interna y omite el primer callback externo por la opción predeterminada.
-3. El test añade `antes` y asigna `oscuro` al setter.
-4. La señal compara, guarda el valor aceptado y propaga la actualización a la suscripción.
-5. El puente llama `escuchar`; el callback lee `lectura.value`, que ya es `oscuro`.
-6. Termina la asignación; el test añade `después`, retira el callback y asigna `bosque`.
-7. El valor cambia de nuevo, pero esa suscripción ya se canceló. Al final el propietario libera la señal.
-
-### Comprobación
-
-- ¿El listener obtiene el dato como argumento o lo consulta?
-- ¿Qué evento ocurre primero en B: el aviso o la línea `eventos.add('después')`?
-- ¿Por qué esa predicción no basta para afirmar el orden de cualquier `batch` o de cualquier `Listenable`?
-
-## 9.5. Igualdad y conservación del valor
-
-En las versiones instaladas, el setter normal usa `set(valorPropuesto)` y, con la configuración predeterminada,
-compara con `==`. Si la comparación considera iguales el nuevo valor y el actual, no se guarda la propuesta ni se
-propaga ese cambio. Si son distintos, se guarda primero y después se propaga. `SignalOptions` permite elegir otra
-política; esta guía no supone que todas las señales usen siempre la predeterminada.
-
-Un detalle de implementación: el núcleo compara **propuesta `==` valor actual**; el setter de `ValueNotifier` de
-Flutter compara **valor actual `==` propuesta**. Una igualdad bien implementada debe ser simétrica, así que normalmente
-el resultado coincide. No uses una igualdad asimétrica para explotar esta diferencia: violaría el contrato de `==`.
-Tampoco son el mismo setter: la señal admite opciones y `set(..., force: true)` para omitir la comparación, que no se
-aplica al `ValueNotifier` utilizado por `DaisyThemeController`.
-
-### Ejemplo C: igual, distinto y mismo objeto conservado
-
-Lee la clase y las operaciones sin ejecutarlas. Después de cada asignación, anota cuántos avisos se han acumulado y
-cuál de los tres objetos conserva `estado.value`. Contrasta tus respuestas con la prueba completa de las
-[soluciones](#ejemplo-c).
+Imagina que necesitamos guardar el nombre del tema seleccionado. Podemos leerlo cuando lo necesitemos y cambiarlo
+cuando el usuario elija otro. Una señal es un objeto que conserva un valor actual y que también permite observar sus
+cambios; empezaremos por crearla y leerla.
 
 ```dart
-class Tema {
-  const Tema(this.nombre, this.borde);
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final FlutterSignal<String> tema = signal<String>('claro');
+
+  print('Inicial: ${tema.value}');
+  tema.value = 'oscuro';
+  print('Actual: ${tema.value}');
+
+  tema.dispose();
+}
+```
+
+La salida es:
+
+```text
+Inicial: claro
+Actual: oscuro
+```
+
+Lee la primera línea de `main` por partes:
+
+1. `signal<String>('claro')` llama a una función que crea una señal con el texto inicial `'claro'`.
+2. `FlutterSignal<String>` es el tipo del objeto señal que devuelve esa función. `String` indica el tipo del dato que
+   contiene; no significa que `tema` sea un texto.
+3. `tema` guarda una referencia al objeto señal. `tema.value` consulta el texto actual que esa señal conserva.
+4. `tema.value = 'oscuro'` propone un nuevo texto a la **misma señal**. La siguiente lectura devuelve `'oscuro'`.
+5. Al terminar, `tema.dispose()` libera la señal que creó este programa. En la unidad 13 estudiaremos en detalle quién
+   es responsable de la limpieza.
+
+Puedes imaginar la señal como una caja con una etiqueta para consultar o cambiar lo que contiene. La caja no es el
+texto. La analogía no explica cómo funcionan los avisos: los veremos en el apartado 3.
+
+### Practica 1
+
+Si cambiamos la creación a `signal<int>(3)`, ¿qué tipo de valor guarda la señal? ¿Qué devuelve `tema.value` inicialmente
+si la variable se declara con el tipo adecuado?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Guarda un `int` y la primera lectura devuelve `3`. El objeto sigue siendo una señal: su tipo sería
+`FlutterSignal<int>`. Si conservásemos el tipo `FlutterSignal<String>`, el programa no compilaría porque los tipos de
+los valores no coinciden.
+
+</details>
+
+## 2. `final`, lectura anterior y valor actual
+
+`final` impide reasignar la variable `tema` para que apunte a otra señal. No impide que la señal admita un nuevo
+valor. Además, guardar una lectura no crea una suscripción ni hace que la variable resultante cambie después.
+
+```dart
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final tema = signal<String>('claro');
+  final lecturaAnterior = tema.value;
+
+  tema.value = 'oscuro';
+
+  print('Lectura anterior: $lecturaAnterior');
+  print('Lectura actual: ${tema.value}');
+
+  tema.dispose();
+}
+```
+
+La salida es:
+
+```text
+Lectura anterior: claro
+Lectura actual: oscuro
+```
+
+`final tema = ...` deja que Dart infiera `FlutterSignal<String>` a partir de la expresión de la derecha. La lectura
+`tema.value` devuelve el texto que existe en ese momento; `lecturaAnterior` conserva ese texto. Después, la escritura
+cambia el valor de la señal, no el texto ya obtenido. Los `String` de este ejemplo son inmutables; con un objeto
+mutable compartido habría que distinguir la referencia de su contenido, como vimos en la unidad 8.
+
+### Practica 2
+
+¿Qué mostraría `lecturaAnterior` si añadimos `tema.value = 'bosque';` antes de los dos `print`? ¿Y qué mostraría
+la lectura actual?
+
+<details>
+<summary>Ver respuesta</summary>
+
+La lectura anterior seguiría siendo `claro`: se guardó antes de ambas escrituras. La lectura actual mostraría
+`bosque`, el último valor guardado por la señal. Ninguna escritura ha reasignado la variable `tema`.
+
+</details>
+
+## 3. Escuchar cambios y dejar de escuchar
+
+Leer `.value` una vez responde «¿qué valor hay ahora?». Para enterarnos de cambios futuros necesitamos una observación.
+`FlutterSignal` puede utilizarse como `ValueListenable`: permite registrar un listener sin argumentos y retirarlo
+usando la misma función. El listener puede leer `.value` cuando recibe el aviso.
+
+```dart
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final tema = signal<String>('claro');
+
+  void escuchar() {
+    print('Aviso: ${tema.value}');
+  }
+
+  tema.addListener(escuchar);
+  print('Antes de cambiar');
+  tema.value = 'oscuro';
+  print('Después de cambiar');
+  tema.removeListener(escuchar);
+  tema.value = 'bosque';
+  print('Final: ${tema.value}');
+
+  tema.dispose();
+}
+```
+
+La salida es:
+
+```text
+Antes de cambiar
+Aviso: oscuro
+Después de cambiar
+Final: bosque
+```
+
+1. La declaración de `escuchar` crea una función; aún no la ejecuta.
+2. `addListener(escuchar)` registra esa función. Con la configuración predeterminada de esta señal, registrarla no
+   imprime el valor inicial.
+3. Se imprime `Antes de cambiar`. Al proponer `oscuro`, la señal acepta y guarda ese valor; el listener lo lee cuando
+   recibe el aviso.
+4. En esta secuencia concreta, sin `batch` externo ni escrituras reentrantes, el callback termina antes de que el
+   programa imprima `Después de cambiar`.
+5. `removeListener(escuchar)` retira el registro. La señal sigue activa y acepta `bosque`, pero esa función ya no se
+   ejecuta. Una lectura posterior sí obtiene `bosque`.
+6. El programa, que creó la señal, la libera al final.
+
+El aviso no lleva el texto como argumento: `escuchar` consulta el valor ya guardado. La señal no conserva la lista de
+valores anteriores; si necesitas un historial, algún objeto debe guardarlo. El orden mostrado es el de este ejemplo:
+no lo extrapoles sin comprobar a lotes explícitos o a callbacks que escriben otra vez en una señal.
+
+### Practica 3
+
+Si movemos `tema.removeListener(escuchar)` después de `tema.value = 'bosque'`, ¿qué línea adicional aparecerá y dónde?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Aparecerá `Aviso: bosque` después de `Después de cambiar` y antes de `Final: bosque`. El callback sigue registrado
+cuando se acepta el segundo cambio y consulta el valor recién guardado. Después se retira con la misma referencia.
+
+</details>
+
+## 4. Una asignación igual no siempre produce un aviso
+
+En la configuración predeterminada de las versiones de esta guía, la señal compara la propuesta con el valor actual
+mediante `==`. Si son iguales, conserva el valor que ya tenía y no propaga esa propuesta. Si son distintos, guarda el
+nuevo valor y propaga el cambio. Esta es una política de la implementación y configuración estudiadas, no una regla
+de todos los tipos que implementan `ValueListenable`.
+
+```dart
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final tema = signal<String>('claro');
+  var avisos = 0;
+
+  void escuchar() {
+    avisos++;
+    print('Aviso $avisos: ${tema.value}');
+  }
+
+  tema.addListener(escuchar);
+  tema.value = 'claro';
+  tema.value = 'oscuro';
+  tema.value = 'oscuro';
+  tema.value = 'bosque';
+
+  print('Valor final: ${tema.value}; avisos: $avisos');
+  tema.removeListener(escuchar);
+  tema.dispose();
+}
+```
+
+La salida es:
+
+```text
+Aviso 1: oscuro
+Aviso 2: bosque
+Valor final: bosque; avisos: 2
+```
+
+La primera propuesta, `claro`, coincide con el valor inicial y se descarta. La segunda cambia el valor a `oscuro` y
+produce un aviso. Repetir `oscuro` se descarta; `bosque` sí cambia el valor y produce el segundo aviso. Hubo cuatro
+asignaciones al setter y dos ejecuciones del listener.
+
+La comparación de la señal instalada aplica la igualdad de la propuesta frente al valor actual. El `ValueNotifier` de
+Flutter compara el actual frente a la propuesta. Una igualdad bien definida es simétrica, así que esa diferencia de
+orden no debería cambiar el resultado. La señal también admite opciones de comparación y operaciones avanzadas como
+`set(..., force: true)`; no las estamos usando aquí ni son reglas del `ValueNotifier` de DaisyUI.
+
+### Practica 4
+
+Partiendo de `claro`, ¿cuántos avisos habría si las propuestas fueran `oscuro`, `claro` y `claro`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Dos. `claro → oscuro` y `oscuro → claro` son cambios. La última propuesta coincide con el valor actual `claro` y se
+descarta. La comparación se hace con el valor **vigente en cada paso**, no siempre con el inicial.
+
+</details>
+
+## 5. Objetos distintos que se consideran iguales
+
+En la unidad 8 vimos que identidad e igualdad responden preguntas distintas. Si una señal recibe un objeto diferente
+pero `==` lo considera igual al actual, la configuración predeterminada puede conservar el objeto anterior. Vamos a
+comprobarlo con el mismo modelo pequeño de nombre y borde:
+
+```dart
+import 'package:signals_flutter/signals_flutter.dart';
+
+class TemaSimple {
+  const TemaSimple(this.nombre, this.borde);
 
   final String nombre;
   final int borde;
 
   @override
   bool operator ==(Object other) =>
-      other is Tema && nombre == other.nombre && borde == other.borde;
+      other is TemaSimple && nombre == other.nombre && borde == other.borde;
 
   @override
   int get hashCode => Object.hash(nombre, borde);
 }
+
+void main() {
+  final original = TemaSimple('claro', 1);
+  final equivalente = TemaSimple('claro', 1);
+  final distinto = TemaSimple('claro', 2);
+  final tema = signal<TemaSimple>(original);
+  var avisos = 0;
+
+  void escuchar() => avisos++;
+  tema.addListener(escuchar);
+
+  tema.value = equivalente;
+  print('Conserva original: ${identical(tema.value, original)}');
+  print('Avisos tras equivalente: $avisos');
+
+  tema.value = distinto;
+  print('Guarda distinto: ${identical(tema.value, distinto)}');
+  print('Avisos finales: $avisos');
+
+  tema.removeListener(escuchar);
+  tema.dispose();
+}
 ```
 
-```dart
-final original = Tema('claro', 1);
-final equivalente = Tema('claro', 1);
-final distinto = Tema('claro', 2);
-final estado = signal<Tema>(original);
-var avisos = 0;
-void escuchar() => avisos++;
-estado.addListener(escuchar);
+La salida es:
 
-estado.value = equivalente;
-estado.value = distinto;
+```text
+Conserva original: true
+Avisos tras equivalente: 0
+Guarda distinto: true
+Avisos finales: 1
 ```
 
-### Comprobación
+Las tres llamadas al constructor de `main` crean objetos distintos: no se usa `const` al invocarlas. La regla de
+`TemaSimple` compara `nombre` y `borde`, por lo que `equivalente == original` da `true`. La señal descarta esa
+propuesta y sigue conservando exactamente `original`. `distinto` tiene otro borde; se guarda y provoca un aviso.
+`hashCode` usa los mismos datos para mantener el contrato explicado en la unidad 8; no es la comparación que ejecuta
+el setter en esta práctica.
 
-- ¿Por qué la primera propuesta no reemplaza el objeto almacenado?
-- ¿Qué cambiaría si `Tema` usara la igualdad por identidad de `Object`?
-- ¿Por qué es importante comprobar las opciones de la señal antes de predecir la política de comparación?
+### Practica 5
 
-## 9.6. Mutación interna y sustitución
+Si `TemaSimple` no definiera `==` y usara la igualdad por identidad de `Object`, ¿qué pasaría al asignar
+`equivalente`, creado por separado?
 
-Una señal ordinaria que contiene una lista guarda una referencia a esa lista. `estado.value.add(...)` llama a `add` en
-la lista obtenida; no invoca el setter de la señal. Una referencia anterior a la misma lista ve la mutación. Reasignar
-esa misma lista al setter normal no produce un cambio aceptado con la igualdad predeterminada de listas ordinarias,
-porque es idéntica a sí misma. Una lista nueva ordinaria tiene otra identidad: con el `==` habitual de esas listas, una
-sustitución se acepta incluso si contiene los mismos elementos.
+<details>
+<summary>Ver respuesta</summary>
 
-### Ejemplo D: una lista compartida
+Sería distinto de `original` según esa regla de identidad. En esta configuración la señal guardaría `equivalente` y
+avisaría una vez, aunque los campos tuvieran los mismos datos. El resultado depende de la igualdad que use el tipo y
+de las opciones de la señal.
+
+</details>
+
+## 6. Cambiar una lista por dentro o sustituirla
+
+Una señal que contiene una lista guarda una referencia a ella. Llamar a `add` modifica esa lista; no equivale a
+asignar otro valor al setter de la señal. Observemos también qué ve una referencia obtenida antes del cambio:
 
 ```dart
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final temas = signal<List<String>>(<String>['claro']);
+  final anterior = temas.value;
+  var avisos = 0;
+
+  void escuchar() => avisos++;
+  temas.addListener(escuchar);
+
+  temas.value.add('oscuro');
+  print('Anterior tras add: $anterior; avisos: $avisos');
+  temas.value = temas.value;
+  print('Tras reasignar la misma lista: $avisos');
+  temas.value = <String>[...temas.value];
+  print('Tras asignar una copia: $avisos');
+  print('Misma lista: ${identical(anterior, temas.value)}');
+
+  temas.removeListener(escuchar);
+  temas.dispose();
+}
+```
+
+La salida es:
+
+```text
+Anterior tras add: [claro, oscuro]; avisos: 0
+Tras reasignar la misma lista: 0
+Tras asignar una copia: 1
+Misma lista: false
+```
+
+`anterior` y el valor inicial apuntan a la misma lista; por eso `anterior` ve el `add`. Esa llamada no ejecuta el
+setter ni provoca el aviso del ejemplo. Reasignar la misma lista sí pasa por el setter, pero la lista es igual a sí
+misma y la propuesta se descarta. La expansión `[...]` crea otra lista exterior; las listas ordinarias del ejemplo
+usan igualdad por identidad, así que la nueva lista se acepta aunque tenga los mismos elementos.
+
+La copia exterior no copia necesariamente los objetos que contiene. Para evitar mutaciones accidentales se puede
+construir una colección no modificable y decidir explícitamente cómo comparar su contenido, como practicamos en las
+unidades 7 y 8. Las APIs especializadas de colecciones de Signals pueden tener otras políticas: aquí usamos una señal
+ordinaria que contiene una lista.
+
+### Practica 6
+
+Después de crear la copia, ¿qué pasaría con `anterior` si hacemos `temas.value.add('nieve')`? ¿Se ejecutaría el
+listener por esa llamada a `add`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+`anterior` seguiría viendo `[claro, oscuro]`: apunta a la lista anterior, no a la copia exterior actual. La copia sí
+contendría `nieve`, pero `add` no llama al setter, de modo que en este ejemplo no se añade otro aviso. Si los elementos
+fueran objetos mutables compartidos, modificar uno de ellos podría observarse desde ambas listas.
+
+</details>
+
+## 7. Una señal y una vista de lectura
+
+Un consumidor puede necesitar leer el tema y escuchar sin recibir la operación de escritura en su tipo declarado.
+`ValueListenable<String>` expresa ese contrato. Podemos referirnos a la misma señal con ese tipo:
+
+```dart
+import 'package:flutter/foundation.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  final FlutterSignal<String> tema = signal<String>('claro');
+  final ValueListenable<String> lectura = tema;
+
+  void escuchar() => print('Vista: ${lectura.value}');
+  lectura.addListener(escuchar);
+  tema.value = 'oscuro';
+  print('Mismo objeto: ${identical(tema, lectura)}');
+
+  lectura.removeListener(escuchar);
+  tema.dispose();
+}
+```
+
+La salida es:
+
+```text
+Vista: oscuro
+Mismo objeto: true
+```
+
+`tema` y `lectura` son dos referencias al mismo objeto. Mediante `lectura`, el tipo `ValueListenable` permite consultar
+`value` y registrar o retirar listeners, pero no declara un setter ni `dispose`. Cambiar el tipo de la referencia no
+cambia la clase real de la señal ni crea un adaptador. Si alguien recupera el tipo concreto mediante un cast, podría
+acceder a otras operaciones; esto no es una barrera absoluta de encapsulación.
+
+En `signals_flutter` 7.1.0, `FlutterSignal` extiende la señal del núcleo e implementa la interfaz de
+`ValueNotifier` mediante un mixin; no hereda la implementación de `ChangeNotifier`. El mixin conecta `addListener` con
+una suscripción de Signals. Con las opciones predeterminadas omite la llamada inicial al listener externo. En esta
+implementación registrar dos veces el mismo callback no crea dos entradas; otras implementaciones, como el
+`ChangeNotifier` de la unidad 5, pueden comportarse de manera diferente.
+
+### Practica 7
+
+Si una función recibe solo `ValueListenable<String> lectura`, ¿puede leer el valor? ¿Puede escribir
+`lectura.value = 'oscuro'` sin cambiar el tipo declarado?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Puede leer `.value` y registrar o retirar un listener. No puede asignar usando solo ese tipo, porque el contrato no
+declara el setter. Esto no demuestra que el objeto concreto sea inmutable: en el ejemplo es la misma señal mutable.
+
+</details>
+
+## 8. ¿Cómo llega un cambio a un widget?
+
+Un listener que imprime un valor demuestra que se recibió un aviso. Para mostrar el cambio en pantalla, Flutter
+necesita un consumidor conectado a la fuente. `ValueListenableBuilder` es uno de esos consumidores: recibe un
+`ValueListenable`, registra su escucha y construye widgets con el valor que recibe en su `builder`.
+
+Este **fragmento** muestra la conexión; necesita estar dentro de un árbol de widgets y que alguien conserve y libere
+la señal:
+
+```dart
+ValueListenableBuilder<String>(
+  valueListenable: tema,
+  builder: (context, valor, child) => Text('Tema: $valor'),
+)
+```
+
+El builder recibe el valor actual en `valor`; `Text` describe el texto que se quiere mostrar. Cuando el consumidor
+recibe un aviso, Flutter puede programar una reconstrucción. La asignación y el procesamiento del siguiente frame son
+pasos distintos. Una reconstrucción tampoco demuestra por sí sola qué píxeles se repintaron.
+
+### Prueba guiada
+
+Esta prueba completa monta un árbol pequeño, cambia la señal y procesa el siguiente frame con `pump`. Cópiala en
+`test/estudio_senal_widget_test.dart` dentro del proyecto y ejecuta
+`flutter test --no-pub test/estudio_senal_widget_test.dart` con las dependencias resueltas:
+
+```dart
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  test('mutar por dentro no ejecuta el setter', () {
-    final estado = signal<List<String>>(<String>['claro']);
-    addTearDown(estado.dispose);
-    final anterior = estado.value;
-    var avisos = 0;
-    void escuchar() => avisos++;
-    estado.addListener(escuchar);
+  testWidgets('el builder muestra el valor actual', (tester) async {
+    final tema = signal<String>('claro');
+    addTearDown(tema.dispose);
 
-    estado.value.add('oscuro');
-    expect(anterior, ['claro', 'oscuro']);
-    expect(avisos, 0);
-    estado.value = estado.value;
-    expect(avisos, 0);
-    estado.value = <String>[...estado.value];
-    expect(avisos, 1);
-    expect(identical(anterior, estado.value), isFalse);
-    estado.removeListener(escuchar);
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: ValueListenableBuilder<String>(
+          valueListenable: tema,
+          builder: (context, valor, child) => Text('Tema: $valor'),
+        ),
+      ),
+    );
+    expect(find.text('Tema: claro'), findsOneWidget);
+
+    tema.value = 'oscuro';
+    await tester.pump();
+    expect(find.text('Tema: oscuro'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-La prueba de contenido de `expect` es un comparador de pruebas; no convierte el `==` de `List` en comparación profunda.
-Una alternativa de diseño es crear una nueva colección no modificable al actualizar y decidir explícitamente si una
-propuesta equivalente debe descartarse. La API permite forzar una actualización, pero eso no deshace la mutación ni
-crea una fotografía anterior. No confundas `signal<List<T>>` con las APIs especializadas de colecciones del paquete:
-estas últimas pueden definir operaciones y políticas adicionales.
+`pumpWidget` monta el árbol; `Directionality` aporta la dirección de texto necesaria para este ejemplo. `expect`
+comprueba que exista el texto indicado. Después de cambiar la señal, `pump` procesa un frame y la segunda comprobación
+encuentra el nuevo texto. Al final desmontamos el árbol antes de que `addTearDown` libere la señal creada por la prueba.
+Esta prueba comprueba ese árbol y esa secuencia, no una pantalla física ni todos los posibles repintados.
 
-### Comprobación
+Una lectura ordinaria de `.value` no registra por sí sola una dependencia de reconstrucción. Signals también ofrece
+contextos que rastrean lecturas y `SignalBuilder`; los estudiaremos en la unidad 10, sin confundirlos con este
+`ValueListenableBuilder`.
 
-- ¿Por qué la primera modificación no avisa y la copia exterior sí?
-- ¿Qué ve `anterior` después de `add` y después de sustituir la lista?
-- ¿Por qué forzar un aviso no recupera el contenido anterior?
+### Practica 8
 
-## 9.7. Comparar con DaisyUI
+Si solo creamos la señal, leemos una vez `tema.value` y construimos un `Text` con ese texto, ¿queda registrado un
+listener por el mero hecho de haber leído `.value`?
 
-El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) no usa una señal para el tema:
+<details>
+<summary>Ver respuesta</summary>
+
+No. Esa lectura ordinaria obtiene un valor puntual; no crea por sí sola una suscripción para reconstruir el widget.
+En la prueba guiada, `ValueListenableBuilder` establece la escucha y Flutter procesa la actualización. La unidad 10
+explicará los contextos de lectura rastreada de Signals.
+
+</details>
+
+## 9. ¿Dónde aparece esto en DaisyUI?
+
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) utiliza `ValueNotifier`:
 
 ```dart
+DaisyThemeController({
+  DaisyThemeModel initialTheme = DaisyThemes.light,
+}) : _palette = ValueNotifier<DaisyThemeModel>(initialTheme);
+
 final ValueNotifier<DaisyThemeModel> _palette;
 ValueListenable<DaisyThemeModel> get theme => _palette;
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
+void dispose() => _palette.dispose();
 ```
 
-El constructor crea un `ValueNotifier` por controlador. `theme` devuelve ese mismo objeto con el tipo de lectura y
-escucha `ValueListenable`; no crea una señal ni un adaptador. `setTheme` usa el setter del notificador, cuya comparación
-estudiamos en la unidad 7. El propietario libera el controlador y cada consumidor retira sus propios listeners.
+Es un fragmento de la clase real, no un programa completo. Cada controlador crea su propio `ValueNotifier` privado
+`_palette`. El getter `theme` devuelve **ese mismo objeto** mediante el tipo `ValueListenable`, como la vista de
+lectura del apartado 7; `setTheme` asigna al notificador y `dispose` delega su limpieza. Exponerlo con otro tipo limita
+las operaciones visibles mediante esa referencia, pero no crea una segunda fuente ni impide todos los casts.
 
-Las señales de esta unidad son ejercicios separados. Comparten con el notificador la capacidad de leer y escuchar,
-pero sus detalles de comparación, integración y ciclo de vida deben comprobarse en su propia implementación.
+El [scope](../../../lib/themes/application/daisy_theme_scope.dart) recibe la vista del controlador y usa
+`InheritedNotifier` para conectar sus avisos con consumidores que registran una dependencia heredada. Esa conexión se
+estudiará más adelante. En el flujo actual no hace falta inventar una señal de Signals ni atribuirle la reconstrucción.
 
-### Comprobación
+### Prueba guiada
 
-- ¿Qué objeto guarda el tema de cada controlador y qué tipo ofrece `theme`?
-- ¿Qué ocurre al proponer un tema equivalente según la igualdad del modelo?
-- ¿Por qué no puedes aplicar automáticamente al controlador las políticas de la señal estudiada?
-
-## 9.8. Avisos, widgets y ciclo de vida
-
-El [scope](../../../lib/themes/application/daisy_theme_scope.dart) es un
-`InheritedNotifier<ValueListenable<DaisyThemeModel>>`. Recibe la vista del controlador, escucha su notifier y permite a
-los consumidores registrar una dependencia heredada al consultar `DaisyThemeScope.of(context)`. Cuando llega un aviso,
-Flutter puede marcar dependientes para su actualización y reconstruirlos en un frame posterior. El notificador no
-dibuja ni reconstruye por sí solo toda la aplicación. Una reconstrucción tampoco equivale a afirmar
-que todos los píxeles se repintaron.
-
-Una lectura corriente de `.value` fuera de un contexto reactivo es una consulta puntual. Dentro de un contexto reactivo
-del paquete, una lectura puede registrar una dependencia; identificar qué contexto realiza ese registro es materia de
-la unidad 10. `SignalBuilder` es una integración diferente que también estudiaremos allí. No es necesario afirmar que
-DaisyUI usa `SignalBuilder` para explicar su flujo actual de temas.
-
-Al final de cada práctica, quien creó la señal la libera. El ejemplo B retira primero el callback que registró. En
-esta versión las opciones predeterminadas no activan `autoDispose`; su uso opcional y las consecuencias de liberar
-recursos se estudiarán en la unidad 13. No escribas ni sigas usando una señal después de liberarla.
-
-### Comprobación
-
-- ¿Qué papel desempeña `InheritedNotifier` entre el aviso y los dependientes?
-- ¿Por qué un test de listeners no demuestra que un widget se haya reconstruido?
-- Si un widget recibe un controlador prestado, ¿por qué no debe liberarlo solo por dejar de escucharlo?
-
-## Materiales de estudio seleccionados
-
-- **S1 · Signals:** [
-  `signal<T>` de Flutter](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html)
-  y [`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html)
-  — 9.1–9.3. Compara creación, clase e interfaces con la implementación instalada.
-- **S2 · Signals:** [
-  `SignalOptions`](https://pub.dev/documentation/signals_core/latest/signals_core/SignalOptions-class.html)
-  y [`Signal` del núcleo](https://pub.dev/documentation/signals_core/latest/signals_core/Signal-class.html) — 9.4–9.6.
-  Revisa opciones y `set`; el código exacto usado por este proyecto está en la caché de paquetes resueltos.
-- **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html),
-  [`ValueNotifier.value`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html) e
-  [`InheritedNotifier`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html) — contratos, comparación
-  del setter de Flutter y puente con los dependientes.
-- **D1 · Dart:** [igualdad y diseño](https://dart.dev/effective-dart/design#equality) — simetría y contrato de `==`.
-- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../../lib/themes/application/daisy_theme_scope.dart), [modelo](../../../lib/themes/domain/theme.dart) y
-  [pruebas](../../../test/themes/daisy_theme_controller_test.dart).
-- **P2 · Versiones:** [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
-  La documentación `latest` puede describir una versión posterior: comprueba siempre los paquetes resueltos.
-
-## Proyecto de la unidad: un selector de tema
-
-Crea una clase `SelectorTema` que posea una señal de `String` inicializada con `claro`. Expón una referencia de tipo
-`ValueListenable<String>` para leer y escuchar; conserva el método `seleccionar` y la liberación en el propietario.
-El objetivo es comprender el flujo. Como en B, exponer directamente la señal bajo otro tipo restringe las operaciones
-visibles al compilar, pero no es una barrera frente a casts. DaisyUI devuelve su `ValueNotifier` directamente bajo el tipo `ValueListenable`.
-
-### Requisitos
-
-1. Crea el selector y conserva la lectura inicial. Registra un callback que agregue el valor actual a una lista.
-2. Selecciona `oscuro`, vuelve a seleccionar `oscuro` y después selecciona `bosque`.
-3. Retira el callback, selecciona `claro` y comprueba los avisos, el valor actual y la lectura inicial.
-4. Libera el selector desde su propietario. Antes de ejecutar, anota qué asignaciones se aceptan y cuándo corre el
-   listener. Hazlo sin `batch` externo ni escrituras reentrantes.
-
-### Variaciones
-
-- Si no retiras el callback antes de seleccionar `claro`, ¿qué valor adicional aparece?
-- Si cambias el primer valor a `claro`, ¿cuántos avisos recibes antes de retirar el callback?
-- Si dos selectores empiezan en `claro`, ¿cómo demuestras que cambiar uno no cambia el otro?
-- ¿Qué necesitarías cambiar si un consumidor no debiera poder recuperar por cast la señal mutable?
-
-## Qué tener cuidado
-
-Algunos puntos suelen generar confusión. Revisemos los más frecuentes con ejemplos concretos:
-
-**La señal no es el valor.** `contador` apunta al objeto señal; `contador.value` lee el entero que contiene. `final`
-impide reasignar la variable `contador`, pero no impide cambiar `contador.value`. Piensa en la señal como una caja:
-`final` significa que no puedes cambiar la caja, pero sí lo que hay dentro.
-
-**No toda asignación produce un aviso.** Si la igualdad considera iguales el valor nuevo y el actual, la señal descarta
-la propuesta y no avisa. En el ejemplo C, proponer `equivalente` no cambia nada porque compara igual.
-
-**Mutar por dentro no invoca el setter.** `estado.value.add('oscuro')` modifica la lista que la señal contiene, pero
-nunca llama al setter de la señal. Por eso el listener no recibe aviso. Solo `estado.value = ...` ejecuta el setter.
-
-**El aviso no es la reconstrucción.** Un listener que se ejecuta demuestra que la señal avisó; no demuestra que un
-widget se haya reconstruido. La reconstrucción depende de cómo Flutter conecta el aviso con los dependientes, algo que
-estudiamos en la sección 9.8.
-
-## Comprobación final
-
-1. ¿Qué crea `signal<DaisyThemeModel>(initialTheme)` y dónde está el valor actual?
-2. ¿Qué significa que la referencia a la señal sea `final`?
-3. ¿Qué ofrece `ValueListenable<T>` y qué capacidades puede tener el objeto real además de ese tipo?
-4. ¿Cómo conecta el mixin de Flutter `addListener` con la suscripción de Signals en la versión estudiada?
-5. En B, ¿por qué no se ejecuta el callback al registrarlo y cuándo lee `oscuro`?
-6. ¿Por qué el orden de ejecución del ejemplo B no se puede extrapolar a otros escenarios?
-7. En C, ¿por qué permanece `original` al proponer `equivalente`? ¿Qué cambia con el valor distinto?
-8. ¿En qué orden compara los operandos la señal y en qué orden los compara `ValueNotifier`? ¿Por qué una igualdad
-   válida no debería depender de eso?
-9. En D, ¿qué operación invoca el setter y cuál modifica solo el interior de la lista?
-10. ¿Qué hacen `_palette`, `theme` y `setTheme` en DaisyUI?
-11. ¿Qué conecta un aviso con los dependientes en el flujo actual del scope? ¿Qué no prueba un test de listeners?
-12. ¿Quién retira la escucha y quién libera la señal? ¿Qué significa que un recurso sea prestado?
-
-**Unidad dominada cuando:** puedes resolver el proyecto y seguir creación, comparación, almacenamiento, aviso y
-limpieza sin copiar las respuestas ni saltarte quién realiza cada paso.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
+Puedes ejecutar esta prueba dentro del proyecto para observar el controlador real:
 
 ```dart
+import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  test('la señal conserva el valor actual', () {
-    final FlutterSignal<String> tema = signal<String>('claro');
-    addTearDown(tema.dispose);
+  test('la vista escucha el notificador del controlador', () {
+    final controller = DaisyThemeController();
+    addTearDown(controller.dispose);
+    final lectura = controller.theme;
+    final avisos = <String>[];
+    void escuchar() => avisos.add(lectura.value.name);
 
-    final lecturaAnterior = tema.value;
-    expect(lecturaAnterior, 'claro');
-    tema.value = 'oscuro';
-    expect(tema.value, 'oscuro');
-    expect(lecturaAnterior, 'claro');
+    lectura.addListener(escuchar);
+    controller.setTheme(DaisyThemes.dark);
+    lectura.removeListener(escuchar);
+    controller.setTheme(DaisyThemes.cupcake);
+
+    expect(avisos, ['Dark']);
+    expect(lectura.value, DaisyThemes.cupcake);
   });
 }
 ```
 
-La lectura anterior es `claro`; el valor actual, después de la asignación, es `oscuro`. `lecturaAnterior` guarda la
-referencia al `String` leído, no una suscripción que cambie con la señal. Como `String` es inmutable, sigue
-representando `claro`; con una lista mutable compartida habría que razonar como en la unidad 8. Cada nueva llamada a
-`signal` crea otra celda y actualizar una no cambia la otra.
+La lista conserva `Dark` porque el listener estaba registrado durante ese cambio. Después de retirarlo, el
+controlador sigue cambiando y la lectura actual obtiene `cupcake`, sin añadir otro aviso. La prueba muestra lectura y
+escucha; no demuestra una reconstrucción de widgets.
 
-### Ejemplo B
+### Practica 9
 
-Los eventos son `antes`, `aviso: oscuro`, `después`. `bosque` se almacena después de retirar el listener, por eso la
-lectura final lo encuentra pero no aparece otro aviso. Sin retirar el callback, se añadiría `aviso: bosque`.
-`lectura` es una referencia a la misma señal, no un objeto adaptador.
+Si dos controladores se crean por separado y cambiamos el tema de uno, ¿se modifica por ello el notificador del otro?
+¿Qué pieza del constructor permite razonarlo?
 
-### Ejemplo C
+<details>
+<summary>Ver respuesta</summary>
 
-```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
+No por ese cambio: cada constructor ejecuta `ValueNotifier<DaisyThemeModel>(initialTheme)` y guarda su propio
+notificador en `_palette`. Los valores iniciales pueden coincidir, pero los controladores creados por separado
+administran fuentes distintas.
 
-class Tema {
-  const Tema(this.nombre, this.borde);
+</details>
 
-  final String nombre;
-  final int borde;
+## Ejercicio final: un selector de tema
 
-  @override
-  bool operator ==(Object other) =>
-      other is Tema && nombre == other.nombre && borde == other.borde;
+Escribe un programa Flutter de consola que:
 
-  @override
-  int get hashCode => Object.hash(nombre, borde);
-}
+1. Declare una clase `SelectorTema` con una señal privada de `String`, inicializada en `'claro'`.
+2. Exponga esa señal mediante un getter de tipo `ValueListenable<String>`, un método `seleccionar` y un método
+   `dispose` que libere la señal.
+3. Cree un selector, conserve la lectura inicial y registre un listener que imprima cada valor recibido y cuente avisos.
+4. Seleccione `'oscuro'`, otra vez `'oscuro'` y después `'bosque'`; retire el listener y seleccione `'claro'`.
+5. Imprima la lectura inicial, el valor actual y el número de avisos; libere el selector.
 
-void main() {
-  test('la igualdad predeterminada decide si se acepta la propuesta', () {
-    final original = Tema('claro', 1);
-    final equivalente = Tema('claro', 1);
-    final distinto = Tema('claro', 2);
-    final estado = signal<Tema>(original);
-    addTearDown(estado.dispose);
-    var avisos = 0;
-    void escuchar() => avisos++;
-    estado.addListener(escuchar);
+Predice la salida antes de mirar la solución. Como variaciones, mueve la retirada después de la última selección y
+explica qué cambia; después crea dos selectores y comprueba que cambiar uno no modifica el otro.
 
-    estado.value = equivalente;
-    expect(avisos, 0);
-    expect(identical(estado.value, original), isTrue);
-    estado.value = distinto;
-    expect(avisos, 1);
-    expect(identical(estado.value, distinto), isTrue);
-    estado.removeListener(escuchar);
-  });
-}
-```
-
-La propuesta equivalente compara igual: cero avisos y la señal conserva `original`. La propuesta con borde 2 compara
-distinto: se almacena `distinto` y se recibe un aviso. Con igualdad por identidad, la primera propuesta distinta se
-aceptaría y también avisaría. Una opción de comparación distinta puede producir otro resultado.
-
-### Ejemplo D
-
-`anterior` y el valor inicial apuntan a la misma lista; tras `add` ambos muestran `claro, oscuro`, sin aviso. Reasignar
-la misma lista se descarta. La expansión crea otra lista exterior que se acepta y produce un aviso, aunque su contenido
-sea igual. `anterior` sigue apuntando a la lista anterior.
-
-### Una solución del proyecto
+<details>
+<summary>Ver una posible solución</summary>
 
 ```dart
 import 'package:flutter/foundation.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 class SelectorTema {
@@ -528,63 +629,76 @@ class SelectorTema {
 }
 
 void main() {
-  test('seleccionar, escuchar y retirar', () {
-    final selector = SelectorTema();
-    addTearDown(selector.dispose);
-    final lectura = selector.tema;
-    final inicial = lectura.value;
-    final avisos = <String>[];
-    void escuchar() => avisos.add(lectura.value);
+  final selector = SelectorTema();
+  final lectura = selector.tema;
+  final inicial = lectura.value;
+  var avisos = 0;
 
-    lectura.addListener(escuchar);
-    selector.seleccionar('oscuro');
-    selector.seleccionar('oscuro');
-    selector.seleccionar('bosque');
-    lectura.removeListener(escuchar);
-    selector.seleccionar('claro');
+  void escuchar() {
+    avisos++;
+    print('Aviso $avisos: ${lectura.value}');
+  }
 
-    expect(avisos, ['oscuro', 'bosque']);
-    expect(lectura.value, 'claro');
-    expect(inicial, 'claro');
-  });
+  lectura.addListener(escuchar);
+  selector.seleccionar('oscuro');
+  selector.seleccionar('oscuro');
+  selector.seleccionar('bosque');
+  lectura.removeListener(escuchar);
+  selector.seleccionar('claro');
 
-  test('cada selector conserva su propio tema', () {
-    final primero = SelectorTema();
-    final segundo = SelectorTema();
-    addTearDown(primero.dispose);
-    addTearDown(segundo.dispose);
-
-    primero.seleccionar('oscuro');
-    expect(primero.tema.value, 'oscuro');
-    expect(segundo.tema.value, 'claro');
-
-    segundo.seleccionar('bosque');
-    expect(segundo.tema.value, 'bosque');
-    expect(primero.tema.value, 'oscuro');
-  });
+  print('Inicial: $inicial');
+  print('Actual: ${lectura.value}; avisos: $avisos');
+  selector.dispose();
 }
 ```
 
-Las propuestas aceptadas antes de retirar el callback son `oscuro` y `bosque`; repetir `oscuro` se descarta. Después,
-`claro` se almacena sin ejecutar ese callback. Si no se retira, agrega `claro`. Si solo la primera propuesta cambia a
-`claro`, se descarta la primera, se aceptan la segunda (`oscuro`) y la tercera (`bosque`): siguen siendo dos avisos.
-En la segunda prueba, cada selector crea su propia señal: al cambiar el primero, el segundo sigue en `claro`; al
-cambiar después el segundo, el primero permanece en `oscuro`. Un adaptador separado podría exponer otro objeto con API
-de lectura; el controlador actual no utiliza uno.
+```text
+Aviso 1: oscuro
+Aviso 2: bosque
+Inicial: claro
+Actual: claro; avisos: 2
+```
 
-### Claves de la comprobación final
+La primera selección de `oscuro` y la de `bosque` cambian el valor; repetir `oscuro` se descarta. La última selección
+se acepta, pero el listener ya no está registrado. La lectura inicial conserva el texto anterior y la lectura actual
+obtiene `claro`. El selector posee la señal; el programa retira el listener que registró y al final libera el selector.
 
-1. Una `FlutterSignal<DaisyThemeModel>` inicializada con el modelo; la señal almacena la referencia al valor actual.
-2. Impide reasignar la variable que contiene la señal, no cambiar su valor.
-3. Lectura y escucha; el objeto concreto puede ofrecer escritura y `dispose`.
-4. El mixin guarda el callback y usa una suscripción interna que puede cancelar al retirarlo.
-5. La opción predeterminada suprime el callback inicial; en B lo lee durante la asignación aceptada.
-6. La secuencia de B no se puede extrapolar: hay que analizar y probar ese escenario.
-7. La igualdad predeterminada devuelve verdadero y no se reemplaza; el valor distinto se guarda y propaga.
-8. Señal: propuesta frente a actual; `ValueNotifier`: actual frente a propuesta. `==` debe ser simétrico.
-9. `estado.value = ...` ejecuta el setter; `estado.value.add(...)` modifica la lista devuelta.
-10. El `ValueNotifier` conserva el tema; `theme` devuelve ese objeto como `ValueListenable` y `setTheme` le asigna un valor.
-11. `InheritedNotifier` escucha y conecta el aviso con las dependencias heredadas; el test de listeners no prueba
-    reconstrucción ni repintado.
-12. El consumidor retira lo que registró; el propietario libera la señal. Prestado significa que su vida útil la
-    administra otro dueño.
+Si retiramos el listener después de la última selección, aparece `Aviso 3: claro`. Dos selectores construidos por
+separado crean señales distintas, por lo que cambiar uno no modifica el valor almacenado por el otro. La vista
+`ValueListenable` limita las operaciones disponibles por ese tipo; para ocultar la fuente mutable frente a un cast se
+necesitaría un objeto de lectura separado con un contrato adecuado.
+
+</details>
+
+## Comprueba si puedes avanzar
+
+Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
+
+1. ¿Qué devuelve `signal<String>('claro')` y qué devuelve su `.value`? **Apartado 1.**
+2. ¿Qué impide `final` y por qué una lectura anterior no cambia al escribir en la señal? **Apartado 2.**
+3. ¿Quién llama al listener, cómo obtiene el valor actual y cómo deja de recibir avisos? **Apartado 3.**
+4. ¿Por qué cuatro asignaciones pueden producir solo dos avisos? **Apartado 4.**
+5. ¿Por qué se conserva `original` cuando se propone un objeto distinto pero igual? **Apartado 5.**
+6. ¿Por qué `value.add(...)` no avisa y asignar una lista exterior nueva sí puede avisar? **Apartado 6.**
+7. ¿Qué permite `ValueListenable` y por qué no vuelve inmutable el objeto real? **Apartado 7.**
+8. ¿Qué conecta la señal con el widget de la prueba y para qué sirve `pump`? **Apartado 8.**
+9. ¿Qué objeto guarda el tema en el controlador actual y qué devuelve su getter `theme`? **Apartado 9.**
+10. ¿Quién retira una escucha y quién libera la señal creada en las prácticas? **Apartados 3 y 9.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques con tus palabras qué se crea, qué
+se guarda, quién escucha y cuándo se avisa. La siguiente unidad profundiza en dependencias reactivas y
+`SignalBuilder`.
+
+## Para consultar si necesitas reforzar
+
+- [`signal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/signal.html) y
+  [`FlutterSignal<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterSignal-class.html):
+  creación de la señal y contratos que implementa.
+- [`SignalOptions`](https://pub.dev/documentation/signals_core/latest/signals_core/SignalOptions-class.html): opciones
+  de Signals; compara la documentación `latest` con la versión resuelta en el proyecto.
+- [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
+  [`ValueListenableBuilder<T>`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html): lectura,
+  escucha y conexión con widgets.
+- [Controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
+  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart): uso real en DaisyUI.

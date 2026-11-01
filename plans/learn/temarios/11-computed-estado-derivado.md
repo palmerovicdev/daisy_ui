@@ -25,8 +25,9 @@ Se contrastaron las dependencias resueltas del proyecto: **`signals_flutter` 7.1
 resultados de ejemplos con otras opciones, lotes, callbacks reentrantes u otras versiones pueden variar. Los enlaces
 a documentación `latest` pueden cambiar; consulta también `../../../pubspec.lock` y el código instalado.
 
-Los ejemplos A–E y la solución del proyecto son archivos de **pruebas Flutter completos e independientes**. Copia uno
-cada vez a `test/estudio_computed_test.dart` dentro del repositorio y ejecuta:
+Los ejemplos A–E y la solución del proyecto son archivos de **pruebas Flutter completos e independientes**. Antes de
+abrir cada bloque, responde a la predicción que lo precede; después usa sus `expect` para contrastar tus respuestas.
+Copia uno cada vez a `test/estudio_computed_test.dart` dentro del repositorio y ejecuta:
 
 ```shell
 flutter test --no-pub test/estudio_computed_test.dart
@@ -40,22 +41,6 @@ Los contadores `calculos` instrumentan los ejemplos para observar las evaluacion
 recomendación de añadir efectos secundarios a cálculos de producción.** En aplicaciones reales, diseña el callback como
 una derivación sin efectos externos; si necesita persistir, enviar solicitudes o registrar acciones, estudia una
 solución explícita de efectos y ciclo de vida en la unidad 12.
-
-## Ruta y progreso
-
-- [ ] [11.1. Dato almacenado, derivado y vista de lectura](#111-dato-almacenado-derivado-y-vista-de-lectura).
-- [ ] [11.2. Crear y leer un `computed`](#112-crear-y-leer-un-computed).
-- [ ] [11.3. Caché y evaluación bajo demanda](#113-caché-y-evaluación-bajo-demanda).
-- [ ] [11.4. Observar el resultado y comparar valores](#114-observar-el-resultado-y-comparar-valores).
-- [ ] [11.5. Dependencias dinámicas y capturas](#115-dependencias-dinámicas-y-capturas).
-- [ ] [11.6. El resultado derivado en Flutter](#116-el-resultado-derivado-en-flutter).
-- [ ] [11.7. El controlador real de DaisyUI](#117-el-controlador-real-de-daisyui).
-- [ ] [11.8. Elección, límites y propiedad](#118-elección-límites-y-propiedad).
-- [ ] [Resolver el proyecto](#proyecto-de-la-unidad-una-etiqueta-derivada).
-- [ ] [Superar la comprobación final](#comprobación-final).
-
-Puedes dividir el trabajo en tres sesiones: 11.1–11.3; 11.4–11.6; y 11.7–11.8 con el proyecto. Marca cada casilla
-cuando puedas explicar y resolver sus variaciones sin copiar las respuestas.
 
 ## 11.1. Dato almacenado, derivado y vista de lectura
 
@@ -84,6 +69,17 @@ implementación con lecturas rastreadas y versiones.
 - ¿Qué sería la fuente de verdad si una etiqueta se obtiene siempre del tema?
 - ¿Qué problema aparece si se modifican tema y etiqueta de forma independiente?
 - ¿Por qué una vista de lectura que devuelve el mismo tema no tiene que calcular una transformación?
+
+### Practica 1
+
+El usuario elige un tema y la interfaz muestra `Tema: claro`. ¿Qué dato es almacenado y cuál puede obtenerse a partir de él?
+
+<details>
+<summary>Ver respuesta</summary>
+
+El tema elegido es el dato almacenado; la etiqueta se calcula a partir de su nombre. Si guardamos ambos como estados modificables independientes, tendríamos que mantenerlos coherentes.
+
+</details>
 
 ## 11.2. Crear y leer un `computed`
 
@@ -117,9 +113,25 @@ reactiva por usar después su resultado dentro del cálculo.
 - ¿Por qué se entrega una función en lugar de pasar directamente un `String`?
 - ¿Qué objeto debe modificarse para cambiar el resultado ordinario del cálculo?
 
+### Practica 2
+
+Si `titulo = computed(() => tema.value)` y escribimos `titulo.value = ...`, ¿qué fuente se pretende cambiar?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Un `computed` representa un resultado de lectura, no un setter ordinario para cambiarlo. Debemos cambiar `tema`, que es la fuente mutable; además, si solo se necesita una vista del mismo valor quizá no haga falta ese derivado.
+
+</details>
+
 ## 11.3. Caché y evaluación bajo demanda
 
 ### Ejemplo A: primer cálculo, reutilización y cambio
+
+**Antes de mirar el test:** crea mentalmente `tema = 'claro'` y un `computed` que devuelve
+`'Tema: ${tema.value}'` y aumenta `calculos` cada vez que se ejecuta. Sin listeners, sigue esta secuencia:
+créalo, lee su valor dos veces, cambia `tema` a `'oscuro'` y vuelve a leer dos veces. ¿Qué valor obtienes en cada
+lectura y cuánto vale `calculos` después de cada paso?
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -174,15 +186,29 @@ una lectura inicial, y un observador activo puede exigir una actualización cuan
 - ¿Por qué en A no se ejecuta la función inmediatamente al asignar `oscuro`?
 - ¿Qué provoca la segunda evaluación y qué se conserva entre lecturas?
 
+### Practica 3
+
+En A, sin observador activo, si leemos `titulo` dos veces sin cambiar `tema`, ¿cuántas veces se ejecuta el cálculo?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Una en esa secuencia: la primera lectura obtiene y guarda el resultado y la segunda reutiliza la caché. Cambiar la fuente y volver a leerlo provoca una nueva evaluación en el caso mostrado.
+
+</details>
+
 ## 11.4. Observar el resultado y comparar valores
 
 Un consumidor puede registrar un listener sobre el `FlutterComputed`, que satisface `ValueListenable`. En la versión
-instalada, el puente de Flutter usa una suscripción de Signals. Con la configuración predeterminada de
-`runCallbackOnListen`, establecerla necesita obtener el valor inicial, pero no llama al callback externo por ese
-primer valor. Más adelante, una fuente puede cambiar y hacer que se revise el cálculo; eso no significa necesariamente
-que el **resultado derivado** cambie.
+instalada, el puente de Flutter usa una suscripción de Signals. Una fuente puede cambiar y hacer que se revise el
+cálculo; eso no significa necesariamente que el **resultado derivado** cambie.
 
 ### Ejemplo B: una comparación que permanece igual
+
+**Antes de mirar el test:** parte de `borde = 1` y un derivado `borde.value >= 2`, con un contador de cálculos.
+Registra un listener que guarde los valores recibidos; después asigna al borde 2, 3 y 1, en ese orden. Retira el
+listener, asigna 2 y lee el derivado. ¿Cuándo se calcula, qué valores guarda el listener y qué devuelve la última
+lectura? Apunta tu predicción, incluso si aún no sabes qué ocurre al registrar la escucha.
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -225,7 +251,8 @@ void main() {
 ### Recorrido paso a paso
 
 - Al registrar el listener se evalúa `grueso` por primera vez: `1 >= 2` es `false`. Hay un cálculo y ningún aviso
-  externo inicial.
+  externo inicial: con `runCallbackOnListen` en su valor predeterminado, la suscripción obtiene el valor inicial sin
+  llamar al callback externo.
 - `borde = 2` cambia la fuente: el derivado vuelve a evaluar, pasa de `false` a `true` y el listener lee `true`.
 - `borde = 3` vuelve a cambiar la fuente y ejecuta de nuevo el cálculo, pero `3 >= 2` sigue dando `true`. En esta
   implementación el resultado anterior se compara con el nuevo mediante `==`; al ser iguales, la suscripción del
@@ -249,9 +276,25 @@ aceptar 2 → 3 y el resultado booleano seguir siendo `true`.
 - En el cambio 2 → 3, ¿se calcula otra vez? ¿Se agrega un aviso? ¿Por qué?
 - ¿Por qué la lectura posterior a retirar el listener vuelve a calcular el resultado en este ejemplo?
 
+### Practica 4
+
+En B, el borde cambia de 2 a 3. ¿Se recalcula el booleano? ¿El listener recibe otro aviso?
+
+<details>
+<summary>Ver respuesta</summary>
+
+En esta prueba sí se recalcula, pero `borde >= 2` sigue siendo `true`. Como el resultado derivado no cambia según la comparación del paquete, no se añade otro aviso externo.
+
+</details>
+
 ## 11.5. Dependencias dinámicas y capturas
 
 ### Ejemplo C: elegir una fuente
+
+**Antes de mirar el test:** `usarLocal` empieza en `true`, `local` en `'claro'` y `global` en `'oscuro'`.
+Un derivado lee `usarLocal` y, según su valor, lee `local` o `global`. Sin listener, léelo y luego repite la lectura
+después de cada cambio: `global = 'bosque'`, `usarLocal = false`, `local = 'noche'` y `global = 'nieve'`.
+¿Qué devuelve cada lectura, cuántas veces se ejecuta el cálculo y qué fuentes utiliza en cada rama?
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -321,6 +364,17 @@ exclusión es parte del diseño y comprendes cómo se actualizará el resultado.
 - Tras cambiar de rama y leer, ¿cuáles son las dependencias pertinentes?
 - ¿Por qué una variable capturada antes del callback no equivale a leer la señal dentro de él?
 
+### Practica 5
+
+Si capturamos `tema.value` antes de crear un `computed` y el callback usa solo ese texto, ¿el cambio posterior de `tema` queda rastreado?
+
+<details>
+<summary>Ver respuesta</summary>
+
+No. El callback utiliza una lectura anterior; no lee la señal al calcular. Para que sea una dependencia del cálculo, hay que realizar la lectura rastreada dentro de su callback.
+
+</details>
+
 ## 11.6. El resultado derivado en Flutter
 
 `FlutterComputed<T>` implementa [
@@ -332,6 +386,11 @@ en ese objeto y recibe su valor para construir la interfaz. Otra integración po
 aviso con Flutter.
 
 ### Ejemplo D: escuchar el valor derivado
+
+**Antes de mirar el test:** un `ValueListenableBuilder` escucha un derivado que devuelve `'grueso'` si
+`borde >= 2` y `'fino'` en otro caso. El borde empieza en 1. Tras montar el widget, cambia el borde a 2 y
+procesa un frame; después cámbialo a 3 y procesa otro. ¿Qué texto se muestra en cada momento? ¿Cuántos cálculos y
+construcciones esperas en este árbol aislado?
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -393,16 +452,32 @@ repintado observado en un dispositivo físico.
 - ¿Por qué el tercer cálculo no implica un tercer build en esta secuencia?
 - ¿Qué diferencia hay entre un cambio de dependencia, un cambio de resultado y un frame de Flutter?
 
+### Practica 6
+
+En D, ¿por qué el tercer cálculo no implica necesariamente un tercer build?
+
+<details>
+<summary>Ver respuesta</summary>
+
+En la secuencia mostrada el resultado sigue siendo `grueso`; el listener del derivado no solicita otra construcción. Un widget también puede reconstruirse por otras causas, de modo que el resultado se limita al árbol probado.
+
+</details>
+
 ## 11.7. El controlador real de DaisyUI
 
 El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) conserva el tema en un `ValueNotifier`.
 `theme` devuelve el mismo objeto con tipo `ValueListenable`; `setTheme` asigna a su setter. El
 [scope](../../../lib/themes/application/daisy_theme_scope.dart) escucha esa fuente con `InheritedNotifier`.
 
-Una lectura de un `ValueNotifier` no registra por sí sola una dependencia de Signals. Por eso no podemos suponer que un
-`computed` de Signals se invalidará al leer `controller.theme.value`. El siguiente ejemplo observa esa diferencia.
+Una lectura de un `ValueNotifier` no registra por sí sola una dependencia de Signals. El siguiente ejemplo permite
+observar cómo afecta esa diferencia a un cálculo.
 
 ### Ejemplo E: una lectura que no registra una señal
+
+**Antes de mirar el test:** el controlador comienza con el tema `Light`. Un `computed` lee su nombre para formar
+una etiqueta y un listener guarda los cambios del derivado. Después de registrar la escucha, se cambia el controlador
+a `dark` y se lee la etiqueta. ¿Qué valor tiene el controlador, qué etiqueta se obtiene y cuántos cálculos y avisos
+esperas? Usa la distinción entre `ValueNotifier` y señal de Signals para justificarlo.
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -445,6 +520,17 @@ reactiva se necesita conectar explícitamente una fuente que ese mecanismo pueda
 - ¿Por qué el `computed` de E no se invalida cuando cambia el controlador?
 - ¿Qué conexión de Flutter usa el scope para escuchar el notificador?
 
+### Practica 7
+
+Si un `computed` solo lee `controller.theme.value`, ¿detecta automáticamente un cambio del controlador actual?
+
+<details>
+<summary>Ver respuesta</summary>
+
+No: el controlador usa `ValueNotifier` y esa lectura no registra una fuente de Signals. En el test el derivado conserva su resultado anterior; hace falta una conexión explícita compatible para observar ese dato.
+
+</details>
+
 ## 11.8. Elección, límites y propiedad
 
 **Usa un estado almacenado** cuando el usuario o el programa selecciona y modifica el dato de manera independiente.
@@ -467,25 +553,16 @@ Las opciones de `autoDispose` pueden cambiar el ciclo de vida y se analizan en l
 `computed` repetidamente dentro de un `build` sin pensar quién los conserva y
 libera: un build puede ejecutarse muchas veces.
 
-## Materiales de estudio seleccionados
+### Practica 8
 
-- **S1 · Signals:** [`computed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/computed.html)
-  y [
-  `FlutterComputed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterComputed-class.html)
-  — creación, valor de lectura y contrato Flutter. Verifica las versiones: las páginas `latest` pueden cambiar.
-- **S2 · Signals:** [documentación de `signals`](https://pub.dev/packages/signals) — derivaciones, lecturas
-  rastreadas, efectos y lotes; úsala como contexto y contrasta las afirmaciones de versión con las fuentes instaladas.
-- **S3 · Implementación instalada:** `signals_flutter-7.1.0/lib/src/core/computed.dart` y
-  `src/mixins/value_listenable.dart`; `signals_core-7.0.0/lib/src/core/computed.dart`; y
-  `preact_signals-7.0.0/lib/src/computed.dart` y `readonly.dart`. Lee primero la API pública y después sigue el
-  contexto de evaluación, la caché y la comparación del resultado.
-- **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
-  [`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) — contrato de
-  escucha y consumidor del resultado.
-- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
-  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
-  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart),
-  [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
+Necesitamos mostrar un texto una sola vez durante un build que ya observa el tema. ¿Es obligatorio crear un `computed`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+No. Una interpolación o función puntual puede bastar. Un `computed` resulta útil cuando necesitamos una fuente reactiva derivada o compartir su caché y sus observadores; no reemplaza el análisis de propiedad.
+
+</details>
 
 ## Proyecto de la unidad: una etiqueta derivada
 
@@ -498,82 +575,37 @@ almacenado; la etiqueta es un resultado derivado que no se modifica directamente
 1. Crea las señales `tema = claro` y `borde = 1`, y un `computed` que lea ambas. Cuenta las evaluaciones solo para
    estudiar el comportamiento.
 2. Registra un listener que guarde cada nuevo resultado; explica qué ocurre al registrar y cuál es el valor inicial.
-3. Asigna borde 2, borde 3 y tema `oscuro`, sin `batch` externo. Predice evaluaciones y avisos después de cada paso.
+3. Asigna borde 2, borde 3 y tema `oscuro` mediante escrituras separadas. Predice evaluaciones y avisos después de cada paso.
 4. Retira el listener, cambia el tema a `bosque` y compara los contadores antes y después de leer la etiqueta.
 5. Libera derivado y fuentes desde el test propietario. Intenta resolverlo antes de mirar la solución.
 
 ### Variaciones
 
-- Cambia ambas fuentes dentro de `batch`. ¿Por qué no equivale necesariamente a hacer dos escrituras observadas por
-  separado? La política de lote merece su propia prueba; no extrapoles todos sus casos a partir de este ejemplo.
 - Captura `tema.value` antes de crear la función. ¿Qué relación deja de registrarse?
 - Si dos temas distintos pueden tener el mismo texto visible, ¿por qué cambiar el tema podría recalcular sin emitir
   un cambio de etiqueta?
 - Si solo necesitas mostrar el nombre en un único `build`, ¿qué alternativas más sencillas tienes?
 
-## Errores de comprensión que vamos a comprobar
+#### Una primera prueba con `batch`
 
-- Tratar el resultado derivado como una segunda fuente de verdad mutable independiente.
-- Creer que crear el objeto ejecuta siempre la función inmediatamente.
-- Pensar que la función solo puede ejecutarse al escribir explícitamente `.value` en el código del consumidor.
-- Confundir una fuente invalidada, una evaluación, un cambio de resultado, un aviso y un build.
-- Creer que mencionar una señal fuera de la función la convierte en dependencia rastreada.
-- Pensar que todas las ramas se observan aunque no se hayan ejecutado.
-- Suponer que cualquier implementación de `ValueListenable` se rastrea automáticamente como señal de Signals.
-- Suponer que el tipo de lectura elimina todas las capacidades del objeto real o que un derivado idéntico es lo mismo
-  que un adaptador separado.
-- Añadir efectos de red o persistencia al cálculo o crear y perder derivaciones en cada build sin dueño.
+`batch` agrupa escrituras para que los observadores procesen juntos sus cambios al terminar la función. Para comparar,
+parte de nuevo de `tema = 'claro'`, `borde = 1` y el listener del proyecto ya registrado. En vez de hacer las
+escrituras por separado, usa este **fragmento** en el test, sin leer la etiqueta dentro del bloque:
 
-## Comprobación final
+```dart
+batch(() {
+  borde.value = 2;
+  tema.value = 'oscuro';
+});
+```
 
-1. ¿Qué diferencia hay entre dato almacenado, dato derivado y vista de lectura?
-2. ¿Qué devuelve `computed<T>` de `signals_flutter` y qué contiene su `.value`?
-3. En A, ¿cuándo se ejecuta la función y por qué una segunda lectura no la repite?
-4. ¿Por qué una suscripción puede provocar el primer cálculo sin ejecutar el listener externo inicial de B?
-5. En B, ¿qué pasa al cambiar borde 2 → 3 con el cálculo, el resultado y los avisos?
-6. ¿Qué cambia después de retirar el listener y volver a leer el derivado?
-7. En C, ¿qué señales usa el cálculo antes y después del cambio de rama?
-8. ¿Por qué una lectura capturada antes del callback no crea una dependencia de la señal original?
-9. En D, ¿quién escucha el derivado y por qué `pump` es un paso separado del cambio de señal?
-10. ¿Qué objeto devuelve `controller.theme` y qué limita su tipo público?
-11. ¿Por qué el `computed` de la práctica E no se invalida al cambiar el `ValueNotifier`?
-12. ¿Quién retira escuchas, desmonta widgets y libera las fuentes y derivaciones creadas en las prácticas?
+La función que se pasa a `batch` contiene las dos asignaciones. Antes de ejecutarlo, predice qué valores guardará
+el listener y cuántas veces se evaluará el derivado, contando también la evaluación inicial al registrarlo. Después
+añade comprobaciones al test y compara con la solución. Esta prueba cubre una secuencia concreta; no establece el
+comportamiento de todos los casos posibles de lotes.
 
-**Unidad dominada cuando:** puedes resolver el proyecto y explicar cuándo se consulta, recalcula y notifica un valor
-sin confundir los objetos o copiar las soluciones.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
-
-Los contadores son 0 al crear, 1 tras la primera lectura, 1 tras la segunda y tras cambiar la fuente sin observador,
-2 tras volver a leer y 2 en la lectura final. Los valores son `Tema: claro` y después `Tema: oscuro`.
-
-### Ejemplo B
-
-Registrar el listener calcula `false` pero suprime la llamada externa inicial. Al cambiar el borde a 2 hay segundo
-cálculo y aviso `true`; al cambiarlo a 3, tercer cálculo y ningún aviso nuevo porque el resultado sigue siendo `true`.
-Con borde 1 hay cuarto cálculo y aviso `false`. Tras retirar el listener, borde 2 no ejecuta inmediatamente; leer
-`grueso.value` causa el quinto cálculo y devuelve `true`.
-
-### Ejemplo C
-
-Las evaluaciones son 1, 1, 2, 2 y 3 en los puntos comprobados. Inicialmente se leen `usarLocal` y `local`; tras activar
-y evaluar la otra rama se leen `usarLocal` y `global`. Cambiar una fuente que no pertenece a la rama vigente no exige
-volver a ejecutar esa función cuando se consulta el resultado.
-
-### Ejemplo D
-
-Al montar se muestra `fino`, con un cálculo y un build. Borde 2 muestra `grueso`, con dos cálculos y dos builds.
-Borde 3 ejecuta el tercer cálculo pero conserva el resultado igual y el contador del builder permanece en dos tras
-`pump`. Estos números describen el árbol aislado del test.
-
-### Ejemplo E
-
-Registrar el listener evalúa `Tema: Light` una vez. Cambiar el controlador a `dark` actualiza el `ValueNotifier`,
-pero no invalida el `computed`: sigue mostrando `Tema: Light`, sin nuevo cálculo ni aviso en esta prueba.
-
-### Una solución del proyecto
+<details>
+<summary>Ver una posible solución</summary>
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -615,10 +647,77 @@ void main() {
 Al registrar hay un cálculo inicial y ningún aviso externo. Borde 2 produce `claro: grueso` y un segundo cálculo;
 borde 3 produce un tercer cálculo con el mismo texto, sin aviso adicional. Tema `oscuro` produce el cuarto cálculo y
 el aviso `oscuro: grueso`. Después de retirar el listener, cambiar a `bosque` no calcula inmediatamente; la lectura
-posterior realiza el quinto cálculo. Para el caso concreto de cambiar ambas fuentes dentro de un `batch`, sin leer el
-derivado dentro del lote, una prueba adicional verificó una actualización observada con los valores finales. Capturar
-el nombre antes del callback elimina su lectura rastreada. Si solo se muestra una vez por construcción, una
+posterior realiza el quinto cálculo. En la variación con `batch`, partiendo del estado inicial indicado, hay dos
+cálculos en total: el inicial y otro al terminar el lote. El listener guarda solo `oscuro: grueso`, construido con
+los dos valores finales. Capturar el nombre antes del callback elimina su lectura rastreada. Si solo se muestra una vez
+por construcción, una
 interpolación dentro de un consumidor que ya observe el tema puede ser suficiente.
+
+</details>
+
+## Errores de comprensión que vamos a comprobar
+
+- Tratar el resultado derivado como una segunda fuente de verdad mutable independiente.
+- Creer que crear el objeto ejecuta siempre la función inmediatamente.
+- Pensar que la función solo puede ejecutarse al escribir explícitamente `.value` en el código del consumidor.
+- Confundir una fuente invalidada, una evaluación, un cambio de resultado, un aviso y un build.
+- Creer que mencionar una señal fuera de la función la convierte en dependencia rastreada.
+- Pensar que todas las ramas se observan aunque no se hayan ejecutado.
+- Suponer que cualquier implementación de `ValueListenable` se rastrea automáticamente como señal de Signals.
+- Suponer que el tipo de lectura elimina todas las capacidades del objeto real o que un derivado idéntico es lo mismo
+  que un adaptador separado.
+- Añadir efectos de red o persistencia al cálculo o crear y perder derivaciones en cada build sin dueño.
+
+## Comprueba si puedes avanzar
+
+1. ¿Qué diferencia hay entre dato almacenado, dato derivado y vista de lectura?
+2. ¿Qué devuelve `computed<T>` de `signals_flutter` y qué contiene su `.value`?
+3. En A, ¿cuándo se ejecuta la función y por qué una segunda lectura no la repite?
+4. ¿Por qué una suscripción puede provocar el primer cálculo sin ejecutar el listener externo inicial de B?
+5. En B, ¿qué pasa al cambiar borde 2 → 3 con el cálculo, el resultado y los avisos?
+6. ¿Qué cambia después de retirar el listener y volver a leer el derivado?
+7. En C, ¿qué señales usa el cálculo antes y después del cambio de rama?
+8. ¿Por qué una lectura capturada antes del callback no crea una dependencia de la señal original?
+9. En D, ¿quién escucha el derivado y por qué `pump` es un paso separado del cambio de señal?
+10. ¿Qué objeto devuelve `controller.theme` y qué limita su tipo público?
+11. ¿Por qué el `computed` de la práctica E no se invalida al cambiar el `ValueNotifier`?
+12. ¿Quién retira escuchas, desmonta widgets y libera las fuentes y derivaciones creadas en las prácticas?
+
+**Unidad dominada cuando:** puedes resolver el proyecto y explicar cuándo se consulta, recalcula y notifica un valor
+sin confundir los objetos o copiar las soluciones.
+
+<details>
+<summary>Consultar claves de los ejemplos y la comprobación final</summary>
+
+
+### Ejemplo A
+
+Los contadores son 0 al crear, 1 tras la primera lectura, 1 tras la segunda y tras cambiar la fuente sin observador,
+2 tras volver a leer y 2 en la lectura final. Los valores son `Tema: claro` y después `Tema: oscuro`.
+
+### Ejemplo B
+
+Registrar el listener calcula `false` pero suprime la llamada externa inicial. Al cambiar el borde a 2 hay segundo
+cálculo y aviso `true`; al cambiarlo a 3, tercer cálculo y ningún aviso nuevo porque el resultado sigue siendo `true`.
+Con borde 1 hay cuarto cálculo y aviso `false`. Tras retirar el listener, borde 2 no ejecuta inmediatamente; leer
+`grueso.value` causa el quinto cálculo y devuelve `true`.
+
+### Ejemplo C
+
+Las evaluaciones son 1, 1, 2, 2 y 3 en los puntos comprobados. Inicialmente se leen `usarLocal` y `local`; tras activar
+y evaluar la otra rama se leen `usarLocal` y `global`. Cambiar una fuente que no pertenece a la rama vigente no exige
+volver a ejecutar esa función cuando se consulta el resultado.
+
+### Ejemplo D
+
+Al montar se muestra `fino`, con un cálculo y un build. Borde 2 muestra `grueso`, con dos cálculos y dos builds.
+Borde 3 ejecuta el tercer cálculo pero conserva el resultado igual y el contador del builder permanece en dos tras
+`pump`. Estos números describen el árbol aislado del test.
+
+### Ejemplo E
+
+Registrar el listener evalúa `Tema: Light` una vez. Cambiar el controlador a `dark` actualiza el `ValueNotifier`,
+pero no invalida el `computed`: sigue mostrando `Tema: Light`, sin nuevo cálculo ni aviso en esta prueba.
 
 ### Claves de la comprobación final
 
@@ -635,6 +734,28 @@ interpolación dentro de un consumidor que ya observe el tema puede ser suficien
 10. El mismo `ValueNotifier`, expuesto mediante `ValueListenable`; el tipo permite leer y escuchar.
 11. La lectura del `ValueNotifier` no registra una dependencia de Signals.
 12. El consumidor retira lo que registró y desmonta el árbol; el propietario libera el derivado y luego las fuentes.
+
+</details>
+
+## Para consultar si necesitas reforzar
+
+- **S1 · Signals:** [`computed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/computed.html)
+  y [
+  `FlutterComputed<T>`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/FlutterComputed-class.html)
+  — creación, valor de lectura y contrato Flutter. Verifica las versiones: las páginas `latest` pueden cambiar.
+- **S2 · Signals:** [documentación de `signals`](https://pub.dev/packages/signals) — derivaciones, lecturas
+  rastreadas, efectos y lotes; úsala como contexto y contrasta las afirmaciones de versión con las fuentes instaladas.
+- **S3 · Implementación instalada:** `signals_flutter-7.1.0/lib/src/core/computed.dart` y
+  `src/mixins/value_listenable.dart`; `signals_core-7.0.0/lib/src/core/computed.dart`; y
+  `preact_signals-7.0.0/lib/src/computed.dart` y `readonly.dart`. Lee primero la API pública y después sigue el
+  contexto de evaluación, la caché y la comparación del resultado.
+- **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
+  [`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) — contrato de
+  escucha y consumidor del resultado.
+- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
+  [scope](../../../lib/themes/application/daisy_theme_scope.dart),
+  [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart),
+  [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
 
 ## Qué se ha revisado y cómo se ha comprobado
 
