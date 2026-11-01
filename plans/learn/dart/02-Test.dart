@@ -1,10 +1,16 @@
+import 'package:flutter/foundation.dart';
+
 void avisar() {
-  print('El tema cambió');
+  if (kDebugMode) {
+    print('El tema cambió');
+  }
 }
 
 void main() {
   final accion = avisar;
-  print('Acción preparada');
+  if (kDebugMode) {
+    print('Acción preparada');
+  }
 
   accion.call();
 }

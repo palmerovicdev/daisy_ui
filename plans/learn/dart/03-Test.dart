@@ -24,20 +24,34 @@ void main() {
   final avisador = AvisadorManual();
   final Listenable fuente = avisador;
 
-  void panel() => print('Panel avisado');
-  void diagnostico() => print('Diagnóstico avisado');
+  void panel() {
+    if (kDebugMode) {
+      print('Panel avisado');
+    }
+  }
+  void diagnostico() {
+    if (kDebugMode) {
+      print('Diagnóstico avisado');
+    }
+  }
 
   fuente.addListener(panel);
   fuente.addListener(diagnostico);
-  print('Registrados');
+  if (kDebugMode) {
+    print('Registrados');
+  }
 
   avisador.emitir();
 
   fuente.removeListener(panel);
-  print('Panel retirado');
+  if (kDebugMode) {
+    print('Panel retirado');
+  }
   avisador.emitir();
 
   fuente.removeListener(diagnostico);
   avisador.emitir();
-  print('Fin');
+  if (kDebugMode) {
+    print('Fin');
+  }
 }
