@@ -13,6 +13,12 @@ import 'package:prism_flutter/prism_flutter.dart';
 /// The model does not represent color-scheme, depth or noise tokens.
 abstract final class DaisyThemes {
   /// Light theme with white/zinc bases.
+  ///
+  /// Crisp white surfaces with indigo, pink and teal accents for a clean,
+  /// colorful everyday interface.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors medium (8 px). Size base: 4 px for both groups.
   static const DaisyThemeModel light = DaisyThemeModel(
     id: 'light',
     name: 'Light',
@@ -70,13 +76,19 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.medium,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// Dark theme with custom dark-blue bases; accent roles reuse the
   /// Tailwind palette.
+  ///
+  /// Deep blue gray surfaces with vivid indigo, pink and teal accents for an
+  /// expressive dark interface.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors medium (8 px). Size base: 4 px for both groups.
   static const DaisyThemeModel dark = DaisyThemeModel(
     id: 'dark',
     name: 'Dark',
@@ -138,12 +150,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.medium,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI cupcake theme.
+  ///
+  /// Cream surfaces, mint, pink and peach accents, and pill shaped controls
+  /// create a soft, playful look.
+  ///
+  /// Border: thick (2 px). Radii: boxes large (16 px),
+  /// fields full (32 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel cupcake = DaisyThemeModel(
     id: 'cupcake',
     name: 'Cupcake',
@@ -201,12 +219,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI bumblebee theme.
+  ///
+  /// Bright white surfaces meet honey yellow, warm orange and bold black accents
+  /// for a lively, confident look.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel bumblebee = DaisyThemeModel(
     id: 'bumblebee',
     name: 'Bumblebee',
@@ -264,12 +288,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI emerald theme.
+  ///
+  /// Fresh emerald green, cool blue and coral accents on white surfaces create a
+  /// balanced, cheerful palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel emerald = DaisyThemeModel(
     id: 'emerald',
     name: 'Emerald',
@@ -327,12 +357,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI corporate theme.
+  ///
+  /// White surfaces, restrained blue and teal accents, and subtle corners give
+  /// professional interfaces a tidy look.
+  ///
+  /// Border: thin (1 px). Radii: boxes soft (4 px),
+  /// fields soft (4 px), selectors soft (4 px). Size base: 4 px for both groups.
   static const DaisyThemeModel corporate = DaisyThemeModel(
     id: 'corporate',
     name: 'Corporate',
@@ -390,12 +426,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.soft,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI synthwave theme.
+  ///
+  /// Deep violet surfaces with neon pink, cyan and orange accents capture the
+  /// energy of retro arcades.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel synthwave = DaisyThemeModel(
     id: 'synthwave',
     name: 'Synthwave',
@@ -453,12 +495,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI retro theme.
+  ///
+  /// Warm cream surfaces with faded red, mint and mustard accents evoke vintage
+  /// posters and nostalgic print design.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors soft (4 px). Size base: 4 px for both groups.
   static const DaisyThemeModel retro = DaisyThemeModel(
     id: 'retro',
     name: 'Retro',
@@ -516,12 +564,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.soft,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI cyberpunk theme.
+  ///
+  /// Vivid yellow surfaces, electric pink, cyan and purple accents, and sharp
+  /// corners create a futuristic look.
+  ///
+  /// Border: thin (1 px). Radii: boxes sharp (0 px),
+  /// fields sharp (0 px), selectors sharp (0 px). Size base: 4 px for both groups.
   static const DaisyThemeModel cyberpunk = DaisyThemeModel(
     id: 'cyberpunk',
     name: 'Cyberpunk',
@@ -579,12 +633,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.sharp,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI valentine theme.
+  ///
+  /// Blush surfaces, rich pink, purple and sky blue accents, and rounded controls
+  /// create a romantic, playful style.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields full (32 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel valentine = DaisyThemeModel(
     id: 'valentine',
     name: 'Valentine',
@@ -642,12 +702,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI halloween theme.
+  ///
+  /// Charcoal surfaces with pumpkin orange, purple and vivid green accents give
+  /// the interface a bold, spooky character.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel halloween = DaisyThemeModel(
     id: 'halloween',
     name: 'Halloween',
@@ -705,12 +771,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI garden theme.
+  ///
+  /// Pale gray surfaces with berry pink and muted green accents bring a floral,
+  /// botanical character to the interface.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel garden = DaisyThemeModel(
     id: 'garden',
     name: 'Garden',
@@ -768,12 +840,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI forest theme.
+  ///
+  /// Dark surfaces with leaf green, mint and teal accents create a rich palette
+  /// inspired by woodland foliage.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields full (32 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel forest = DaisyThemeModel(
     id: 'forest',
     name: 'Forest',
@@ -831,12 +909,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI aqua theme.
+  ///
+  /// Deep blue surfaces with bright cyan, violet and pale yellow accents create a
+  /// vibrant aquatic palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel aqua = DaisyThemeModel(
     id: 'aqua',
     name: 'Aqua',
@@ -894,12 +978,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI lofi theme.
+  ///
+  /// White and gray surfaces with near black accents and simple borders keep the
+  /// interface quiet and minimal.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors full (32 px). Size base: 4 px for both groups.
   static const DaisyThemeModel lofi = DaisyThemeModel(
     id: 'lofi',
     name: 'Lofi',
@@ -957,12 +1047,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.full,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI pastel theme.
+  ///
+  /// White surfaces with soft lavender, rose and mint accents and pill shaped
+  /// controls create a gentle, airy style.
+  ///
+  /// Border: thick (2 px). Radii: boxes large (16 px),
+  /// fields full (32 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel pastel = DaisyThemeModel(
     id: 'pastel',
     name: 'Pastel',
@@ -1020,12 +1116,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI fantasy theme.
+  ///
+  /// White surfaces with rich magenta, blue and warm orange accents give the
+  /// interface a colorful storybook character.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel fantasy = DaisyThemeModel(
     id: 'fantasy',
     name: 'Fantasy',
@@ -1083,12 +1185,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI wireframe theme.
+  ///
+  /// White surfaces, neutral gray accents and minimal rounding create a simple
+  /// sketchlike style for prototypes.
+  ///
+  /// Border: thin (1 px). Radii: boxes soft (4 px),
+  /// fields soft (4 px), selectors sharp (0 px). Size base: 4 px for both groups.
   static const DaisyThemeModel wireframe = DaisyThemeModel(
     id: 'wireframe',
     name: 'Wireframe',
@@ -1146,12 +1254,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.sharp,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI black theme.
+  ///
+  /// Pure black surfaces with charcoal controls and gray foregrounds create a
+  /// stark, monochrome dark interface.
+  ///
+  /// Border: thin (1 px). Radii: boxes sharp (0 px),
+  /// fields sharp (0 px), selectors sharp (0 px). Size base: 4 px for both groups.
   static const DaisyThemeModel black = DaisyThemeModel(
     id: 'black',
     name: 'Black',
@@ -1209,12 +1323,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.sharp,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI luxury theme.
+  ///
+  /// Near black surfaces with white, midnight blue and plum accents create a
+  /// refined, dramatic atmosphere.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel luxury = DaisyThemeModel(
     id: 'luxury',
     name: 'Luxury',
@@ -1272,12 +1392,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI dracula theme.
+  ///
+  /// Deep violet gray surfaces with bright pink, lavender and warm orange accents
+  /// create a colorful gothic style.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel dracula = DaisyThemeModel(
     id: 'dracula',
     name: 'Dracula',
@@ -1335,12 +1461,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI cmyk theme.
+  ///
+  /// White surfaces with saturated cyan, magenta, yellow and black accents
+  /// celebrate the bold palette of print design.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel cmyk = DaisyThemeModel(
     id: 'cmyk',
     name: 'Cmyk',
@@ -1398,12 +1530,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI autumn theme.
+  ///
+  /// Pale neutral surfaces with burgundy, rust and warm amber accents evoke the
+  /// earthy colors of autumn.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel autumn = DaisyThemeModel(
     id: 'autumn',
     name: 'Autumn',
@@ -1461,12 +1599,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI business theme.
+  ///
+  /// Charcoal surfaces, muted blue and slate accents, and restrained orange
+  /// highlights give dashboards a composed look.
+  ///
+  /// Border: thin (1 px). Radii: boxes soft (4 px),
+  /// fields soft (4 px), selectors sharp (0 px). Size base: 4 px for both groups.
   static const DaisyThemeModel business = DaisyThemeModel(
     id: 'business',
     name: 'Business',
@@ -1524,12 +1668,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.sharp,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI acid theme.
+  ///
+  /// Light surfaces with intense fuchsia, orange and lime accents create a bold,
+  /// psychedelic palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields large (16 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel acid = DaisyThemeModel(
     id: 'acid',
     name: 'Acid',
@@ -1587,12 +1737,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI lemonade theme.
+  ///
+  /// Pale citrus surfaces with leafy green, yellow green and lemon accents create
+  /// a fresh, sunny palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel lemonade = DaisyThemeModel(
     id: 'lemonade',
     name: 'Lemonade',
@@ -1650,12 +1806,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI night theme.
+  ///
+  /// Deep navy surfaces with bright sky blue, periwinkle and pink accents create
+  /// a crisp, colorful night palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel night = DaisyThemeModel(
     id: 'night',
     name: 'Night',
@@ -1713,12 +1875,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI coffee theme.
+  ///
+  /// Dark plum brown surfaces with caramel, muted teal and blue accents create a
+  /// warm, intimate cafe atmosphere.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel coffee = DaisyThemeModel(
     id: 'coffee',
     name: 'Coffee',
@@ -1776,12 +1944,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI winter theme.
+  ///
+  /// Crisp white surfaces with icy blue, deep indigo and magenta accents create a
+  /// bright, cool seasonal palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel winter = DaisyThemeModel(
     id: 'winter',
     name: 'Winter',
@@ -1839,12 +2013,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI dim theme.
+  ///
+  /// Soft blue gray surfaces with lime, coral and lavender accents create a
+  /// subdued alternative to a black background.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel dim = DaisyThemeModel(
     id: 'dim',
     name: 'Dim',
@@ -1902,12 +2082,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI nord theme.
+  ///
+  /// Pale blue gray surfaces with muted steel blue and icy cyan accents create a
+  /// calm, Nordic inspired palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel nord = DaisyThemeModel(
     id: 'nord',
     name: 'Nord',
@@ -1965,12 +2151,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI sunset theme.
+  ///
+  /// Dark blue gray surfaces with coral, rose and violet accents reflect the rich
+  /// colors of an evening sky.
+  ///
+  /// Border: thin (1 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors large (16 px). Size base: 4 px for both groups.
   static const DaisyThemeModel sunset = DaisyThemeModel(
     id: 'sunset',
     name: 'Sunset',
@@ -2028,12 +2220,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.large,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI caramellatte theme.
+  ///
+  /// Warm cream surfaces with black, espresso and caramel accents and rounded
+  /// corners evoke a cozy coffee shop.
+  ///
+  /// Border: thick (2 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors full (32 px). Size base: 4 px for both groups.
   static const DaisyThemeModel caramellatte = DaisyThemeModel(
     id: 'caramellatte',
     name: 'Caramellatte',
@@ -2091,12 +2289,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.full,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI abyss theme.
+  ///
+  /// Deep ocean teal surfaces with electric lime, pale lavender and gray accents
+  /// create an unusual, dramatic dark palette.
+  ///
+  /// Border: thin (1 px). Radii: boxes medium (8 px),
+  /// fields soft (4 px), selectors full (32 px). Size base: 4 px for both groups.
   static const DaisyThemeModel abyss = DaisyThemeModel(
     id: 'abyss',
     name: 'Abyss',
@@ -2154,12 +2358,18 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.full,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 
   /// DaisyUI silk theme.
+  ///
+  /// Warm ivory surfaces with subtle violet charcoal accents and rounded corners
+  /// create a soft, understated elegance.
+  ///
+  /// Border: thick (2 px). Radii: boxes large (16 px),
+  /// fields medium (8 px), selectors full (32 px). Size base: 4 px for both groups.
   static const DaisyThemeModel silk = DaisyThemeModel(
     id: 'silk',
     name: 'Silk',
@@ -2217,8 +2427,8 @@ abstract final class DaisyThemes {
       selectors: DaisyThemeRadiusPreset.full,
     ),
     size: DaisyThemeSize(
-      fields: DaisyThemeSizeConfig(base: 4),
-      selectors: DaisyThemeSizeConfig(base: 4),
+      fields: DaisyThemeSizePresets(base: 4),
+      selectors: DaisyThemeSizePresets(base: 4),
     ),
   );
 }

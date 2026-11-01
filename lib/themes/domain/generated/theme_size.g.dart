@@ -8,10 +8,10 @@ part of '../theme_size.dart';
 
 _DaisyThemeSize _$DaisyThemeSizeFromJson(Map<String, dynamic> json) =>
     _DaisyThemeSize(
-      fields: DaisyThemeSizeConfig.fromJson(
+      fields: DaisyThemeSizePresets.fromJson(
         json['fields'] as Map<String, dynamic>,
       ),
-      selectors: DaisyThemeSizeConfig.fromJson(
+      selectors: DaisyThemeSizePresets.fromJson(
         json['selectors'] as Map<String, dynamic>,
       ),
     );
@@ -22,10 +22,10 @@ Map<String, dynamic> _$DaisyThemeSizeToJson(_DaisyThemeSize instance) =>
       'selectors': instance.selectors.toJson(),
     };
 
-_DaisyThemeSizeConfig _$DaisyThemeSizeConfigFromJson(
+_DaisyThemeSizePresets _$DaisyThemeSizePresetsFromJson(
   Map<String, dynamic> json,
-) => _DaisyThemeSizeConfig(base: (json['base'] as num).toInt());
+) => _DaisyThemeSizePresets(base: (json['base'] as num).toInt());
 
-Map<String, dynamic> _$DaisyThemeSizeConfigToJson(
-  _DaisyThemeSizeConfig instance,
+Map<String, dynamic> _$DaisyThemeSizePresetsToJson(
+  _DaisyThemeSizePresets instance,
 ) => <String, dynamic>{'base': instance.base};

@@ -17,8 +17,8 @@ T _$identity<T>(T value) => value;
 mixin _$DaisyThemeSize {
 
 /// Buttons, inputs, selects, tabs.
- DaisyThemeSizeConfig get fields;/// Checkboxes, toggles, badges.
- DaisyThemeSizeConfig get selectors;
+ DaisyThemeSizePresets get fields;/// Checkboxes, toggles, badges.
+ DaisyThemeSizePresets get selectors;
 /// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,11 +45,11 @@ abstract mixin class $DaisyThemeSizeCopyWith<$Res>  {
   factory $DaisyThemeSizeCopyWith(DaisyThemeSize value, $Res Function(DaisyThemeSize) _then) = _$DaisyThemeSizeCopyWithImpl;
 @useResult
 $Res call({
- DaisyThemeSizeConfig fields, DaisyThemeSizeConfig selectors
+ DaisyThemeSizePresets fields, DaisyThemeSizePresets selectors
 });
 
 
-$DaisyThemeSizeConfigCopyWith<$Res> get fields;$DaisyThemeSizeConfigCopyWith<$Res> get selectors;
+$DaisyThemeSizePresetsCopyWith<$Res> get fields;$DaisyThemeSizePresetsCopyWith<$Res> get selectors;
 
 }
 /// @nodoc
@@ -65,26 +65,26 @@ class _$DaisyThemeSizeCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? fields = null,Object? selectors = null,}) {
   return _then(DaisyThemeSize(
 fields: null == fields ? _self.fields : fields // ignore: cast_nullable_to_non_nullable
-as DaisyThemeSizeConfig,selectors: null == selectors ? _self.selectors : selectors // ignore: cast_nullable_to_non_nullable
-as DaisyThemeSizeConfig,
+as DaisyThemeSizePresets,selectors: null == selectors ? _self.selectors : selectors // ignore: cast_nullable_to_non_nullable
+as DaisyThemeSizePresets,
   ));
 }
 /// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeSizeConfigCopyWith<$Res> get fields {
+$DaisyThemeSizePresetsCopyWith<$Res> get fields {
   
-  return $DaisyThemeSizeConfigCopyWith<$Res>(_self.fields, (value) {
+  return $DaisyThemeSizePresetsCopyWith<$Res>(_self.fields, (value) {
     return _then(_self.copyWith(fields: value));
   });
 }/// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeSizeConfigCopyWith<$Res> get selectors {
+$DaisyThemeSizePresetsCopyWith<$Res> get selectors {
   
-  return $DaisyThemeSizeConfigCopyWith<$Res>(_self.selectors, (value) {
+  return $DaisyThemeSizePresetsCopyWith<$Res>(_self.selectors, (value) {
     return _then(_self.copyWith(selectors: value));
   });
 }
@@ -169,7 +169,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DaisyThemeSizeConfig fields,  DaisyThemeSizeConfig selectors)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DaisyThemeSizePresets fields,  DaisyThemeSizePresets selectors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DaisyThemeSize() when $default != null:
 return $default(_that.fields,_that.selectors);case _:
@@ -190,7 +190,7 @@ return $default(_that.fields,_that.selectors);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DaisyThemeSizeConfig fields,  DaisyThemeSizeConfig selectors)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DaisyThemeSizePresets fields,  DaisyThemeSizePresets selectors)  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeSize():
 return $default(_that.fields,_that.selectors);case _:
@@ -210,7 +210,7 @@ return $default(_that.fields,_that.selectors);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DaisyThemeSizeConfig fields,  DaisyThemeSizeConfig selectors)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DaisyThemeSizePresets fields,  DaisyThemeSizePresets selectors)?  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeSize() when $default != null:
 return $default(_that.fields,_that.selectors);case _:
@@ -229,9 +229,9 @@ class _DaisyThemeSize extends DaisyThemeSize {
   factory _DaisyThemeSize.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizeFromJson(json);
 
 /// Buttons, inputs, selects, tabs.
-@override final  DaisyThemeSizeConfig fields;
+@override final  DaisyThemeSizePresets fields;
 /// Checkboxes, toggles, badges.
-@override final  DaisyThemeSizeConfig selectors;
+@override final  DaisyThemeSizePresets selectors;
 
 /// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
@@ -259,11 +259,11 @@ abstract mixin class _$DaisyThemeSizeCopyWith<$Res> implements $DaisyThemeSizeCo
   factory _$DaisyThemeSizeCopyWith(_DaisyThemeSize value, $Res Function(_DaisyThemeSize) _then) = __$DaisyThemeSizeCopyWithImpl;
 @override @useResult
 $Res call({
- DaisyThemeSizeConfig fields, DaisyThemeSizeConfig selectors
+ DaisyThemeSizePresets fields, DaisyThemeSizePresets selectors
 });
 
 
-@override $DaisyThemeSizeConfigCopyWith<$Res> get fields;@override $DaisyThemeSizeConfigCopyWith<$Res> get selectors;
+@override $DaisyThemeSizePresetsCopyWith<$Res> get fields;@override $DaisyThemeSizePresetsCopyWith<$Res> get selectors;
 
 }
 /// @nodoc
@@ -279,8 +279,8 @@ class __$DaisyThemeSizeCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? fields = null,Object? selectors = null,}) {
   return _then(_DaisyThemeSize(
 fields: null == fields ? _self.fields : fields // ignore: cast_nullable_to_non_nullable
-as DaisyThemeSizeConfig,selectors: null == selectors ? _self.selectors : selectors // ignore: cast_nullable_to_non_nullable
-as DaisyThemeSizeConfig,
+as DaisyThemeSizePresets,selectors: null == selectors ? _self.selectors : selectors // ignore: cast_nullable_to_non_nullable
+as DaisyThemeSizePresets,
   ));
 }
 
@@ -288,18 +288,18 @@ as DaisyThemeSizeConfig,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeSizeConfigCopyWith<$Res> get fields {
+$DaisyThemeSizePresetsCopyWith<$Res> get fields {
   
-  return $DaisyThemeSizeConfigCopyWith<$Res>(_self.fields, (value) {
+  return $DaisyThemeSizePresetsCopyWith<$Res>(_self.fields, (value) {
     return _then(_self.copyWith(fields: value));
   });
 }/// Create a copy of DaisyThemeSize
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$DaisyThemeSizeConfigCopyWith<$Res> get selectors {
+$DaisyThemeSizePresetsCopyWith<$Res> get selectors {
   
-  return $DaisyThemeSizeConfigCopyWith<$Res>(_self.selectors, (value) {
+  return $DaisyThemeSizePresetsCopyWith<$Res>(_self.selectors, (value) {
     return _then(_self.copyWith(selectors: value));
   });
 }
@@ -307,17 +307,17 @@ $DaisyThemeSizeConfigCopyWith<$Res> get selectors {
 
 
 /// @nodoc
-mixin _$DaisyThemeSizeConfig {
+mixin _$DaisyThemeSizePresets {
 
 /// Base step in logical pixels; every size below derives from it.
  int get base;
-/// Create a copy of DaisyThemeSizeConfig
+/// Create a copy of DaisyThemeSizePresets
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$DaisyThemeSizeConfigCopyWith<DaisyThemeSizeConfig> get copyWith => _$DaisyThemeSizeConfigCopyWithImpl<DaisyThemeSizeConfig>(this as DaisyThemeSizeConfig, _$identity);
+$DaisyThemeSizePresetsCopyWith<DaisyThemeSizePresets> get copyWith => _$DaisyThemeSizePresetsCopyWithImpl<DaisyThemeSizePresets>(this as DaisyThemeSizePresets, _$identity);
 
-  /// Serializes this DaisyThemeSizeConfig to a JSON map.
+  /// Serializes this DaisyThemeSizePresets to a JSON map.
   Map<String, dynamic> toJson();
 
 
@@ -325,16 +325,16 @@ $DaisyThemeSizeConfigCopyWith<DaisyThemeSizeConfig> get copyWith => _$DaisyTheme
 
 @override
 String toString() {
-  final _this = this as DaisyThemeSizeConfig;
-  return 'DaisyThemeSizeConfig(base: ${_this.base})';
+  final _this = this as DaisyThemeSizePresets;
+  return 'DaisyThemeSizePresets(base: ${_this.base})';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $DaisyThemeSizeConfigCopyWith<$Res>  {
-  factory $DaisyThemeSizeConfigCopyWith(DaisyThemeSizeConfig value, $Res Function(DaisyThemeSizeConfig) _then) = _$DaisyThemeSizeConfigCopyWithImpl;
+abstract mixin class $DaisyThemeSizePresetsCopyWith<$Res>  {
+  factory $DaisyThemeSizePresetsCopyWith(DaisyThemeSizePresets value, $Res Function(DaisyThemeSizePresets) _then) = _$DaisyThemeSizePresetsCopyWithImpl;
 @useResult
 $Res call({
  int base
@@ -345,17 +345,17 @@ $Res call({
 
 }
 /// @nodoc
-class _$DaisyThemeSizeConfigCopyWithImpl<$Res>
-    implements $DaisyThemeSizeConfigCopyWith<$Res> {
-  _$DaisyThemeSizeConfigCopyWithImpl(this._self, this._then);
+class _$DaisyThemeSizePresetsCopyWithImpl<$Res>
+    implements $DaisyThemeSizePresetsCopyWith<$Res> {
+  _$DaisyThemeSizePresetsCopyWithImpl(this._self, this._then);
 
-  final DaisyThemeSizeConfig _self;
-  final $Res Function(DaisyThemeSizeConfig) _then;
+  final DaisyThemeSizePresets _self;
+  final $Res Function(DaisyThemeSizePresets) _then;
 
-/// Create a copy of DaisyThemeSizeConfig
+/// Create a copy of DaisyThemeSizePresets
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? base = null,}) {
-  return _then(DaisyThemeSizeConfig(
+  return _then(DaisyThemeSizePresets(
 base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -364,8 +364,8 @@ as int,
 }
 
 
-/// Adds pattern-matching-related methods to [DaisyThemeSizeConfig].
-extension DaisyThemeSizeConfigPatterns on DaisyThemeSizeConfig {
+/// Adds pattern-matching-related methods to [DaisyThemeSizePresets].
+extension DaisyThemeSizePresetsPatterns on DaisyThemeSizePresets {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -378,10 +378,10 @@ extension DaisyThemeSizeConfigPatterns on DaisyThemeSizeConfig {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DaisyThemeSizeConfig value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DaisyThemeSizePresets value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig() when $default != null:
+case _DaisyThemeSizePresets() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -400,10 +400,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DaisyThemeSizeConfig value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DaisyThemeSizePresets value)  $default,){
 final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig():
+case _DaisyThemeSizePresets():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -421,10 +421,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DaisyThemeSizeConfig value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DaisyThemeSizePresets value)?  $default,){
 final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig() when $default != null:
+case _DaisyThemeSizePresets() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -444,7 +444,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int base)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig() when $default != null:
+case _DaisyThemeSizePresets() when $default != null:
 return $default(_that.base);case _:
   return orElse();
 
@@ -465,7 +465,7 @@ return $default(_that.base);case _:
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int base)  $default,) {final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig():
+case _DaisyThemeSizePresets():
 return $default(_that.base);case _:
   throw StateError('Unexpected subclass');
 
@@ -485,7 +485,7 @@ return $default(_that.base);case _:
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int base)?  $default,) {final _that = this;
 switch (_that) {
-case _DaisyThemeSizeConfig() when $default != null:
+case _DaisyThemeSizePresets() when $default != null:
 return $default(_that.base);case _:
   return null;
 
@@ -497,37 +497,37 @@ return $default(_that.base);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeSizeConfig extends DaisyThemeSizeConfig {
-  const _DaisyThemeSizeConfig({required this.base}): super._();
-  factory _DaisyThemeSizeConfig.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizeConfigFromJson(json);
+class _DaisyThemeSizePresets extends DaisyThemeSizePresets {
+  const _DaisyThemeSizePresets({required this.base}): super._();
+  factory _DaisyThemeSizePresets.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizePresetsFromJson(json);
 
 /// Base step in logical pixels; every size below derives from it.
 @override final  int base;
 
-/// Create a copy of DaisyThemeSizeConfig
+/// Create a copy of DaisyThemeSizePresets
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$DaisyThemeSizeConfigCopyWith<_DaisyThemeSizeConfig> get copyWith => __$DaisyThemeSizeConfigCopyWithImpl<_DaisyThemeSizeConfig>(this, _$identity);
+_$DaisyThemeSizePresetsCopyWith<_DaisyThemeSizePresets> get copyWith => __$DaisyThemeSizePresetsCopyWithImpl<_DaisyThemeSizePresets>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$DaisyThemeSizeConfigToJson(this, );
+  return _$DaisyThemeSizePresetsToJson(this, );
 }
 
 
 
 @override
 String toString() {
-    return 'DaisyThemeSizeConfig(base: $base)';
+    return 'DaisyThemeSizePresets(base: $base)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$DaisyThemeSizeConfigCopyWith<$Res> implements $DaisyThemeSizeConfigCopyWith<$Res> {
-  factory _$DaisyThemeSizeConfigCopyWith(_DaisyThemeSizeConfig value, $Res Function(_DaisyThemeSizeConfig) _then) = __$DaisyThemeSizeConfigCopyWithImpl;
+abstract mixin class _$DaisyThemeSizePresetsCopyWith<$Res> implements $DaisyThemeSizePresetsCopyWith<$Res> {
+  factory _$DaisyThemeSizePresetsCopyWith(_DaisyThemeSizePresets value, $Res Function(_DaisyThemeSizePresets) _then) = __$DaisyThemeSizePresetsCopyWithImpl;
 @override @useResult
 $Res call({
  int base
@@ -538,17 +538,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$DaisyThemeSizeConfigCopyWithImpl<$Res>
-    implements _$DaisyThemeSizeConfigCopyWith<$Res> {
-  __$DaisyThemeSizeConfigCopyWithImpl(this._self, this._then);
+class __$DaisyThemeSizePresetsCopyWithImpl<$Res>
+    implements _$DaisyThemeSizePresetsCopyWith<$Res> {
+  __$DaisyThemeSizePresetsCopyWithImpl(this._self, this._then);
 
-  final _DaisyThemeSizeConfig _self;
-  final $Res Function(_DaisyThemeSizeConfig) _then;
+  final _DaisyThemeSizePresets _self;
+  final $Res Function(_DaisyThemeSizePresets) _then;
 
-/// Create a copy of DaisyThemeSizeConfig
+/// Create a copy of DaisyThemeSizePresets
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? base = null,}) {
-  return _then(_DaisyThemeSizeConfig(
+  return _then(_DaisyThemeSizePresets(
 base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
 as int,
   ));

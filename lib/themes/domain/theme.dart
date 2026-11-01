@@ -8,6 +8,9 @@ part 'generated/theme.freezed.dart';
 
 part 'generated/theme.g.dart';
 
+/// An immutable collection of semantic colors, radii, sizes and border width.
+///
+/// Use a `DaisyThemes` preset or create a variation with `copyWith`.
 @Freezed(equal: false, toStringOverride: true)
 abstract class DaisyThemeModel with _$DaisyThemeModel, Equatable {
   const DaisyThemeModel._();
