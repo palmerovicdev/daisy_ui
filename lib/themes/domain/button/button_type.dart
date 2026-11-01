@@ -1,4 +1,5 @@
 enum DaisyButtonType {
+  filled,
   outlined,
   dashed,
   soft,

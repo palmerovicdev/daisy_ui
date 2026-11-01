@@ -1,52 +1,48 @@
-import 'package:daisy_ui/daisy_ui.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
-
+import 'package:daisy_ui/themes/presentation/action/button.dart';
 import 'package:daisy_ui_example/main.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  setUp(() => DaisyThemeService.setTheme(DaisyThemes.light));
-  tearDown(() => DaisyThemeService.setTheme(DaisyThemes.light));
-
-  testWidgets('Switches the displayed theme and surface color', (tester) async {
-    await tester.pumpWidget(const MyApp());
-
-    expect(find.text('Light'), findsOneWidget);
-    await tester.tap(find.text('Switch theme'));
-    await tester.pump();
-
-    expect(find.text('Dark'), findsOneWidget);
-    expect(
-      tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
-      DaisyThemes.dark.colors.base.base,
-    );
-
-    await tester.tap(find.text('Switch theme'));
-    await tester.pump();
-    expect(find.text('Light'), findsOneWidget);
-  });
-
-  testWidgets('Preview and application themes change independently', (
+  testWidgets('The preview animates the Daisy button elevation', (
     tester,
   ) async {
     await tester.pumpWidget(const MyApp());
 
-    expect(find.text('Light'), findsOneWidget);
-    expect(find.text('Preview: Cupcake'), findsOneWidget);
+    final button = find.byType(DaisyButton);
+    expect(button, findsOneWidget);
+    expect(find.text('Elevación'), findsOneWidget);
 
-    await tester.tap(find.text('Switch preview theme'));
-    await tester.pump();
-    expect(find.text('Preview: Dark'), findsOneWidget);
-    expect(find.text('Light'), findsOneWidget);
+    Material buttonMaterial() => tester.widget<Material>(
+      find.descendant(of: button, matching: find.byType(Material)).first,
+    );
 
-    await tester.tap(find.text('Switch theme'));
-    await tester.pump();
-    expect(find.text('Dark'), findsOneWidget);
-    expect(find.text('Preview: Dark'), findsOneWidget);
+    expect(buttonMaterial().elevation, 0);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(button));
+    await tester.pumpAndSettle();
+    expect(buttonMaterial().elevation, 4);
 
-    await tester.tap(find.text('Switch preview theme'));
-    await tester.pump();
-    expect(find.text('Preview: Cupcake'), findsOneWidget);
-    expect(find.text('Dark'), findsOneWidget);
+    await mouse.down(tester.getCenter(button));
+    await tester.pumpAndSettle();
+    expect(buttonMaterial().elevation, 0);
+
+    await mouse.up();
+    await tester.pumpAndSettle();
+    expect(buttonMaterial().elevation, 4);
+    await mouse.removePointer();
+  });
+
+  testWidgets('The preview fits a narrow screen', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MyApp());
+
+    expect(find.byType(DaisyButton), findsOneWidget);
   });
 }
