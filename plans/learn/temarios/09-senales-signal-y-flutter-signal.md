@@ -5,7 +5,6 @@
 
 - **Bloque:** Signals: almacenar y relacionar estado.
 - **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 31 de octubre de 2026.
 
 ## Qué vas a conseguir
 
@@ -17,41 +16,38 @@ Estudiaremos Signals con ejemplos independientes y los compararemos con el contr
 `ValueNotifier` para sus temas. Las dependencias rastreadas y `SignalBuilder` se estudian en la unidad 10;
 `computed`, `effect` y propiedad de recursos tienen unidades posteriores.
 
-## Versiones y forma de practicar
+## Cómo practicar
 
-Esta guía se contrastó con el `../../../pubspec.lock` y la implementación instalada: **`signals_flutter` 7.1.0**, **
-`signals_core` 7.0.0** y **`preact_signals` 7.0.0**. `pubspec.yaml` declara un rango para `signals_flutter`; la
-versión resuelta y sus dependencias son las que determinan el comportamiento de estos ejemplos. La documentación con
-`latest` puede cambiar. Los comportamientos internos descritos aquí corresponden a esa combinación de versiones, no a
-cualquier biblioteca llamada «signals».
-
-Los ejemplos A–D y la solución del proyecto son archivos de prueba Flutter completos e independientes. Copia uno a la
-vez en `test/estudio_senales_test.dart` dentro del repositorio y ejecuta:
+Las pruebas completas de A y C están en las soluciones; las de B y D aparecen en sus secciones. La solución del
+proyecto también es una prueba completa. Copia una de ellas a la vez en `test/estudio_senales_test.dart` dentro del
+repositorio y ejecuta:
 
 ```shell
 flutter test --no-pub test/estudio_senales_test.dart
 ```
 
-La opción `--no-pub` usa las dependencias ya resueltas; si no están instaladas, primero habrá que resolverlas. Los
-programas importan `signals_flutter` y `flutter_test`: **no son programas Dart independientes listos para DartPad**.
-Elimina el archivo de práctica cuando termines o guárdalo con otro nombre si quieres conservarlo. Los fragmentos sin
-`main` son para leer. A cada ejemplo le siguen predicciones y soluciones más abajo.
+La opción `--no-pub` presupone que las dependencias ya están resueltas e instaladas; si aún no lo están, ejecuta antes
+`flutter pub get` en la raíz del proyecto. Las pruebas importan `signals_flutter` y `flutter_test`, por lo que
+necesitan el entorno Flutter del proyecto; no funcionan en DartPad. Los fragmentos de 9.1, los enunciados de A y C y
+el fragmento del controlador en 9.7 sirven para leer y predecir: no son programas completos ejecutables por sí solos.
 
-## Ruta y progreso
+Esta guía se contrastó con `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0 (resueltas en
+`pubspec.lock`); si tu proyecto usa otra versión, algunos detalles internos pueden diferir.
 
-- [ ] [9.1. Qué problema resuelve una señal](#91-qué-problema-resuelve-una-señal).
-- [ ] [9.2. Crear, leer y escribir](#92-crear-leer-y-escribir).
-- [ ] [9.3. Observar una señal desde Flutter](#93-observar-una-señal-desde-flutter).
-- [ ] [9.4. Orden de ejecución y valor actual](#94-orden-de-ejecución-y-valor-actual).
-- [ ] [9.5. Igualdad y conservación del valor](#95-igualdad-y-conservación-del-valor).
-- [ ] [9.6. Mutación interna y sustitución](#96-mutación-interna-y-sustitución).
-- [ ] [9.7. Comparar con DaisyUI](#97-comparar-con-daisyui).
-- [ ] [9.8. Avisos, widgets y ciclo de vida](#98-avisos-widgets-y-ciclo-de-vida).
-- [ ] [Resolver el proyecto de la unidad](#proyecto-de-la-unidad-un-selector-de-tema).
-- [ ] [Superar la comprobación final](#comprobación-final).
+## Índice
 
-Una sesión puede cubrir 9.1–9.3; otra, 9.4–9.6; una tercera, 9.7–9.8 y el proyecto. Escribe tus predicciones
-antes de mirar las soluciones y marca las casillas cuando puedas explicarlas con tus palabras.
+- [9.1. Qué problema resuelve una señal](#91-qué-problema-resuelve-una-señal)
+- [9.2. Crear, leer y escribir](#92-crear-leer-y-escribir)
+- [9.3. Observar una señal desde Flutter](#93-observar-una-señal-desde-flutter)
+- [9.4. Orden de ejecución y valor actual](#94-orden-de-ejecución-y-valor-actual)
+- [9.5. Igualdad y conservación del valor](#95-igualdad-y-conservación-del-valor)
+- [9.6. Mutación interna y sustitución](#96-mutación-interna-y-sustitución)
+- [9.7. Comparar con DaisyUI](#97-comparar-con-daisyui)
+- [9.8. Avisos, widgets y ciclo de vida](#98-avisos-widgets-y-ciclo-de-vida)
+- [Proyecto de la unidad](#proyecto-de-la-unidad-un-selector-de-tema)
+- [Comprobación final](#comprobación-final)
+
+Escribe tus predicciones antes de mirar las soluciones y anota qué secciones puedes explicar con tus palabras.
 
 ## 9.1. Qué problema resuelve una señal
 
@@ -89,27 +85,15 @@ actual. No son el mismo objeto ni tienen el mismo papel.
 
 ### Ejemplo A: una lectura antigua y otra nueva
 
+Sin ejecutar el fragmento, anota qué contiene `lecturaAnterior` al leerla y qué contienen `tema.value` y
+`lecturaAnterior` después de la asignación. Después contrasta tus tres respuestas con la prueba completa de las
+[soluciones](#ejemplo-a).
+
 ```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
-
-void main() {
-  test('la señal conserva el valor actual', () {
-    final FlutterSignal<String> tema = signal<String>('claro');
-    addTearDown(tema.dispose);
-
-    final lecturaAnterior = tema.value;
-    expect(lecturaAnterior, 'claro');
-    tema.value = 'oscuro';
-    expect(tema.value, 'oscuro');
-    expect(lecturaAnterior, 'claro');
-  });
-}
+final FlutterSignal<String> tema = signal<String>('claro');
+final lecturaAnterior = tema.value;
+tema.value = 'oscuro';
 ```
-
-Predice los tres `expect` antes de ejecutar. La lectura anterior guarda la referencia al `String` leído, no una
-conexión que cambie con la señal. Como `String` es inmutable, sigue representando `claro`. En la unidad 8 vimos por qué
-una lectura de una lista mutable compartida necesita un razonamiento diferente.
 
 La escritura `tema.value = 'oscuro'` llama al setter de la señal; no sustituye la variable `tema`. En esta combinación
 de versiones el setter delega en `set`, que comprueba si acepta la propuesta y actualiza el valor en caso afirmativo.
@@ -123,27 +107,14 @@ Crear una segunda señal con el mismo valor inicial crea otra celda independient
 
 ## 9.3. Observar una señal desde Flutter
 
-`FlutterSignal<T>` extiende la señal del núcleo y, en la versión instalada, implementa la interfaz
-`ValueNotifier<T>` mediante `ValueNotifierSignalMixin<T>`. Por esa vía también satisface
-[`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html): un consumidor Flutter
-puede leer `value` y registrar o retirar callbacks sin conocer toda la API de Signals.
+Una `FlutterSignal<T>` también puede usarse como [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html).
+Desde ese tipo puedes leer `value`, registrar un callback con `addListener` y retirarlo con `removeListener`, usando
+la misma referencia a la función. El tipo `ValueListenable` no expone un setter ni `dispose`, aunque el objeto real
+pueda ofrecerlos.
 
-**Implementar la interfaz de `ValueNotifier` no significa heredar su implementación concreta.** En Dart, esa relación
-también hace que la señal sea compatible con el tipo `ChangeNotifier`, por lo que `senal is ChangeNotifier` resulta
-verdadero. Sin embargo, `FlutterSignal` no extiende la clase `ChangeNotifier`: su almacenamiento, comparación y
-mecanismo de escucha proceden de Signals. `ValueListenable<T>` promete el getter y la escucha, no un setter ni
-`dispose`; el objeto real puede tener más capacidades que las expuestas por el tipo de una variable.
-
-En `signals_flutter` 7.1.0, `addListener(callback)` utiliza una suscripción interna de Signals para ejecutar ese
-callback. El puente registra el callback en un mapa y guarda cómo cancelar la suscripción. La suscripción interna se
-establece inicialmente; con la opción predeterminada `runCallbackOnListen: false`, el puente **suprime la primera
-llamada al callback del consumidor**. Por eso registrar un listener no lo ejecuta en los ejemplos de esta guía. Si se
-crea la señal con `runCallbackOnListen: true`, sí se llama al callback al registrar. Esto es política de esta
-implementación, no garantía general de `Listenable`.
-
-En esa misma implementación, volver a registrar **el mismo callback** no crea otra entrada en el mapa, y una retirada
-lo cancela. No extrapoles esa política a `ChangeNotifier` ni a todos los `Listenable`: otras implementaciones pueden
-tratar los registros duplicados de otra forma. Usa la misma referencia a la función para retirarla.
+En el siguiente ejemplo, registrar el callback no lo ejecuta. Cuando la señal acepta un cambio, lo avisa y el callback
+lee el valor actual; tras retirarlo, la señal puede seguir cambiando sin llamarlo. Ese comportamiento al registrar
+corresponde a la configuración predeterminada usada aquí, no a todos los `Listenable`.
 
 ### Ejemplo B: registrar, cambiar y retirar
 
@@ -177,6 +148,19 @@ La variable `lectura` y `tema` apuntan a la **misma señal**; cambiar el tipo de
 las capacidades del objeto real. El tipo `ValueListenable` restringe qué operaciones se pueden escribir a través de
 esa variable, pero un consumidor podría reconocer el tipo real mediante un cast. El controlador actual de DaisyUI
 expone de forma similar su `ValueNotifier` mediante el tipo `ValueListenable`; no usa un adaptador separado.
+
+### Un detalle de la implementación
+
+`FlutterSignal<T>` extiende la señal del núcleo y, en la versión instalada, implementa la interfaz
+`ValueNotifier<T>` mediante `ValueNotifierSignalMixin<T>`. Esto también la hace compatible con `ChangeNotifier`, por lo
+que `senal is ChangeNotifier` resulta verdadero. **Implementar esa interfaz no significa heredar su implementación:**
+`FlutterSignal` no extiende `ChangeNotifier`; su almacenamiento, comparación y escucha proceden de Signals.
+
+En `signals_flutter` 7.1.0, `addListener(callback)` crea una suscripción interna y guarda en un mapa cómo cancelarla.
+Con `runCallbackOnListen: false`, la opción predeterminada, el puente suprime la primera llamada al callback del
+consumidor; con `runCallbackOnListen: true`, lo llama al registrar. Volver a registrar el mismo callback no crea otra
+entrada en el mapa y una retirada cancela la suscripción. Otras implementaciones de `Listenable`, como
+`ChangeNotifier`, pueden tratar los registros duplicados de otra forma.
 
 ### Comprobación
 
@@ -227,10 +211,11 @@ aplica al `ValueNotifier` utilizado por `DaisyThemeController`.
 
 ### Ejemplo C: igual, distinto y mismo objeto conservado
 
-```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
+Lee la clase y las operaciones sin ejecutarlas. Después de cada asignación, anota cuántos avisos se han acumulado y
+cuál de los tres objetos conserva `estado.value`. Contrasta tus respuestas con la prueba completa de las
+[soluciones](#ejemplo-c).
 
+```dart
 class Tema {
   const Tema(this.nombre, this.borde);
 
@@ -244,32 +229,20 @@ class Tema {
   @override
   int get hashCode => Object.hash(nombre, borde);
 }
-
-void main() {
-  test('la igualdad predeterminada decide si se acepta la propuesta', () {
-    final original = Tema('claro', 1);
-    final equivalente = Tema('claro', 1);
-    final distinto = Tema('claro', 2);
-    final estado = signal<Tema>(original);
-    addTearDown(estado.dispose);
-    var avisos = 0;
-    void escuchar() => avisos++;
-    estado.addListener(escuchar);
-
-    estado.value = equivalente;
-    expect(avisos, 0);
-    expect(identical(estado.value, original), isTrue);
-    estado.value = distinto;
-    expect(avisos, 1);
-    expect(identical(estado.value, distinto), isTrue);
-    estado.removeListener(escuchar);
-  });
-}
 ```
 
-Predice los cuatro `expect`. Aquí dos instancias separadas de `Tema` pueden ser iguales por sus campos. La primera
-propuesta no reemplaza el objeto; la segunda sí. El callback no recibe el dato como argumento, aunque en este ejemplo
-solo contamos sus ejecuciones.
+```dart
+final original = Tema('claro', 1);
+final equivalente = Tema('claro', 1);
+final distinto = Tema('claro', 2);
+final estado = signal<Tema>(original);
+var avisos = 0;
+void escuchar() => avisos++;
+estado.addListener(escuchar);
+
+estado.value = equivalente;
+estado.value = distinto;
+```
 
 ### Comprobación
 
@@ -415,17 +388,23 @@ visibles al compilar, pero no es una barrera frente a casts. DaisyUI devuelve su
 - Si dos selectores empiezan en `claro`, ¿cómo demuestras que cambiar uno no cambia el otro?
 - ¿Qué necesitarías cambiar si un consumidor no debiera poder recuperar por cast la señal mutable?
 
-## Errores de comprensión que vamos a comprobar
+## Qué tener cuidado
 
-- Confundir la señal con el valor que contiene o pensar que `final` impide cambiar `.value`.
-- Creer que una lectura puntual por sí sola registra una reconstrucción de Flutter.
-- Atribuir a todas las señales la implementación concreta de `ValueNotifier` o de `ChangeNotifier`.
-- Creer que toda asignación aceptará la propuesta y ejecutará un callback, incluso si la igualdad la descarta.
-- Omitir que un valor equivalente puede dejar almacenado el objeto anterior.
-- Suponer que mutar un objeto dentro de la señal invoca el setter.
-- Dar por universal el orden de B o la política de registros duplicados de esta implementación.
-- Confundir la vista de lectura del controlador con otra señal o con una copia del valor.
-- Confundir aviso, dependencia, reconstrucción y repintado, o liberar un recurso prestado.
+Algunos puntos suelen generar confusión. Revisemos los más frecuentes con ejemplos concretos:
+
+**La señal no es el valor.** `contador` apunta al objeto señal; `contador.value` lee el entero que contiene. `final`
+impide reasignar la variable `contador`, pero no impide cambiar `contador.value`. Piensa en la señal como una caja:
+`final` significa que no puedes cambiar la caja, pero sí lo que hay dentro.
+
+**No toda asignación produce un aviso.** Si la igualdad considera iguales el valor nuevo y el actual, la señal descarta
+la propuesta y no avisa. En el ejemplo C, proponer `equivalente` no cambia nada porque compara igual.
+
+**Mutar por dentro no invoca el setter.** `estado.value.add('oscuro')` modifica la lista que la señal contiene, pero
+nunca llama al setter de la señal. Por eso el listener no recibe aviso. Solo `estado.value = ...` ejecuta el setter.
+
+**El aviso no es la reconstrucción.** Un listener que se ejecuta demuestra que la señal avisó; no demuestra que un
+widget se haya reconstruido. La reconstrucción depende de cómo Flutter conecta el aviso con los dependientes, algo que
+estudiamos en la sección 9.8.
 
 ## Comprobación final
 
@@ -434,7 +413,7 @@ visibles al compilar, pero no es una barrera frente a casts. DaisyUI devuelve su
 3. ¿Qué ofrece `ValueListenable<T>` y qué capacidades puede tener el objeto real además de ese tipo?
 4. ¿Cómo conecta el mixin de Flutter `addListener` con la suscripción de Signals en la versión estudiada?
 5. En B, ¿por qué no se ejecuta el callback al registrarlo y cuándo lee `oscuro`?
-6. ¿Cómo cambia la predicción si hay un `batch` externo o un callback reentrante?
+6. ¿Por qué el orden de ejecución del ejemplo B no se puede extrapolar a otros escenarios?
 7. En C, ¿por qué permanece `original` al proponer `equivalente`? ¿Qué cambia con el valor distinto?
 8. ¿En qué orden compara los operandos la señal y en qué orden los compara `ValueNotifier`? ¿Por qué una igualdad
    válida no debería depender de eso?
@@ -450,16 +429,76 @@ limpieza sin copiar las respuestas ni saltarte quién realiza cada paso.
 
 ### Ejemplo A
 
-La lectura anterior es `claro`; el valor actual, después de la asignación, es `oscuro`. `lecturaAnterior` no es una
-suscripción. Cada nueva llamada a `signal` crea otra celda y actualizar una no cambia la otra.
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  test('la señal conserva el valor actual', () {
+    final FlutterSignal<String> tema = signal<String>('claro');
+    addTearDown(tema.dispose);
+
+    final lecturaAnterior = tema.value;
+    expect(lecturaAnterior, 'claro');
+    tema.value = 'oscuro';
+    expect(tema.value, 'oscuro');
+    expect(lecturaAnterior, 'claro');
+  });
+}
+```
+
+La lectura anterior es `claro`; el valor actual, después de la asignación, es `oscuro`. `lecturaAnterior` guarda la
+referencia al `String` leído, no una suscripción que cambie con la señal. Como `String` es inmutable, sigue
+representando `claro`; con una lista mutable compartida habría que razonar como en la unidad 8. Cada nueva llamada a
+`signal` crea otra celda y actualizar una no cambia la otra.
 
 ### Ejemplo B
 
 Los eventos son `antes`, `aviso: oscuro`, `después`. `bosque` se almacena después de retirar el listener, por eso la
-lectura final lo encuentra pero no aparece un tercer aviso. Sin retirar el callback, se añadiría `aviso: bosque`.
+lectura final lo encuentra pero no aparece otro aviso. Sin retirar el callback, se añadiría `aviso: bosque`.
 `lectura` es una referencia a la misma señal, no un objeto adaptador.
 
 ### Ejemplo C
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+class Tema {
+  const Tema(this.nombre, this.borde);
+
+  final String nombre;
+  final int borde;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Tema && nombre == other.nombre && borde == other.borde;
+
+  @override
+  int get hashCode => Object.hash(nombre, borde);
+}
+
+void main() {
+  test('la igualdad predeterminada decide si se acepta la propuesta', () {
+    final original = Tema('claro', 1);
+    final equivalente = Tema('claro', 1);
+    final distinto = Tema('claro', 2);
+    final estado = signal<Tema>(original);
+    addTearDown(estado.dispose);
+    var avisos = 0;
+    void escuchar() => avisos++;
+    estado.addListener(escuchar);
+
+    estado.value = equivalente;
+    expect(avisos, 0);
+    expect(identical(estado.value, original), isTrue);
+    estado.value = distinto;
+    expect(avisos, 1);
+    expect(identical(estado.value, distinto), isTrue);
+    estado.removeListener(escuchar);
+  });
+}
+```
 
 La propuesta equivalente compara igual: cero avisos y la señal conserva `original`. La propuesta con borde 2 compara
 distinto: se almacena `distinto` y se recibe un aviso. Con igualdad por identidad, la primera propuesta distinta se
@@ -508,13 +547,30 @@ void main() {
     expect(lectura.value, 'claro');
     expect(inicial, 'claro');
   });
+
+  test('cada selector conserva su propio tema', () {
+    final primero = SelectorTema();
+    final segundo = SelectorTema();
+    addTearDown(primero.dispose);
+    addTearDown(segundo.dispose);
+
+    primero.seleccionar('oscuro');
+    expect(primero.tema.value, 'oscuro');
+    expect(segundo.tema.value, 'claro');
+
+    segundo.seleccionar('bosque');
+    expect(segundo.tema.value, 'bosque');
+    expect(primero.tema.value, 'oscuro');
+  });
 }
 ```
 
 Las propuestas aceptadas antes de retirar el callback son `oscuro` y `bosque`; repetir `oscuro` se descarta. Después,
 `claro` se almacena sin ejecutar ese callback. Si no se retira, agrega `claro`. Si solo la primera propuesta cambia a
 `claro`, se descarta la primera, se aceptan la segunda (`oscuro`) y la tercera (`bosque`): siguen siendo dos avisos.
-Un adaptador separado podría exponer otro objeto con API de lectura; el controlador actual no utiliza uno.
+En la segunda prueba, cada selector crea su propia señal: al cambiar el primero, el segundo sigue en `claro`; al
+cambiar después el segundo, el primero permanece en `oscuro`. Un adaptador separado podría exponer otro objeto con API
+de lectura; el controlador actual no utiliza uno.
 
 ### Claves de la comprobación final
 
@@ -532,17 +588,3 @@ Un adaptador separado podría exponer otro objeto con API de lectura; el control
     reconstrucción ni repintado.
 12. El consumidor retira lo que registró; el propietario libera la señal. Prestado significa que su vida útil la
     administra otro dueño.
-
-## Qué se ha revisado y cómo se ha comprobado
-
-- En la revisión original se consultaron las referencias, el controlador, el scope, el modelo y las pruebas; el
-  controlador cambió posteriormente a `ValueNotifier`. También se leyeron las implementaciones instaladas de `signals_flutter` 7.1.0, `signals_core` 7.0.0 y
-  `preact_signals` 7.0.0; las afirmaciones internas quedan limitadas a esas versiones y casos indicados.
-- El grafo rechazó indexar esta carpeta por su configuración de acceso; los archivos citados se contrastaron mediante
-  lectura directa.
-- En la revisión original pasaron los cuatro ejemplos, la solución del proyecto, dos comprobaciones adicionales y las
-  tres pruebas del controlador: **10 pruebas**. El analizador de Dart no encontró
-  problemas en los seis archivos temporales; después se retiraron. Estas pruebas no demuestran reconstrucciones,
-  repintados ni comportamiento en un dispositivo.
-- Se comprobaron los enlaces locales, los bloques de código y `git diff --check`. El estudio permanece pendiente hasta
-  resolver y explicar las prácticas.

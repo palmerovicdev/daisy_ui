@@ -42,6 +42,8 @@ prueba y procesa un frame; `pump` procesa un frame pendiente. No sustituye una i
 - [ ] [10.1. Qué es una dependencia](#101-qué-es-una-dependencia).
 - [ ] [10.2. Leer una vez y observar](#102-leer-una-vez-y-observar).
 - [ ] [10.3. `SignalBuilder` paso a paso](#103-signalbuilder-paso-a-paso).
+  - [ ] [10.3.1. Cómo descubre las señales leídas](#1031-cómo-descubre-las-señales-leídas).
+  - [ ] [10.3.2. Cómo reacciona a los cambios](#1032-cómo-reacciona-a-los-cambios).
 - [ ] [10.4. Las dependencias cambian con la ejecución](#104-las-dependencias-cambian-con-la-ejecución).
 - [ ] [10.5. La lectura debe suceder en el lugar observado](#105-la-lectura-debe-suceder-en-el-lugar-observado).
 - [ ] [10.6. Lecturas explícitas y desmontaje](#106-lecturas-explícitas-y-desmontaje).
@@ -158,13 +160,37 @@ El [
 `SignalBuilder` instalado](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html)
 extiende `SignalWidget`, cuyo `createElement` crea un `SignalElement`. En esta versión el registro de lecturas de
 widgets **no se debe explicar simplemente diciendo que el builder crea un `effect` que envuelve su callback**. El
-código usa un gancho de lectura y luego suscripciones. Simplificando solo lo necesario para el ejemplo A:
+código usa un gancho de lectura y luego suscripciones.
+
+Esta explicación está basada en `signal_builder.dart`, `signal_widget.dart` y el getter `value` instalados. Es un
+detalle de implementación verificable, no una promesa de que futuras versiones deban usar los mismos campos. El
+mecanismo interno de dependencias de `effect` y `computed` también existe, pero se estudiará en sus propias unidades.
+
+### 10.3.1. Cómo descubre las señales leídas
+
+Simplificando solo lo necesario para el ejemplo A, los primeros tres pasos muestran cómo el elemento reúne las señales
+que se leen durante una construcción:
 
 1. Al construir el elemento, `SignalElement.build` guarda el gancho anterior e instala `onSignalRead` para reunir, en
    un conjunto, las señales leídas durante esa ejecución síncrona.
 2. `SignalBuilder.build` lee las señales de su lista opcional `dependencies` y ejecuta `builder(context)`.
 3. Al consultar `tema.value`, el getter del núcleo informa al gancho activo; el elemento añade esa señal al conjunto.
    La lectura devuelve además el valor para construir el texto.
+
+En este punto el elemento ya sabe qué señales usó el callback. El gancho se restaura en un `finally`; la lista se
+ajusta incluso si la construcción termina de forma inesperada. `SignalBuilder` no necesita que le entregues una lista
+para descubrir las lecturas del callback. La lista opcional `dependencies` sí puede forzar lecturas adicionales en esa
+construcción, como se prueba en 10.6.
+
+#### Comprobación
+
+- ¿Quién instala el gancho temporal y quién comunica que se ha leído una señal?
+- ¿Por qué el elemento sabe qué señales se leyeron sin que el callback lo declare explícitamente?
+
+### 10.3.2. Cómo reacciona a los cambios
+
+Una vez que el elemento conoce sus señales, los pasos siguientes muestran cómo mantiene la observación y reacciona:
+
 4. Al terminar, el elemento restaura el gancho anterior y ajusta sus suscripciones: retira las que ya no están en el
    conjunto y se suscribe a las nuevas. Durante el establecimiento suprime la solicitud inicial de reconstrucción.
 5. Una escritura aceptada propaga el cambio; el callback de la suscripción del elemento llama a `markNeedsBuild`.
@@ -172,19 +198,11 @@ código usa un gancho de lectura y luego suscripciones. Simplificando solo lo ne
 6. Al desmontar el elemento, este cancela sus suscripciones. La propiedad de las señales es una responsabilidad
    separada; los ejemplos usan las opciones predeterminadas y el test que las creó las libera con `addTearDown`.
 
-El gancho se restaura en un `finally`; la lista anterior se ajusta incluso al terminar la construcción. `SignalBuilder`
-no necesita que le entregues una lista para descubrir las lecturas del callback. La lista opcional `dependencies` sí
-puede forzar lecturas adicionales en esa construcción, como se prueba en 10.6.
+#### Comprobación
 
-Esta explicación está basada en `signal_builder.dart`, `signal_widget.dart` y el getter `value` instalados. Es un
-detalle de implementación verificable, no una promesa de que futuras versiones deban usar los mismos campos. El
-mecanismo interno de dependencias de `effect` y `computed` también existe, pero se estudiará en sus propias unidades.
-
-### Comprobación
-
-- ¿Quién instala el gancho temporal y quién comunica que se ha leído una señal?
 - ¿Quién conserva y cancela las suscripciones del widget? ¿Quién llama a `markNeedsBuild`?
 - ¿Qué hace Flutter después de que el elemento sea marcado? ¿Es lo mismo que repintar inmediatamente?
+- ¿Por qué la propiedad de las señales es una responsabilidad separada de la del widget?
 
 ## 10.4. Las dependencias cambian con la ejecución
 
@@ -293,12 +311,11 @@ cambia ese texto por sí solo. Esto no implica que el hijo jamás se reconstruya
 valor ya obtenido:
 
 ```dart
-SignalBuilder
-(
-builder: (context) {
-final actual = tema.value;
-return Builder(builder: (_) => Text(actual));
-},
+SignalBuilder(
+  builder: (context) {
+    final actual = tema.value;
+    return Builder(builder: (_) => Text(actual));
+  },
 )
 ```
 

@@ -35,7 +35,7 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
   un dato y actualizar una pantalla son pasos diferentes del proceso.
 - **Práctica:** guardar un nombre de tema en una variable, leerlo, modificarlo y predecir qué contiene cada variable
   después.
-- [ ] **Dominado cuando:** puedes señalar dónde vive el dato original y qué lecturas son solamente valores obtenidos en
+- [X] **Dominado cuando:** puedes señalar dónde vive el dato original y qué lecturas son solamente valores obtenidos en
   un momento concreto.
 
 **Guía y materiales:** [01. Estado, valor actual y cambio](temarios/01-estado-valor-actual-y-cambio.md).
@@ -48,7 +48,7 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
   contexto donde fue creada.
 - **Práctica:** entregar una función a otra, ejecutarla más tarde y observar qué ocurre cuando cambia una variable
   capturada. Registrar y retirar la misma función.
-- [ ] **Dominado cuando:** puedes explicar quién ejecuta el callback y por qué crear otra función anónima no equivale
+- [X] **Dominado cuando:** puedes explicar quién ejecuta el callback y por qué crear otra función anónima no equivale
   necesariamente a retirar la que registraste.
 
 **Guía y materiales:** [02. Funciones como valores: callbacks y listeners](temarios/02-funciones-como-valores-callbacks-y-listeners.md).
@@ -60,7 +60,7 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
 - **Debes comprender:** qué promete un contrato y qué aporta una implementación. Qué significa sustituir `T` por
   `DaisyThemeModel`.
 - **Práctica:** definir un contrato mínimo de lectura de un número e implementarlo con dos clases diferentes.
-- [ ] **Dominado cuando:** puedes distinguir las operaciones que permite el tipo de una variable de las capacidades del
+- [X] **Dominado cuando:** puedes distinguir las operaciones que permite el tipo de una variable de las capacidades del
   objeto que contiene.
 
 **Guía y materiales:** [03. Objetos, referencias, tipos y contratos](temarios/03-objetos-referencias-tipos-y-contratos.md).
@@ -74,7 +74,7 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
   actual ni la política que provoca esos
   avisos. [Referencia oficial](https://api.flutter.dev/flutter/foundation/Listenable-class.html).
 - **Práctica:** seguir el recorrido de dos listeners, retirar uno y predecir cuáles reciben el siguiente aviso.
-- [ ] **Dominado cuando:** puedes describir el registro y la retirada de listeners sin atribuirles por sí solos una
+- [X] **Dominado cuando:** puedes describir el registro y la retirada de listeners sin atribuirles por sí solos una
   reconstrucción de pantalla.
 
 **Guía y materiales:** [04. Listenable: recibir avisos](temarios/04-listenable-recibir-avisos.md).
@@ -86,7 +86,7 @@ dato, quién registra la dependencia, quién avisa y quién solicita reconstruir
   listeners. [Referencia oficial](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html).
 - **Práctica:** construir un contador pequeño que notifique después de incrementarse; observar qué ocurre si se modifica
   el contador sin notificar.
-- [ ] **Dominado cuando:** puedes explicar quién decide emitir el aviso y dónde se toma esa decisión.
+- [X] **Dominado cuando:** puedes explicar quién decide emitir el aviso y dónde se toma esa decisión.
 
 El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`; el controlador no hereda de él.
 
@@ -99,7 +99,7 @@ El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`
   una función sin argumentos: puede leer `.value` cuando recibe el
   aviso. [Referencia oficial](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html).
 - **Práctica:** observar un valor y, dentro del callback, imprimir su valor actual.
-- [ ] **Dominado cuando:** puedes distinguir «me avisaron de un cambio» de «consulté el valor que tiene ahora».
+- [X] **Dominado cuando:** puedes distinguir «me avisaron de un cambio» de «consulté el valor que tiene ahora».
 
 **Guía y materiales:** [06. ValueListenable: avisos y valor actual](temarios/06-value-listenable-avisos-y-valor-actual.md).
 
@@ -111,7 +111,7 @@ El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`
   que permite cambiar el valor.
 - **Práctica:** comparar asignar un número nuevo, asignar el mismo número, modificar una lista por dentro y sustituirla
   por otra lista.
-- [ ] **Dominado cuando:** puedes predecir cuándo se produce una notificación en esos ejemplos y justificar tu
+- [X] **Dominado cuando:** puedes predecir cuándo se produce una notificación en esos ejemplos y justificar tu
   respuesta.
 
 **Guía y materiales:** [07. ValueNotifier: un valor mutable que notifica](temarios/07-value-notifier-un-valor-mutable-que-notifica.md).
