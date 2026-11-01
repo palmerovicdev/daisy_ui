@@ -1,4 +1,4 @@
-import 'package:daisy_ui/themes/domain/daisy_themes.dart';
+import 'package:daisy_ui/themes/application/daisy_themes.dart';
 import 'package:daisy_ui/themes/domain/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:signals_flutter/signals_flutter.dart';

@@ -5,11 +5,20 @@ native plugin registration or platform-specific implementation.
 
 ## Getting Started
 
-Import the public API:
+The project uses Flutter 3.47.8 and its bundled Dart 3.13.7. Install the
+version selected by `.fvmrc` and resolve the package dependencies with FVM:
+
+```sh
+fvm install
+fvm flutter pub get
+```
+
+Import the public API. This example also uses the standalone `material_ui`
+package, which applications must add to their own dependencies:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(
@@ -208,13 +217,13 @@ preview:
 
 ```sh
 cd example
-flutter run -d chrome
+fvm flutter run -d chrome
 ```
 
 ## Validation
 
-Run `flutter test` from the package root and from `example/`. Run
-`flutter build web` from `example/` to compile the example for web.
+Run `fvm flutter test` from the package root and from `example/`. Run
+`fvm flutter build web` from `example/` to compile the example for web.
 
 ## Code generation
 
@@ -231,7 +240,7 @@ part 'generated/my_model.g.dart';
 After adding or changing an annotated model, run:
 
 ```sh
-dart run build_runner build
+fvm dart run build_runner build
 ```
 
 Keep the generated files in version control.

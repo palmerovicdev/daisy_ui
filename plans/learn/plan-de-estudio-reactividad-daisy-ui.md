@@ -441,9 +441,9 @@ Variantes que debes resolver:
 - [Scope](../../lib/themes/application/daisy_theme_scope.dart): unidades 20–23 y 25.
 - [Extensión de BuildContext](../../lib/themes/core/extension/build_context.dart): unidad 24.
 - [Modelo de tema](../../lib/themes/domain/theme.dart): unidades 8 y 27–29.
-- [Colores y pares de color](../../lib/themes/domain/theme_color.dart), [radios](../../lib/themes/domain/theme_radius.dart), [tamaños](../../lib/themes/domain/theme_size.dart)
-  y [bordes](../../lib/themes/domain/theme_border.dart): unidad 26.
-- [Catálogo de temas](../../lib/themes/domain/daisy_themes.dart): datos para los ejercicios.
+- [Colores y pares de color](../../lib/themes/domain/theme/theme_color.dart), [radios](../../lib/themes/domain/theme/theme_radius.dart), [tamaños](../../lib/themes/domain/theme/theme_size.dart)
+  y [bordes](../../lib/themes/domain/theme/theme_border.dart): unidad 26.
+- [Catálogo de temas](../../lib/themes/application/daisy_themes.dart): datos para los ejercicios.
 - [Ejemplo de aplicación y vista previa](../../example/lib/main.dart): unidades 18–25 y 31.
 - [Pruebas de controladores](../../test/themes/daisy_theme_controller_test.dart), [scopes](../../test/themes/daisy_theme_scope_test.dart), [JSON](../../test/themes/daisy_theme_json_test.dart)
   y [ejemplo](../../example/test/widget_test.dart): unidad 30.

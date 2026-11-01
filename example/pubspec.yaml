@@ -3,7 +3,8 @@ description: "A Flutter example app for the daisy_ui package."
 publish_to: 'none'
 
 environment:
-  sdk: ^3.13.5
+  sdk: ^3.13.7
+  flutter: '>=3.47.8'
 
 dependencies:
   flutter:
@@ -13,6 +14,7 @@ dependencies:
     path: ../
 
   cupertino_icons: ^2.0.0
+  material_ui: ^1.9.0
 
 dev_dependencies:
   flutter_test:

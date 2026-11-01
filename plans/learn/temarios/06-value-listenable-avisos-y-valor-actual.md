@@ -332,7 +332,7 @@ flutter test --no-pub test/value_listenable_practica_test.dart
 Antes de ejecutarla, predice qué texto aparece antes y después de `pump`:
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

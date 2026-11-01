@@ -1,8 +1,8 @@
 import 'package:daisy_ui/themes/domain/theme.dart';
-import 'package:daisy_ui/themes/domain/theme_border.dart';
-import 'package:daisy_ui/themes/domain/theme_color.dart';
-import 'package:daisy_ui/themes/domain/theme_radius.dart';
-import 'package:daisy_ui/themes/domain/theme_size.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_border.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_color.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_radius.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_size.dart';
 import 'package:prism_flutter/prism_flutter.dart';
 
 /// Prebuilt themes, ready to use.

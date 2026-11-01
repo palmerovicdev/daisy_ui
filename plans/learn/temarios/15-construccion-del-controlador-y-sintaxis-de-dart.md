@@ -164,7 +164,7 @@ String conVariable({String tema = preferido}) => tema;
 ```
 
 Volvamos al constructor real: `{DaisyThemeModel initialTheme = DaisyThemes.light}` declara un parámetro nombrado
-opcional. Es válido porque en [daisy_themes.dart](../../../lib/themes/domain/daisy_themes.dart) el tema se declara como
+opcional. Es válido porque en [daisy_themes.dart](../../../lib/themes/application/daisy_themes.dart) el tema se declara como
 `static const DaisyThemeModel light`, es decir, como una constante. Por eso se admiten estas dos formas:
 
 ```dart
@@ -813,4 +813,4 @@ esta clase: el getter `theme`, la inicialización diferida y el adaptador `_Them
 - [Modificadores de clase](https://dart.dev/language/class-modifiers): `final`, `base`, `sealed` y sus combinaciones.
 - [Controlador](../../../lib/themes/application/daisy_theme_controller.dart),
   [scope](../../../lib/themes/application/daisy_theme_scope.dart) y
-  [catálogo de temas](../../../lib/themes/domain/daisy_themes.dart): los constructores y constantes de esta unidad.
+  [catálogo de temas](../../../lib/themes/application/daisy_themes.dart): los constructores y constantes de esta unidad.

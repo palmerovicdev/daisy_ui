@@ -793,5 +793,5 @@ constructores, parámetros nombrados, lista de inicialización y campos privados
   conexión entre lecturas de señales y construcciones. Compara `latest` con la versión instalada.
 - [Controlador](../../../lib/themes/application/daisy_theme_controller.dart),
   [modelo](../../../lib/themes/domain/theme.dart),
-  [catálogo de temas](../../../lib/themes/domain/daisy_themes.dart) y
+  [catálogo de temas](../../../lib/themes/application/daisy_themes.dart) y
   [ejemplo](../../../example/lib/main.dart): las piezas reales repartidas en esta unidad.

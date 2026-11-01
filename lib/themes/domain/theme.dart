@@ -1,6 +1,6 @@
-import 'package:daisy_ui/themes/domain/theme_color.dart';
-import 'package:daisy_ui/themes/domain/theme_radius.dart';
-import 'package:daisy_ui/themes/domain/theme_size.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_color.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_radius.dart';
+import 'package:daisy_ui/themes/domain/theme/theme_size.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
