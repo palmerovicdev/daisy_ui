@@ -496,12 +496,12 @@ $DaisyThemeColorPairCopyWith<$Res> get danger {
 mixin _$DaisyThemeColorPair {
 
 /// Main surface color of the role.
- RayOklch get base;/// Foreground (text/icon) color readable on top of [base].
- RayOklch get content;/// Second stepped surface (`base-200`). Only set on the
-/// [DaisyThemeColor.base] role; `null` on every other role.
- RayOklch? get base200;/// Third stepped surface (`base-300`). Only set on the
-/// [DaisyThemeColor.base] role; `null` on every other role.
- RayOklch? get base300;
+@JsonKey(name: 'base') RayOklch get baseOklch;/// Foreground (text/icon) color intended for use on [base].
+@JsonKey(name: 'content') RayOklch get contentOklch;/// Optional second stepped surface (`base-200`). Built-in themes set it
+/// on the [DaisyThemeColor.base] role only.
+@JsonKey(name: 'base200') RayOklch? get base200Oklch;/// Optional third stepped surface (`base-300`). Built-in themes set it
+/// on the [DaisyThemeColor.base] role only.
+@JsonKey(name: 'base300') RayOklch? get base300Oklch;
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -517,7 +517,7 @@ $DaisyThemeColorPairCopyWith<DaisyThemeColorPair> get copyWith => _$DaisyThemeCo
 @override
 String toString() {
   final _this = this as DaisyThemeColorPair;
-  return 'DaisyThemeColorPair(base: ${_this.base}, content: ${_this.content}, base200: ${_this.base200}, base300: ${_this.base300})';
+  return 'DaisyThemeColorPair(baseOklch: ${_this.baseOklch}, contentOklch: ${_this.contentOklch}, base200Oklch: ${_this.base200Oklch}, base300Oklch: ${_this.base300Oklch})';
 }
 
 
@@ -528,7 +528,7 @@ abstract mixin class $DaisyThemeColorPairCopyWith<$Res>  {
   factory $DaisyThemeColorPairCopyWith(DaisyThemeColorPair value, $Res Function(DaisyThemeColorPair) _then) = _$DaisyThemeColorPairCopyWithImpl;
 @useResult
 $Res call({
- RayOklch base, RayOklch content, RayOklch? base200, RayOklch? base300
+@JsonKey(name: 'base') RayOklch baseOklch,@JsonKey(name: 'content') RayOklch contentOklch,@JsonKey(name: 'base200') RayOklch? base200Oklch,@JsonKey(name: 'base300') RayOklch? base300Oklch
 });
 
 
@@ -545,12 +545,12 @@ class _$DaisyThemeColorPairCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? base = null,Object? content = null,Object? base200 = freezed,Object? base300 = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? baseOklch = null,Object? contentOklch = null,Object? base200Oklch = freezed,Object? base300Oklch = freezed,}) {
   return _then(DaisyThemeColorPair(
-base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
-as RayOklch,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as RayOklch,base200: freezed == base200 ? _self.base200 : base200 // ignore: cast_nullable_to_non_nullable
-as RayOklch?,base300: freezed == base300 ? _self.base300 : base300 // ignore: cast_nullable_to_non_nullable
+baseOklch: null == baseOklch ? _self.baseOklch : baseOklch // ignore: cast_nullable_to_non_nullable
+as RayOklch,contentOklch: null == contentOklch ? _self.contentOklch : contentOklch // ignore: cast_nullable_to_non_nullable
+as RayOklch,base200Oklch: freezed == base200Oklch ? _self.base200Oklch : base200Oklch // ignore: cast_nullable_to_non_nullable
+as RayOklch?,base300Oklch: freezed == base300Oklch ? _self.base300Oklch : base300Oklch // ignore: cast_nullable_to_non_nullable
 as RayOklch?,
   ));
 }
@@ -636,10 +636,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'base')  RayOklch baseOklch, @JsonKey(name: 'content')  RayOklch contentOklch, @JsonKey(name: 'base200')  RayOklch? base200Oklch, @JsonKey(name: 'base300')  RayOklch? base300Oklch)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair() when $default != null:
-return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
+return $default(_that.baseOklch,_that.contentOklch,_that.base200Oklch,_that.base300Oklch);case _:
   return orElse();
 
 }
@@ -657,10 +657,10 @@ return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'base')  RayOklch baseOklch, @JsonKey(name: 'content')  RayOklch contentOklch, @JsonKey(name: 'base200')  RayOklch? base200Oklch, @JsonKey(name: 'base300')  RayOklch? base300Oklch)  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair():
-return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
+return $default(_that.baseOklch,_that.contentOklch,_that.base200Oklch,_that.base300Oklch);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -677,10 +677,10 @@ return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RayOklch base,  RayOklch content,  RayOklch? base200,  RayOklch? base300)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'base')  RayOklch baseOklch, @JsonKey(name: 'content')  RayOklch contentOklch, @JsonKey(name: 'base200')  RayOklch? base200Oklch, @JsonKey(name: 'base300')  RayOklch? base300Oklch)?  $default,) {final _that = this;
 switch (_that) {
 case _DaisyThemeColorPair() when $default != null:
-return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
+return $default(_that.baseOklch,_that.contentOklch,_that.base200Oklch,_that.base300Oklch);case _:
   return null;
 
 }
@@ -692,19 +692,19 @@ return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
 @JsonSerializable()
 
 class _DaisyThemeColorPair extends DaisyThemeColorPair {
-  const _DaisyThemeColorPair({required this.base, required this.content, this.base200, this.base300}): super._();
+  const _DaisyThemeColorPair({@JsonKey(name: 'base') required this.baseOklch, @JsonKey(name: 'content') required this.contentOklch, @JsonKey(name: 'base200') this.base200Oklch, @JsonKey(name: 'base300') this.base300Oklch}): super._();
   factory _DaisyThemeColorPair.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorPairFromJson(json);
 
 /// Main surface color of the role.
-@override final  RayOklch base;
-/// Foreground (text/icon) color readable on top of [base].
-@override final  RayOklch content;
-/// Second stepped surface (`base-200`). Only set on the
-/// [DaisyThemeColor.base] role; `null` on every other role.
-@override final  RayOklch? base200;
-/// Third stepped surface (`base-300`). Only set on the
-/// [DaisyThemeColor.base] role; `null` on every other role.
-@override final  RayOklch? base300;
+@override@JsonKey(name: 'base') final  RayOklch baseOklch;
+/// Foreground (text/icon) color intended for use on [base].
+@override@JsonKey(name: 'content') final  RayOklch contentOklch;
+/// Optional second stepped surface (`base-200`). Built-in themes set it
+/// on the [DaisyThemeColor.base] role only.
+@override@JsonKey(name: 'base200') final  RayOklch? base200Oklch;
+/// Optional third stepped surface (`base-300`). Built-in themes set it
+/// on the [DaisyThemeColor.base] role only.
+@override@JsonKey(name: 'base300') final  RayOklch? base300Oklch;
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
@@ -721,7 +721,7 @@ Map<String, dynamic> toJson() {
 
 @override
 String toString() {
-    return 'DaisyThemeColorPair(base: $base, content: $content, base200: $base200, base300: $base300)';
+    return 'DaisyThemeColorPair(baseOklch: $baseOklch, contentOklch: $contentOklch, base200Oklch: $base200Oklch, base300Oklch: $base300Oklch)';
 }
 
 
@@ -732,7 +732,7 @@ abstract mixin class _$DaisyThemeColorPairCopyWith<$Res> implements $DaisyThemeC
   factory _$DaisyThemeColorPairCopyWith(_DaisyThemeColorPair value, $Res Function(_DaisyThemeColorPair) _then) = __$DaisyThemeColorPairCopyWithImpl;
 @override @useResult
 $Res call({
- RayOklch base, RayOklch content, RayOklch? base200, RayOklch? base300
+@JsonKey(name: 'base') RayOklch baseOklch,@JsonKey(name: 'content') RayOklch contentOklch,@JsonKey(name: 'base200') RayOklch? base200Oklch,@JsonKey(name: 'base300') RayOklch? base300Oklch
 });
 
 
@@ -749,12 +749,12 @@ class __$DaisyThemeColorPairCopyWithImpl<$Res>
 
 /// Create a copy of DaisyThemeColorPair
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? base = null,Object? content = null,Object? base200 = freezed,Object? base300 = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? baseOklch = null,Object? contentOklch = null,Object? base200Oklch = freezed,Object? base300Oklch = freezed,}) {
   return _then(_DaisyThemeColorPair(
-base: null == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
-as RayOklch,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
-as RayOklch,base200: freezed == base200 ? _self.base200 : base200 // ignore: cast_nullable_to_non_nullable
-as RayOklch?,base300: freezed == base300 ? _self.base300 : base300 // ignore: cast_nullable_to_non_nullable
+baseOklch: null == baseOklch ? _self.baseOklch : baseOklch // ignore: cast_nullable_to_non_nullable
+as RayOklch,contentOklch: null == contentOklch ? _self.contentOklch : contentOklch // ignore: cast_nullable_to_non_nullable
+as RayOklch,base200Oklch: freezed == base200Oklch ? _self.base200Oklch : base200Oklch // ignore: cast_nullable_to_non_nullable
+as RayOklch?,base300Oklch: freezed == base300Oklch ? _self.base300Oklch : base300Oklch // ignore: cast_nullable_to_non_nullable
 as RayOklch?,
   ));
 }

@@ -72,8 +72,8 @@ void main() {
         border: 1.5,
         colors: DaisyThemes.light.colors.copyWith(
           primary: const DaisyThemeColorPair(
-            base: RayOklch.fromComponents(0.5, 0.1, 120, 0.6),
-            content: RayOklch.fromComponents(0.9, 0.01, 120),
+            baseOklch: RayOklch.fromComponents(0.5, 0.1, 120, 0.6),
+            contentOklch: RayOklch.fromComponents(0.9, 0.01, 120),
           ),
         ),
       );

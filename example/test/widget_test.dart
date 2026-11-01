@@ -18,7 +18,7 @@ void main() {
     expect(find.text('Dark'), findsOneWidget);
     expect(
       tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
-      DaisyThemes.dark.colors.base.base.toColor(),
+      DaisyThemes.dark.colors.base.base,
     );
 
     await tester.tap(find.text('Switch theme'));

@@ -22,7 +22,7 @@ class _ThemeExample extends StatelessWidget {
     final theme = context.daisyTheme;
 
     return Scaffold(
-      backgroundColor: theme.colors.base.base.toColor(),
+      backgroundColor: theme.colors.base.base,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -31,7 +31,7 @@ class _ThemeExample extends StatelessWidget {
               theme.name,
               style: TextStyle(
                 fontSize: 24,
-                color: theme.colors.base.content.toColor(),
+                color: theme.colors.base.content,
               ),
             ),
             const SizedBox(height: 16),
@@ -84,13 +84,13 @@ class _ThemePreviewState extends State<_ThemePreview> {
 
           return Container(
             padding: const EdgeInsets.all(24),
-            color: theme.colors.base.base.toColor(),
+            color: theme.colors.base.base,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Preview: ${theme.name}',
-                  style: TextStyle(color: theme.colors.base.content.toColor()),
+                  style: TextStyle(color: theme.colors.base.content),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(

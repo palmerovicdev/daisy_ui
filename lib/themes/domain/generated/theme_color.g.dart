@@ -47,12 +47,12 @@ Map<String, dynamic> _$DaisyThemeColorToJson(_DaisyThemeColor instance) =>
 
 _DaisyThemeColorPair _$DaisyThemeColorPairFromJson(Map<String, dynamic> json) =>
     _DaisyThemeColorPair(
-      base: RayOklch.fromJson(json['base'] as Map<String, dynamic>),
-      content: RayOklch.fromJson(json['content'] as Map<String, dynamic>),
-      base200: json['base200'] == null
+      baseOklch: RayOklch.fromJson(json['base'] as Map<String, dynamic>),
+      contentOklch: RayOklch.fromJson(json['content'] as Map<String, dynamic>),
+      base200Oklch: json['base200'] == null
           ? null
           : RayOklch.fromJson(json['base200'] as Map<String, dynamic>),
-      base300: json['base300'] == null
+      base300Oklch: json['base300'] == null
           ? null
           : RayOklch.fromJson(json['base300'] as Map<String, dynamic>),
     );
@@ -60,8 +60,8 @@ _DaisyThemeColorPair _$DaisyThemeColorPairFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DaisyThemeColorPairToJson(
   _DaisyThemeColorPair instance,
 ) => <String, dynamic>{
-  'base': instance.base.toJson(),
-  'content': instance.content.toJson(),
-  'base200': instance.base200?.toJson(),
-  'base300': instance.base300?.toJson(),
+  'base': instance.baseOklch.toJson(),
+  'content': instance.contentOklch.toJson(),
+  'base200': instance.base200Oklch?.toJson(),
+  'base300': instance.base300Oklch?.toJson(),
 };

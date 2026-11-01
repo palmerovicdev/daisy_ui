@@ -17,8 +17,8 @@ void main() {
     final changedColor = original.copyWith(
       colors: original.colors.copyWith(
         primary: const DaisyThemeColorPair(
-          base: RayOklch.fromComponents(0.5, 0.1, 120),
-          content: RayOklch.fromComponents(0.9, 0.01, 120),
+          baseOklch: RayOklch.fromComponents(0.5, 0.1, 120),
+          contentOklch: RayOklch.fromComponents(0.9, 0.01, 120),
         ),
       ),
     );
@@ -42,7 +42,7 @@ void main() {
       original.colors.base,
       isNot(
         original.colors.base.copyWith(
-          base: RayOklch.fromComponents(0.4, 0.1, 120),
+          baseOklch: RayOklch.fromComponents(0.4, 0.1, 120),
         ),
       ),
     );

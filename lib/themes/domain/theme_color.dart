@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:prism_flutter/prism_flutter.dart';
+
 
 part 'generated/theme_color.freezed.dart';
 
@@ -8,7 +11,7 @@ part 'generated/theme_color.g.dart';
 
 /// Semantic surface and foreground colors for a theme.
 ///
-/// Access a role with, for example, `theme.colors.primary.base.toColor()`.
+/// Access a role with, for example, `theme.colors.primary.base`.
 @Freezed(equal: false, toStringOverride: true)
 abstract class DaisyThemeColor with _$DaisyThemeColor, Equatable {
   const DaisyThemeColor._();
@@ -70,7 +73,7 @@ abstract class DaisyThemeColor with _$DaisyThemeColor, Equatable {
   ];
 }
 
-/// An OKLCH surface color and its matching foreground color.
+/// Constant OKLCH definitions exposed as Flutter surface and foreground colors.
 ///
 /// [base200] and [base300] are optional additional surfaces.
 @Freezed(equal: false, toStringOverride: true)
@@ -79,30 +82,45 @@ abstract class DaisyThemeColorPair with _$DaisyThemeColorPair, Equatable {
 
   /// A surface color plus a foreground intended for use on top of it.
   ///
-  /// Colors are OKLCH ([RayOklch]), DaisyUI's native color space, instead
-  /// of pre-baked hex strings, so they can be converted or adjusted
-  /// programmatically.
+  /// Supply OKLCH values to keep the model const. The [base], [content],
+  /// [base200] and [base300] getters convert them to Flutter colors on read.
   const factory DaisyThemeColorPair({
     /// Main surface color of the role.
-    required RayOklch base,
+    @JsonKey(name: 'base')
+    required RayOklch baseOklch,
 
     /// Foreground (text/icon) color intended for use on [base].
-    required RayOklch content,
+    @JsonKey(name: 'content')
+    required RayOklch contentOklch,
 
     /// Optional second stepped surface (`base-200`). Built-in themes set it
     /// on the [DaisyThemeColor.base] role only.
-    RayOklch? base200,
+    @JsonKey(name: 'base200')
+    RayOklch? base200Oklch,
 
     /// Optional third stepped surface (`base-300`). Built-in themes set it
     /// on the [DaisyThemeColor.base] role only.
-    RayOklch? base300,
+    @JsonKey(name: 'base300')
+    RayOklch? base300Oklch,
   }) = _DaisyThemeColorPair;
+
+  /// Surface converted to a Flutter color.
+  Color get base => baseOklch.toColor();
+
+  /// Foreground converted to a Flutter color.
+  Color get content => contentOklch.toColor();
+
+  /// Optional second surface converted to a Flutter color.
+  Color? get base200 => base200Oklch?.toColor();
+
+  /// Optional third surface converted to a Flutter color.
+  Color? get base300 => base300Oklch?.toColor();
 
   factory DaisyThemeColorPair.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeColorPairFromJson(json);
 
   @override
-  List<Object?> get props => [base, content, base200, base300];
+  List<Object?> get props => [baseOklch, contentOklch, base200Oklch, base300Oklch];
 }
 
 /// Tailwind CSS palette in OKLCH (source: pasted picker HTML).

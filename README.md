@@ -19,11 +19,11 @@ void main() {
           builder: (context) {
             final theme = context.daisyTheme;
             return Scaffold(
-              backgroundColor: theme.colors.base.base.toColor(),
+              backgroundColor: theme.colors.base.base,
               body: Center(
                 child: Text(
                   theme.name,
-                  style: TextStyle(color: theme.colors.base.content.toColor()),
+                  style: TextStyle(color: theme.colors.base.content),
                 ),
               ),
             );
@@ -62,15 +62,15 @@ final primary = theme.colors.primary;
 Container(
   height: theme.size.fields.md.toDouble(),
   decoration: BoxDecoration(
-    color: primary.base.toColor(),
+    color: primary.base,
     borderRadius: BorderRadius.circular(theme.radius.fields.toDouble()),
     border: Border.all(
-      color: theme.colors.neutral.base.toColor(),
+      color: theme.colors.neutral.base,
       width: theme.border,
     ),
   ),
   alignment: Alignment.center,
-  child: Text('Continue', style: TextStyle(color: primary.content.toColor())),
+  child: Text('Continue', style: TextStyle(color: primary.content)),
 )
 ```
 
@@ -84,9 +84,12 @@ built-in themes; custom themes can leave them null. The remaining roles are
 `error` and `danger`. Built-in themes use the same values for `danger` and
 `error`; a custom theme may choose different values.
 
-Colors are `RayOklch` values. Call `toColor()` to use one with Flutter, or
-construct a color with `RayOklch.fromComponents(lightness, chroma, hue)` and
-an optional fourth opacity argument. `DaisyThemeColorPalette` provides named
+The `base`, `content`, `base200` and `base300` getters return Flutter `Color`
+values directly (the last two are nullable). Their underlying `baseOklch`,
+`contentOklch`, `base200Oklch` and `base300Oklch` values preserve the original
+constant OKLCH definitions. Construct an OKLCH color with
+`RayOklch.fromComponents(lightness, chroma, hue)` and an optional fourth
+opacity argument. `DaisyThemeColorPalette` provides named
 constants such as `indigo700`; each constant's API documentation lists its
 exact OKLCH components. Check contrast for your actual foreground, background
 and context when creating custom combinations.
@@ -153,8 +156,8 @@ final custom = DaisyThemes.light.copyWith(
   ),
   colors: DaisyThemes.light.colors.copyWith(
     primary: const DaisyThemeColorPair(
-      base: DaisyThemeColorPalette.indigo700,
-      content: DaisyThemeColorPalette.indigo100,
+      baseOklch: DaisyThemeColorPalette.indigo700,
+      contentOklch: DaisyThemeColorPalette.indigo100,
     ),
   ),
 );
