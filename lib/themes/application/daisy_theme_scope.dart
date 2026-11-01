@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 
 class DaisyThemeScope
     extends InheritedNotifier<ValueListenable<DaisyThemeModel>> {
-
   DaisyThemeScope({
     super.key,
     required super.child,
@@ -17,9 +16,7 @@ class DaisyThemeScope
     final scope = context.dependOnInheritedWidgetOfExactType<DaisyThemeScope>();
 
     if (scope == null) {
-      throw FlutterError(
-        'Coloca DaisyThemeScope por encima de este widget.',
-      );
+      throw FlutterError('Coloca DaisyThemeScope por encima de este widget.');
     }
 
     return scope.notifier!.value;

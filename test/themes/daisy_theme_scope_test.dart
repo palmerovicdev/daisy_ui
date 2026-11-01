@@ -1,10 +1,34 @@
 import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
   setUp(() => DaisyThemeService.setTheme(DaisyThemes.light));
   tearDown(() => DaisyThemeService.setTheme(DaisyThemes.light));
+
+  testWidgets('A SignalBuilder can observe a theme controller directly', (
+    tester,
+  ) async {
+    final controller = DaisyThemeController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SignalBuilder(
+          builder: (context) => Text(controller.theme.value.name),
+        ),
+      ),
+    );
+
+    expect(find.text('Light'), findsOneWidget);
+    controller.setTheme(DaisyThemes.dark);
+    await tester.pump();
+    expect(find.text('Dark'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('Nested scopes update only their own theme consumers', (
     tester,
