@@ -30,18 +30,7 @@ $DaisyThemeRadiusCopyWith<DaisyThemeRadius> get copyWith => _$DaisyThemeRadiusCo
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeRadius;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeRadius&&(identical(other.boxes, _this.boxes) || other.boxes == _this.boxes)&&(identical(other.fields, _this.fields) || other.fields == _this.fields)&&(identical(other.selectors, _this.selectors) || other.selectors == _this.selectors));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeRadius;
-  return Object.hash(runtimeType,_this.boxes,_this.fields,_this.selectors);
-}
 
 @override
 String toString() {
@@ -219,8 +208,8 @@ return $default(_that.boxes,_that.fields,_that.selectors);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeRadius implements DaisyThemeRadius {
-  const _DaisyThemeRadius({required this.boxes, required this.fields, required this.selectors});
+class _DaisyThemeRadius extends DaisyThemeRadius {
+  const _DaisyThemeRadius({required this.boxes, required this.fields, required this.selectors}): super._();
   factory _DaisyThemeRadius.fromJson(Map<String, dynamic> json) => _$DaisyThemeRadiusFromJson(json);
 
 /// Cards, modals, alerts.
@@ -241,16 +230,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeRadiusToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeRadius&&(identical(other.boxes, boxes) || other.boxes == boxes)&&(identical(other.fields, fields) || other.fields == fields)&&(identical(other.selectors, selectors) || other.selectors == selectors));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,boxes,fields,selectors);
-}
 
 @override
 String toString() {

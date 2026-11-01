@@ -1,14 +1,17 @@
 import 'package:daisy_ui/themes/domain/theme_color.dart';
 import 'package:daisy_ui/themes/domain/theme_radius.dart';
 import 'package:daisy_ui/themes/domain/theme_size.dart';
+import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/theme.freezed.dart';
 
 part 'generated/theme.g.dart';
 
-@freezed
-abstract class DaisyThemeModel with _$DaisyThemeModel {
+@Freezed(equal: false, toStringOverride: true)
+abstract class DaisyThemeModel with _$DaisyThemeModel, Equatable {
+  const DaisyThemeModel._();
+
   /// A complete DaisyUI theme.
   ///
   /// Groups every design token of one theme ([colors], [radius], [size],
@@ -41,4 +44,15 @@ abstract class DaisyThemeModel with _$DaisyThemeModel {
 
   factory DaisyThemeModel.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeModelFromJson(json);
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    colors,
+    radius,
+    size,
+    border,
+  ];
 }

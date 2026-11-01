@@ -449,9 +449,9 @@ segunda asignación no hay ningún valor distinto que guardar.
 ## 8. Identidad e igualdad en DaisyUI
 
 El [modelo de tema](../../../lib/themes/domain/theme.dart), `DaisyThemeModel`, se declara con `@freezed`. La igualdad
-generada compara el tipo y los campos `id`, `name`, `description`, `colors`, `radius`, `size` y `border`; cada campo
-aporta su propia regla de igualdad. `copyWith` permite crear un modelo con cambios sin modificar el original.
-Estudiaremos Freezed con más detalle en la unidad 27.
+se define con Equatable: `props` enumera los campos `id`, `name`, `description`, `colors`, `radius`, `size` y
+`border`, y cada campo aporta su propia regla de igualdad. `copyWith` permite crear un modelo con cambios sin
+modificar el original. Estudiaremos Freezed con más detalle en la unidad 27.
 
 El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en un
 `ValueNotifier<DaisyThemeModel>`. Por tanto, la igualdad del modelo participa en la decisión del setter de conservar el

@@ -1,11 +1,14 @@
+import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/theme_size.freezed.dart';
 
 part 'generated/theme_size.g.dart';
 
-@freezed
-abstract class DaisyThemeSize with _$DaisyThemeSize {
+@Freezed(equal: false, toStringOverride: true)
+abstract class DaisyThemeSize with _$DaisyThemeSize, Equatable {
+  const DaisyThemeSize._();
+
   /// Control sizes of a theme.
   ///
   /// Both groups share the [DaisyThemeSizeConfig] scale and only differ
@@ -20,10 +23,13 @@ abstract class DaisyThemeSize with _$DaisyThemeSize {
 
   factory DaisyThemeSize.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeSizeFromJson(json);
+
+  @override
+  List<Object?> get props => [fields, selectors];
 }
 
-@freezed
-abstract class DaisyThemeSizeConfig with _$DaisyThemeSizeConfig {
+@Freezed(equal: false, toStringOverride: true)
+abstract class DaisyThemeSizeConfig with _$DaisyThemeSizeConfig, Equatable {
   /// Size scale derived from a single [base] step in logical pixels.
   ///
   /// Each t-shirt size multiplies [base] by a fixed factor, so bumping
@@ -53,4 +59,7 @@ abstract class DaisyThemeSizeConfig with _$DaisyThemeSizeConfig {
 
   factory DaisyThemeSizeConfig.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeSizeConfigFromJson(json);
+
+  @override
+  List<Object?> get props => [base];
 }

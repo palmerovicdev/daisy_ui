@@ -29,18 +29,7 @@ $DaisyThemeSizeCopyWith<DaisyThemeSize> get copyWith => _$DaisyThemeSizeCopyWith
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeSize;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeSize&&(identical(other.fields, _this.fields) || other.fields == _this.fields)&&(identical(other.selectors, _this.selectors) || other.selectors == _this.selectors));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeSize;
-  return Object.hash(runtimeType,_this.fields,_this.selectors);
-}
 
 @override
 String toString() {
@@ -235,8 +224,8 @@ return $default(_that.fields,_that.selectors);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeSize implements DaisyThemeSize {
-  const _DaisyThemeSize({required this.fields, required this.selectors});
+class _DaisyThemeSize extends DaisyThemeSize {
+  const _DaisyThemeSize({required this.fields, required this.selectors}): super._();
   factory _DaisyThemeSize.fromJson(Map<String, dynamic> json) => _$DaisyThemeSizeFromJson(json);
 
 /// Buttons, inputs, selects, tabs.
@@ -255,16 +244,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeSizeToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeSize&&(identical(other.fields, fields) || other.fields == fields)&&(identical(other.selectors, selectors) || other.selectors == selectors));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,fields,selectors);
-}
 
 @override
 String toString() {
@@ -341,18 +321,7 @@ $DaisyThemeSizeConfigCopyWith<DaisyThemeSizeConfig> get copyWith => _$DaisyTheme
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeSizeConfig;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeSizeConfig&&(identical(other.base, _this.base) || other.base == _this.base));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeSizeConfig;
-  return Object.hash(runtimeType,_this.base);
-}
 
 @override
 String toString() {
@@ -546,16 +515,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeSizeConfigToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeSizeConfig&&(identical(other.base, base) || other.base == base));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,base);
-}
 
 @override
 String toString() {

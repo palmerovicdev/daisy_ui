@@ -35,18 +35,7 @@ $DaisyThemeModelCopyWith<DaisyThemeModel> get copyWith => _$DaisyThemeModelCopyW
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeModel;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeModel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.colors, _this.colors) || other.colors == _this.colors)&&(identical(other.radius, _this.radius) || other.radius == _this.radius)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.border, _this.border) || other.border == _this.border));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeModel;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.description,_this.colors,_this.radius,_this.size,_this.border);
-}
 
 @override
 String toString() {
@@ -255,8 +244,8 @@ return $default(_that.id,_that.name,_that.description,_that.colors,_that.radius,
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeModel implements DaisyThemeModel {
-  const _DaisyThemeModel({required this.id, required this.name, required this.description, required this.colors, required this.radius, required this.size, required this.border});
+class _DaisyThemeModel extends DaisyThemeModel {
+  const _DaisyThemeModel({required this.id, required this.name, required this.description, required this.colors, required this.radius, required this.size, required this.border}): super._();
   factory _DaisyThemeModel.fromJson(Map<String, dynamic> json) => _$DaisyThemeModelFromJson(json);
 
 /// Stable identifier, e.g. `'light'` or `'dark'`.
@@ -286,16 +275,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeModelToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.radius, radius) || other.radius == radius)&&(identical(other.size, size) || other.size == size)&&(identical(other.border, border) || other.border == border));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,id,name,description,colors,radius,size,border);
-}
 
 @override
 String toString() {

@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:prism_flutter/prism_flutter.dart';
 
@@ -5,8 +6,10 @@ part 'generated/theme_color.freezed.dart';
 
 part 'generated/theme_color.g.dart';
 
-@freezed
-abstract class DaisyThemeColor with _$DaisyThemeColor {
+@Freezed(equal: false, toStringOverride: true)
+abstract class DaisyThemeColor with _$DaisyThemeColor, Equatable {
+  const DaisyThemeColor._();
+
   /// Semantic color roles of a DaisyUI theme.
   ///
   /// Each role pairs a surface color with the foreground readable on top
@@ -49,10 +52,26 @@ abstract class DaisyThemeColor with _$DaisyThemeColor {
 
   factory DaisyThemeColor.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeColorFromJson(json);
+
+  @override
+  List<Object?> get props => [
+    base,
+    primary,
+    secondary,
+    accent,
+    neutral,
+    info,
+    success,
+    error,
+    warning,
+    danger,
+  ];
 }
 
-@freezed
-abstract class DaisyThemeColorPair with _$DaisyThemeColorPair {
+@Freezed(equal: false, toStringOverride: true)
+abstract class DaisyThemeColorPair with _$DaisyThemeColorPair, Equatable {
+  const DaisyThemeColorPair._();
+
   /// A surface color plus the foreground readable on top of it.
   ///
   /// Colors are OKLCH ([RayOklch]), DaisyUI's native color space, instead
@@ -76,6 +95,9 @@ abstract class DaisyThemeColorPair with _$DaisyThemeColorPair {
 
   factory DaisyThemeColorPair.fromJson(Map<String, Object?> json) =>
       _$DaisyThemeColorPairFromJson(json);
+
+  @override
+  List<Object?> get props => [base, content, base200, base300];
 }
 
 /// Tailwind CSS palette in OKLCH (source: pasted picker HTML).

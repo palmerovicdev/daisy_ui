@@ -38,18 +38,7 @@ $DaisyThemeColorCopyWith<DaisyThemeColor> get copyWith => _$DaisyThemeColorCopyW
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeColor;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColor&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.primary, _this.primary) || other.primary == _this.primary)&&(identical(other.secondary, _this.secondary) || other.secondary == _this.secondary)&&(identical(other.accent, _this.accent) || other.accent == _this.accent)&&(identical(other.neutral, _this.neutral) || other.neutral == _this.neutral)&&(identical(other.info, _this.info) || other.info == _this.info)&&(identical(other.success, _this.success) || other.success == _this.success)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.warning, _this.warning) || other.warning == _this.warning)&&(identical(other.danger, _this.danger) || other.danger == _this.danger));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeColor;
-  return Object.hash(runtimeType,_this.base,_this.primary,_this.secondary,_this.accent,_this.neutral,_this.info,_this.success,_this.error,_this.warning,_this.danger);
-}
 
 @override
 String toString() {
@@ -324,8 +313,8 @@ return $default(_that.base,_that.primary,_that.secondary,_that.accent,_that.neut
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeColor implements DaisyThemeColor {
-  const _DaisyThemeColor({required this.base, required this.primary, required this.secondary, required this.accent, required this.neutral, required this.info, required this.success, required this.error, required this.warning, required this.danger});
+class _DaisyThemeColor extends DaisyThemeColor {
+  const _DaisyThemeColor({required this.base, required this.primary, required this.secondary, required this.accent, required this.neutral, required this.info, required this.success, required this.error, required this.warning, required this.danger}): super._();
   factory _DaisyThemeColor.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorFromJson(json);
 
 /// Default surface and stepped surfaces (app background, cards).
@@ -361,16 +350,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeColorToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColor&&(identical(other.base, base) || other.base == base)&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.secondary, secondary) || other.secondary == secondary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.neutral, neutral) || other.neutral == neutral)&&(identical(other.info, info) || other.info == info)&&(identical(other.success, success) || other.success == success)&&(identical(other.error, error) || other.error == error)&&(identical(other.warning, warning) || other.warning == warning)&&(identical(other.danger, danger) || other.danger == danger));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,base,primary,secondary,accent,neutral,info,success,error,warning,danger);
-}
 
 @override
 String toString() {
@@ -532,18 +512,7 @@ $DaisyThemeColorPairCopyWith<DaisyThemeColorPair> get copyWith => _$DaisyThemeCo
   Map<String, dynamic> toJson();
 
 
-@override
-bool operator ==(Object other) {
-  final _this = this as DaisyThemeColorPair;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DaisyThemeColorPair&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.content, _this.content) || other.content == _this.content)&&(identical(other.base200, _this.base200) || other.base200 == _this.base200)&&(identical(other.base300, _this.base300) || other.base300 == _this.base300));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-  final _this = this as DaisyThemeColorPair;
-  return Object.hash(runtimeType,_this.base,_this.content,_this.base200,_this.base300);
-}
 
 @override
 String toString() {
@@ -722,8 +691,8 @@ return $default(_that.base,_that.content,_that.base200,_that.base300);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _DaisyThemeColorPair implements DaisyThemeColorPair {
-  const _DaisyThemeColorPair({required this.base, required this.content, this.base200, this.base300});
+class _DaisyThemeColorPair extends DaisyThemeColorPair {
+  const _DaisyThemeColorPair({required this.base, required this.content, this.base200, this.base300}): super._();
   factory _DaisyThemeColorPair.fromJson(Map<String, dynamic> json) => _$DaisyThemeColorPairFromJson(json);
 
 /// Main surface color of the role.
@@ -748,16 +717,7 @@ Map<String, dynamic> toJson() {
   return _$DaisyThemeColorPairToJson(this, );
 }
 
-@override
-bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DaisyThemeColorPair&&(identical(other.base, base) || other.base == base)&&(identical(other.content, content) || other.content == content)&&(identical(other.base200, base200) || other.base200 == base200)&&(identical(other.base300, base300) || other.base300 == base300));
-}
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode {
-    return Object.hash(runtimeType,base,content,base200,base300);
-}
 
 @override
 String toString() {

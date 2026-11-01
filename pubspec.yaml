@@ -14,6 +14,7 @@ dependencies:
   json_annotation: ^4.12.0
   prism_flutter: ^2.1.0
   signals_flutter: ^7.1.0
+  equatable: ^3.0.0
 
 dev_dependencies:
   flutter_test:
