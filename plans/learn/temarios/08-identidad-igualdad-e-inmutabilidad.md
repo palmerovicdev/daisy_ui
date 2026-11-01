@@ -1,92 +1,84 @@
 # 08. Identidad, igualdad e inmutabilidad
 
 [Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 7](07-value-notifier-un-valor-mutable-que-notifica.md)
+[Repasar la unidad 7](07-value-notifier-un-valor-mutable-que-notifica.md) · **Estado:** pendiente
 
-- **Bloque:** el sistema de notificaciones de Flutter.
-- **Estado de estudio:** pendiente.
-- **Investigación de fuentes:** 31 de octubre de 2026.
+## Qué vas a aprender
 
-## Qué vas a conseguir
+En la unidad 7 vimos que `ValueNotifier` compara el valor que guarda con el valor propuesto. Si `==` dice que son
+iguales, conserva el anterior y no avisa. Para entender esa decisión necesitamos separar tres preguntas:
 
-Podrás responder tres preguntas distintas sobre dos valores: ¿son el mismo objeto?, ¿la igualdad de su tipo los
-considera equivalentes? y ¿pueden cambiar sus datos? Veremos cómo esas preguntas afectan a las referencias compartidas,
-los conjuntos y la decisión de notificar de `ValueNotifier`.
+- **Identidad:** ¿estamos hablando del mismo objeto?
+- **Igualdad:** ¿la regla de `==` considera equivalentes esos valores?
+- **Inmutabilidad:** ¿pueden cambiar los datos del objeto después de crearlo?
 
-Después lo aplicaremos al modelo real de DaisyUI, a una copia con `copyWith` y al controlador de temas. Freezed y
-Signals tienen unidades propias más adelante: aquí examinaremos solo lo necesario para comprobar ejemplos concretos.
-La elaboración de esta guía no significa que hayas completado el estudio.
+Aprenderás a responderlas con listas y objetos pequeños, y después las aplicaremos a los temas reales de DaisyUI.
+También verás para qué sirve `hashCode` cuando guardamos objetos en un `Set`.
 
-## Ruta y progreso
+Los programas completos son independientes. Para los que no importan Flutter puedes usar [DartPad](https://dartpad.dev/)
+en modo **Dart**; para los que importan `package:flutter/foundation.dart`, elige **Flutter**. Predice la salida antes
+de ejecutar. Puedes estudiar los apartados 1–3 en una sesión, 4–6 en otra y terminar después con DaisyUI y el ejercicio.
 
-Repasa de la unidad 3 qué es una referencia y de la unidad 7 las dos ramas del setter de `ValueNotifier`. Los ejemplos
-A–D y la solución del proyecto son **programas completos e independientes** para [DartPad](https://dartpad.dev/) en
-modo Dart; copia uno cada vez. El ejemplo E es una prueba para ejecutar en este repositorio con Flutter. Los demás
-bloques son fragmentos para leer, no programas completos.
+## 1. Identidad: ¿es el mismo objeto?
 
-- [ ] [8.1. Identidad y referencias compartidas](#81-identidad-y-referencias-compartidas).
-- [ ] [8.2. Igualdad: una regla del tipo](#82-igualdad-una-regla-del-tipo).
-- [ ] [8.3. Listas y comparación de contenido](#83-listas-y-comparación-de-contenido).
-- [ ] [8.4. El contrato de `hashCode`](#84-el-contrato-de-hashcode).
-- [ ] [8.5. `final`, `const` y cambios internos](#85-final-const-y-cambios-internos).
-- [ ] [8.6. Inmutabilidad, copias y vistas](#86-inmutabilidad-copias-y-vistas).
-- [ ] [8.7. Igualdad y notificaciones](#87-igualdad-y-notificaciones).
-- [ ] [8.8. Los temas reales de DaisyUI](#88-los-temas-reales-de-daisyui).
-- [ ] [Resolver el proyecto](#proyecto-de-la-unidad-un-valor-de-configuración).
-- [ ] [Superar la comprobación final](#comprobación-final).
-
-Puedes repartirlo en tres sesiones: 8.1–8.3, 8.4–8.6, y 8.7–8.8 con el proyecto. Predice antes de ejecutar y
-revisa las soluciones al final. Marca cada casilla cuando puedas explicar las variaciones sin copiarlas.
-
-## 8.1. Identidad y referencias compartidas
-
-### El problema
-
-Dos personas pueden tener una llave para la misma caja o una llave para cada una de dos cajas con el mismo contenido.
-Una etiqueta que apunta a la caja no es una copia de su contenido. La analogía ayuda a seguir referencias, pero las
-variables de Dart no son llaves físicas: representan referencias a objetos.
-
-[`identical(a, b)`](https://api.dart.dev/dart-core/identical.html) pregunta si ambas referencias corresponden al mismo
-objeto. Que dos variables sean diferentes no demuestra que señalen objetos diferentes. Si son referencias al mismo
-objeto mutable, un cambio por una referencia es visible al leer por la otra.
-
-### Ejemplo A: una referencia compartida y otra lista
+Imagina dos nombres que permiten acceder a una misma lista de temas. Si añadimos un tema usando uno de ellos, ¿qué se
+ve al consultar el otro?
 
 ```dart
 void main() {
   final primera = <String>['claro'];
-  final alias = primera;
+  final compartida = primera;
   final copia = <String>[...primera];
 
-  print('primera y alias: ${identical(primera, alias)}');
-  print('primera y copia: ${identical(primera, copia)}');
-  alias.add('oscuro');
-  print('primera: $primera');
-  print('copia: $copia');
+  compartida.add('oscuro');
+
+  print('Primera y compartida: ${identical(primera, compartida)}');
+  print('Primera y copia: ${identical(primera, copia)}');
+  print('Primera: $primera');
+  print('Copia: $copia');
 }
 ```
 
-Dibuja las tres variables y las dos listas. `...primera` coloca las referencias de los elementos en una lista nueva;
-no copia recursivamente los objetos que pudieran ser esos elementos. Aquí son cadenas inmutables. `final` evita
-reasignar cada variable, no impide ejecutar `add` en una lista mutable.
+La salida es:
 
-### Comprobación
+```text
+Primera y compartida: true
+Primera y copia: false
+Primera: [claro, oscuro]
+Copia: [claro]
+```
 
-- ¿Cuál de las listas cambia al llamar a `alias.add`? ¿Por qué?
-- ¿Qué ocurriría si `copia` se inicializara con `primera`, sin crear una lista?
-- ¿Probar que dos objetos no son idénticos dice si sus contenidos son iguales?
+`identical(a, b)` pregunta si las dos referencias corresponden al **mismo objeto**. No pregunta si sus contenidos se
+parecen.
 
-**Puedes avanzar cuando:** dibujas las referencias sin confundir dos variables con dos objetos.
+1. `primera` permite acceder a una lista que contiene `'claro'`.
+2. `compartida = primera` guarda una referencia a esa **misma lista**; no crea otra.
+3. `<String>[...primera]` crea otra lista exterior con los elementos que tenía `primera` en ese momento.
+4. `compartida.add('oscuro')` modifica la primera lista. Como `primera` también apunta a ella, ve el cambio. `copia`
+   apunta a otra lista y sigue teniendo solo `'claro'`.
 
-## 8.2. Igualdad: una regla del tipo
+La expansión `...` copia los elementos a la nueva lista exterior; si esos elementos fueran objetos mutables, las dos
+listas podrían seguir compartiéndolos. Volveremos a ese caso en el apartado 6.
 
-La identidad pregunta por el objeto; `a == b` pregunta por la igualdad que corresponda a `a`. La implementación
-predeterminada de [`Object.==`](https://api.dart.dev/dart-core/Object/operator_equals.html) usa identidad, pero una
-clase puede definir igualdad por datos. Con valores no nulos se utiliza el operador del lado izquierdo; `null` tiene
-reglas propias. La clase debe respetar reflexividad, simetría, transitividad y consistencia mientras no cambien los
-datos relevantes. Las reglas completas están en [Effective Dart](https://dart.dev/effective-dart/design#equality).
+### Practica 1
 
-### Ejemplo B: objetos distintos con los mismos datos
+Si cambiamos `final copia = <String>[...primera];` por `final copia = primera;`, ¿qué muestran `identical(primera, copia)`
+y `copia` después de `compartida.add('oscuro')`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+`identical(primera, copia)` devuelve `true` y `copia` muestra `[claro, oscuro]`. Las tres variables permiten acceder a
+la misma lista; no se ha creado una segunda lista.
+
+</details>
+
+## 2. Igualdad: ¿la regla los considera equivalentes?
+
+Dos objetos pueden ser distintos y representar los mismos datos. `==` aplica la **regla de igualdad del tipo**. Esa
+regla no siempre es la misma que la identidad.
+
+Vamos a crear un modelo pequeño. Para este ejemplo, dos temas serán iguales si coinciden su nombre y su borde:
 
 ```dart
 class TemaSimple {
@@ -105,228 +97,376 @@ class TemaSimple {
 
 void main() {
   final original = TemaSimple('claro', 1);
-  final alias = original;
   final equivalente = TemaSimple('claro', 1);
   final distinto = TemaSimple('claro', 2);
 
-  print('alias idéntico: ${identical(original, alias)}');
-  print('copia idéntica: ${identical(original, equivalente)}');
-  print('copia igual: ${original == equivalente}');
-  print('borde distinto: ${original == distinto}');
-  print('hash igual: ${original.hashCode == equivalente.hashCode}');
+  print('Mismo objeto: ${identical(original, equivalente)}');
+  print('Iguales: ${original == equivalente}');
+  print('Borde distinto: ${original == distinto}');
 }
 ```
 
-Aunque el constructor admita `const`, las llamadas de este ejemplo no son constantes: cada invocación generativa no
-constante crea una instancia nueva. El operador revisa tipo, nombre y borde. Dos objetos distintos pueden ser iguales
-según esa regla. Añadimos `hashCode` para respetar el contrato que estudiaremos a continuación.
+La salida es:
 
-### Comprobación
-
-- ¿Qué sucede con `original == equivalente` si se elimina el operador personalizado?
-- ¿Qué afirmas exactamente al decir que dos temas son iguales en este ejemplo?
-- Si solo compararas `nombre`, ¿qué sucedería con dos temas de distinto borde? ¿Conviene esa regla para tu uso?
-
-**Puedes avanzar cuando:** explicas por separado `identical`, `==` y los campos elegidos para la regla.
-
-## 8.3. Listas y comparación de contenido
-
-Las listas ordinarias del ejemplo A heredan una igualdad que no compara sus elementos. Por eso, dos listas nuevas con
-los mismos elementos no son iguales mediante `==`, aunque puedas comparar sus contenidos con otra operación. Esto no
-impide que otro tipo defina una igualdad diferente.
-
-En Flutter, [`listEquals`](https://api.flutter.dev/flutter/foundation/listEquals.html) compara longitud y elementos en
-orden usando `==` para cada elemento. No garantiza comparación profunda de colecciones anidadas: si un elemento es otra
-lista ordinaria, su propia igualdad sigue sin comparar su contenido. Para una necesidad de comparación profunda debe
-elegirse una política apropiada, por ejemplo `DeepCollectionEquality` de `package:collection`.
-
-Fragmento para leer en Flutter:
-
-```dart
-
-final a = <int>[1, 2];
-final b = <int>[1, 2];
-final anidadaA = <List<int>>[<int>[1]];
-final anidadaB = <List<int>>[<int>[1]];
-// identical(a, b): false; a == b: false; listEquals(a, b): true.
-// listEquals(anidadaA, anidadaB): false por las listas interiores.
+```text
+Mismo objeto: false
+Iguales: true
+Borde distinto: false
 ```
 
-Cambiar el orden de `b` a `[2, 1]` hace que `listEquals(a, b)` sea `false`. Piensa si el orden representa una
-diferencia de producto antes de adoptar esa comparación. `ValueNotifier` no llama por sí mismo a `listEquals`.
+Las llamadas al constructor de `main` crean tres objetos. Aunque el constructor admite `const`, aquí lo llamamos sin
+`const`; estudiaremos las construcciones constantes en el apartado 5.
 
-### Comprobación
+El método `operator ==` define la regla de este tipo: primero comprueba que `other` sea un `TemaSimple` y después
+compara `nombre` y `borde`. `original` y `equivalente` son objetos diferentes, pero sus dos datos coinciden, por eso la
+regla los considera iguales. `distinto` tiene otro borde y no cumple esa regla.
 
-- ¿Qué compara `listEquals` cuando sus elementos son objetos con `==` personalizado?
-- ¿Por qué una comprobación superficial puede no servir para listas anidadas?
-- ¿Cuál de las tres operaciones preguntaría si `a` y `b` son literalmente la misma lista?
+La clase también define `hashCode` usando los mismos datos. Lo necesitamos para que los objetos se comporten de forma
+coherente en colecciones como `Set`; lo explicaremos en el apartado 4. No hace falta memorizar ahora la sintaxis de
+`@override` y `operator`: céntrate en **qué campos compara la regla**.
 
-## 8.4. El contrato de `hashCode`
+Una regla de igualdad debe comportarse de forma coherente: por ejemplo, un objeto debe ser igual a sí mismo y, si
+`a == b`, también debe cumplirse `b == a`. Más adelante puedes consultar sus demás condiciones en las referencias.
 
-Un `hashCode` es un entero usado, entre otras cosas, por los `Set` y `Map` basados en hash para organizar la búsqueda.
-No es un identificador único ni sustituye a `==`. La regla esencial es **si `a == b`, sus hash deben ser iguales**.
-La inversa no está garantizada: dos objetos diferentes y no iguales pueden compartir hash. No dependas de que el
-número sea el mismo entre ejecuciones. Consulta [`Object.hashCode`](https://api.dart.dev/dart-core/Object/hashCode.html)
-y [`HashSet`](https://api.dart.dev/dart-collection/HashSet-class.html).
+### Practica 2
 
-El conjunto usa hash e igualdad para reconocer elementos equivalentes. Si defines `==` por datos y dejas un hash
-incompatible, un conjunto o mapa puede no encontrar una clave equivalente. Si modificas un campo que afecta a igualdad
-o hash mientras el objeto está dentro de la colección, la búsqueda y retirada pueden dejar de comportarse como esperas.
-No es necesario adivinar un resultado concreto de un programa que viola ese contrato.
+Supón que cambiamos la regla para comparar solamente `nombre`. ¿Cómo resultarían `original == distinto`? ¿Qué problema
+podría haber si el borde importa para mostrar la interfaz?
 
-### Ejemplo C: un conjunto de valores
+<details>
+<summary>Ver respuesta</summary>
+
+Resultaría `true`: ambos se llaman `'claro'` y la nueva regla ignoraría el borde. Si el borde importa, estaríamos
+tratando como equivalentes dos configuraciones que la interfaz necesita distinguir. Si cambiamos la igualdad, también
+debemos ajustar `hashCode` para que use una regla coherente.
+
+</details>
+
+## 3. Dos listas con los mismos elementos
+
+Las listas ordinarias creadas por separado en este ejemplo usan igualdad por identidad: tener los mismos elementos no
+hace que `==` devuelva `true`. En Flutter podemos comparar sus elementos con `listEquals`:
 
 ```dart
-class Preferencia {
-  const Preferencia(this.nombre, this.borde);
+import 'package:flutter/foundation.dart';
+
+void main() {
+  final primera = <int>[1, 2];
+  final segunda = <int>[1, 2];
+  final invertida = <int>[2, 1];
+
+  print('Mismo objeto: ${identical(primera, segunda)}');
+  print('Iguales con ==: ${primera == segunda}');
+  print('Mismos elementos: ${listEquals(primera, segunda)}');
+  print('Mismo orden: ${listEquals(primera, invertida)}');
+}
+```
+
+La salida es:
+
+```text
+Mismo objeto: false
+Iguales con ==: false
+Mismos elementos: true
+Mismo orden: false
+```
+
+`listEquals` compara la longitud y los elementos **en orden**, usando `==` para cada elemento. Por eso `[1, 2]` y
+`[2, 1]` no coinciden con esa función.
+
+No es una comparación profunda general de listas anidadas. Si los elementos son a su vez listas ordinarias,
+`listEquals` compara esas listas interiores usando su propio `==`; no recorre automáticamente todos sus niveles.
+Tampoco cambia la regla del setter de `ValueNotifier`: ese setter usa `==`, no `listEquals`.
+
+### Practica 3
+
+En el ejemplo anterior, ¿qué ocurriría si ejecutamos `final tercera = primera;` y comparamos
+`identical(primera, tercera)` y `primera == tercera`?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Ambas expresiones darían `true`: las dos variables apuntarían a la misma lista. Eso es diferente de `segunda`, que se
+creó por separado aunque contenga los mismos números.
+
+</details>
+
+## 4. `hashCode`: ayudar a encontrar valores en un conjunto
+
+Un `Set` evita guardar dos elementos que considera iguales. Para buscar y organizar sus elementos, los conjuntos
+basados en hash utilizan `hashCode` junto con `==`.
+
+La regla que necesitamos recordar es:
+
+> Si `a == b`, entonces `a.hashCode == b.hashCode` debe ser verdadero.
+
+La inversa no está garantizada: dos objetos distintos y no iguales pueden tener el mismo hash. `hashCode` no es un
+identificador único ni debemos depender de que sea el mismo número entre ejecuciones.
+
+Veamos el contrato en acción con una versión completa de nuestro tema:
+
+```dart
+class TemaSimple {
+  const TemaSimple(this.nombre, this.borde);
 
   final String nombre;
   final int borde;
 
   @override
   bool operator ==(Object other) =>
-      other is Preferencia && nombre == other.nombre && borde == other.borde;
+      other is TemaSimple && nombre == other.nombre && borde == other.borde;
 
   @override
   int get hashCode => Object.hash(nombre, borde);
 }
 
 void main() {
-  final primero = Preferencia('claro', 1);
-  final equivalente = Preferencia('claro', 1);
-  final distinto = Preferencia('claro', 2);
-  final conjunto = <Preferencia>{primero, equivalente, distinto};
-  print('objetos idénticos: ${identical(primero, equivalente)}');
-  print('hashes iguales: ${primero.hashCode == equivalente.hashCode}');
-  print('elementos: ${conjunto.length}');
-  print('encuentra equivalente: ${conjunto.contains(equivalente)}');
+  final primero = TemaSimple('claro', 1);
+  final equivalente = TemaSimple('claro', 1);
+  final distinto = TemaSimple('claro', 2);
+  final temas = <TemaSimple>{primero, equivalente, distinto};
+
+  print('Son iguales: ${primero == equivalente}');
+  print('Mismo hash: ${primero.hashCode == equivalente.hashCode}');
+  print('Cantidad en el conjunto: ${temas.length}');
+  print('Encuentra equivalente: ${temas.contains(equivalente)}');
 }
 ```
 
-Predice la salida. `Object.hash` combina los campos de este ejemplo: ambos objetos iguales le pasan los mismos valores.
-Es una forma de construir el hash, no una prueba de que no existan colisiones.
+La salida es:
 
-### Comprobación
+```text
+Son iguales: true
+Mismo hash: true
+Cantidad en el conjunto: 2
+Encuentra equivalente: true
+```
 
-- Si dos hashes son iguales, ¿deben ser iguales los objetos?
-- ¿Por qué el conjunto conserva dos elementos y no tres?
-- ¿Por qué sería peligroso hacer mutable `borde` mientras una preferencia se usa como clave?
+`primero` y `equivalente` cumplen la regla de igualdad y aportan los mismos campos a `Object.hash`; el segundo no añade
+un elemento distinto al conjunto. `distinto` tiene otro borde y no es igual, así que el conjunto conserva dos temas.
 
-## 8.5. `final`, `const` y cambios internos
+Si definimos `==` por datos, debemos definir un `hashCode` coherente con esa igualdad. También debemos evitar cambiar
+los campos que intervienen en ambos mientras un objeto está guardado como elemento de un conjunto basado en hash o
+como clave de un mapa: de lo contrario, podría dejar de encontrarse correctamente.
 
-`final` permite inicializar una variable una sola vez. Una variable `final` puede referirse a un objeto creado en
-ejecución y mutable. Un campo `final` también puede apuntar a una lista mutable: no se puede sustituir la referencia,
-pero eso por sí solo no protege el contenido. Consulta [variables en Dart](https://dart.dev/language/variables).
+### Practica 4
 
-`const` declara un valor constante de compilación; un constructor constante exige condiciones para producir un objeto
-constante, y sus campos de instancia deben ser `final`. En un contexto constante, los valores anidados deben ser
-constantes. Un constructor declarado `const` también puede invocarse sin `const` en tiempo de ejecución, como en B.
-Dart puede compartir la instancia canónica de expresiones constantes equivalentes; no extrapoles el resultado de
-`identical` de esas expresiones a todas las construcciones ordinarias.
+Si dos objetos tienen el mismo `hashCode`, ¿podemos afirmar que son iguales? Si `primero == equivalente` es `true`,
+¿qué debe cumplirse con sus hashes?
 
-### Ejemplo D: referencias y colecciones constantes
+<details>
+<summary>Ver respuesta</summary>
+
+Un mismo hash no demuestra igualdad: puede haber colisiones. En cambio, como `primero` y `equivalente` son iguales,
+sus hashes deben ser iguales para respetar el contrato.
+
+</details>
+
+## 5. `final`, `const` y objetos que cambian
+
+Es fácil confundir una variable que no podemos reasignar con un objeto que no podemos modificar. Mira este programa:
 
 ```dart
 void main() {
   final lista = <int>[1];
   lista.add(2);
+
   const fija = <int>[1];
   const otra = <int>[1];
   var elegida = fija;
   elegida = <int>[3];
-  print('final mutable: $lista');
-  print('const compartida: ${identical(fija, otra)}');
-  print('fija: $fija');
-  print('elegida: $elegida');
+
+  print('Lista final: $lista');
+  print('Constantes idénticas: ${identical(fija, otra)}');
+  print('Fija: $fija');
+  print('Elegida: $elegida');
 }
 ```
 
-No ejecutes `fija.add(2)` en este programa: la lista constante rechaza el cambio con `UnsupportedError`. La variable
-`elegida` es reasignable aunque inicialmente apunte a un valor constante. En cambio `lista = <int>[]` no compila porque
-`lista` es `final`. Son dos restricciones en lugares distintos: la variable y el objeto.
+La salida es:
 
-### Comprobación
-
-- ¿Por qué `lista.add(2)` funciona, pero `lista = <int>[]` no compila?
-- ¿Qué resultado tiene `identical(fija, otra)` y por qué es especial este caso constante?
-- ¿Se vuelve mutable `fija` al reasignar `elegida`?
-
-## 8.6. Inmutabilidad, copias y vistas
-
-Un objeto inmutable mantiene su estado observable durante toda su vida. No basta con impedir que una referencia se
-reasigne si ese objeto expone una lista mutable u otro objeto mutable. Para razonar sobre una estructura completa hay
-que seguir también sus elementos y cualquier referencia compartida hacia ellos.
-
-[`List.unmodifiable`](https://api.dart.dev/dart-core/List/List.unmodifiable.html) crea una lista exterior que no admite
-cambiar longitud ni elementos y toma los elementos del iterable. No crea copias profundas de esos elementos. Una
-[`UnmodifiableListView`](https://api.dart.dev/dart-collection/UnmodifiableListView-class.html), en cambio, es una vista
-no modificable respaldada por la fuente: quien conserva la lista original puede modificarla y la vista reflejará el
-cambio. Una lista copiada puede compartir objetos mutables con el original.
-
-Fragmento para razonar:
-
-```dart
-
-final fuente = <List<int>>[<int>[1]];
-final copia = List<List<int>>.unmodifiable(fuente);
-fuente.add
-(<int>[2]); // copia sigue teniendo una sola lista exterior.
-fuente[0].
-add
-(
-9
-); // copia[0] también ve [1, 9]: elemento compartido.
-// copia.add(<int>[3]);     // UnsupportedError: exterior no modificable.
+```text
+Lista final: [1, 2]
+Constantes idénticas: true
+Fija: [1]
+Elegida: [3]
 ```
 
-Para un estado histórico fiable se necesita evitar cambios posteriores en todas las partes relevantes, sea usando
-objetos inmutables y compartiéndolos, o copiando y protegiendo los niveles necesarios. Una copia superficial no es
-incorrecta por definición: es suficiente cuando sus elementos compartidos son inmutables o la aplicación controla su
-vida útil y mutación.
+- `final lista` impide asignar otra referencia a esa variable. La lista a la que apunta es mutable, por eso `add(2)`
+  funciona. Escribir `lista = <int>[]` no compilaría.
+- `const fija` crea una lista constante. Esa lista no permite añadir ni cambiar elementos; intentar `fija.add(2)`
+  produciría `UnsupportedError`.
+- Las dos listas constantes equivalentes del ejemplo comparten una instancia canónica; por eso `identical(fija, otra)`
+  devuelve `true`. No extrapoles eso a todas las listas u objetos creados en ejecución.
+- `elegida` es una variable reasignable. Al hacer `elegida = <int>[3]`, pasa a apuntar a otra lista; la lista
+  constante `fija` no cambia.
 
-### Comprobación
+Un constructor declarado `const` permite crear valores constantes, pero también puede llamarse sin `const`. Las
+llamadas no constantes a `TemaSimple` del apartado 2 producen objetos distintos aunque sus datos sean iguales.
 
-- ¿Por qué `copia.length` es uno después del `add` a `fuente`?
-- ¿Por qué el contenido de `copia[0]` cambia de todos modos?
-- ¿Qué cambia si se usa una vista sobre `fuente` en lugar de una copia exterior?
+### Practica 5
 
-## 8.7. Igualdad y notificaciones
+Si `final nombres = <String>['Ana'];`, ¿qué ocurre con `nombres.add('Luis')` y qué ocurre con
+`nombres = <String>[]`?
 
-En la unidad 7 vimos el [setter de
-`ValueNotifier`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html):
-compara `valorAnterior == valorPropuesto`. Si son iguales retorna **antes de reemplazar el objeto** y sin notificar;
-si son distintos almacena el propuesto y llama a `notifyListeners`. El contrato de `ValueListenable` no exige esa
-política a todas sus implementaciones.
+<details>
+<summary>Ver respuesta</summary>
 
-Si un objeto mutable ya almacenado cambia por dentro, nadie llamó al setter. Guardar una referencia al valor anterior
-tampoco recupera su estado anterior, pues puede apuntar al mismo objeto modificado. Al diseñar valores inmutables, una
-actualización puede crear otro objeto dejando el anterior intacto; la igualdad define qué cambios considera relevantes
-el consumidor. Si la igualdad ignora una propiedad que sí importa a la interfaz, la política del setter puede descartar
-la propuesta y conservar un valor obsoleto para ese consumidor.
+`add` modifica la lista mutable y funciona. La asignación no compila porque intenta reasignar la variable `final`.
+La restricción está en la referencia de la variable, no en el contenido de esa lista.
 
-**Ejercicio mental:** un `ValueNotifier<TemaSimple>` contiene `TemaSimple('claro', 1)` de B. Le asignas otro con los
-mismos campos y después uno con borde 2. ¿Cuántos avisos recibe un listener que permaneció registrado? ¿Qué instancia
-queda almacenada tras la primera asignación? Compara tu respuesta con las soluciones.
+</details>
 
-## 8.8. Los temas reales de DaisyUI
+## 6. Copia exterior y vista no modificable
 
-[`DaisyThemeModel`](../../../lib/themes/domain/theme.dart) declara `id`, `name`, `description`, `colors`, `radius`, `size`
-y `border`; el archivo usa `@freezed`. En la salida generada actual
-[`theme.freezed.dart`](../../../lib/themes/domain/generated/theme.freezed.dart), la igualdad comprueba identidad como
-atajo y después tipo y esos campos mediante sus respectivas igualdades. El `hashCode` generado combina tipo y campos.
-Esto no significa que cualquier objeto anidado tenga automáticamente igualdad profunda: cada campo aporta su propia
-regla. Freezed genera `copyWith`; lo estudiaremos en detalle en la unidad 27.
+Una lista que no permite modificar su exterior no garantiza que todos sus elementos sean inmutables. Además, una
+**copia** y una **vista** pueden reaccionar de forma diferente cuando cambia la lista original:
 
-[`DaisyThemes.light`](../../../lib/themes/domain/daisy_themes.dart) es un tema constante. `copyWith` permite proponer otro
-modelo sin modificar el original. Compartir referencias a partes que no cambian no implica por sí solo una mutación ni
-una copia profunda. El [`DaisyThemeController`](../../../lib/themes/application/daisy_theme_controller.dart) conserva una
-instancia interna de `ValueNotifier`, expone una referencia de lectura y asigna mediante `setTheme`.
+```dart
+import 'dart:collection';
 
-### Ejemplo E: prueba en el proyecto
+void main() {
+  final fuente = <List<int>>[<int>[1]];
+  final copia = List<List<int>>.unmodifiable(fuente);
+  final vista = UnmodifiableListView<List<int>>(fuente);
 
-Crea temporalmente `test/themes/estudio_unidad_08_test.dart` con este contenido y ejecuta
-`flutter test --no-pub test/themes/estudio_unidad_08_test.dart`. La prueba usa las dependencias del proyecto; no se
-puede copiar tal cual en DartPad sin incorporarlas.
+  fuente.add(<int>[2]);
+  fuente[0].add(9);
+
+  print('Fuente: $fuente');
+  print('Copia: $copia');
+  print('Vista: $vista');
+}
+```
+
+La salida es:
+
+```text
+Fuente: [[1, 9], [2]]
+Copia: [[1, 9]]
+Vista: [[1, 9], [2]]
+```
+
+Sigamos los cambios:
+
+1. `List.unmodifiable(fuente)` crea otra lista **exterior**, que inicialmente contiene una referencia a la lista `[1]`.
+2. `UnmodifiableListView(fuente)` crea una vista respaldada por `fuente`; no copia sus elementos a otra lista exterior.
+3. Al añadir `[2]` a `fuente`, la copia exterior sigue teniendo un elemento; la vista refleja que la fuente ahora tiene
+   dos.
+4. Al añadir `9` a `fuente[0]`, tanto la copia como la vista ven `[1, 9]`: comparten la misma lista interior mutable.
+
+No podemos añadir o sustituir elementos exteriores usando `copia` ni `vista`. Pero eso no hace inmutable la lista
+interior. Para conservar un historial independiente hay que usar elementos inmutables o copiar y proteger los niveles
+que puedan cambiar.
+
+### Practica 6
+
+Si después hacemos `fuente.add(<int>[3]);`, ¿cuántos elementos exteriores tendrán `copia` y `vista`? ¿Por qué?
+
+<details>
+<summary>Ver respuesta</summary>
+
+`copia` seguirá teniendo uno: su lista exterior se creó antes de los dos `add`. `vista` mostrará tres porque está
+respaldada por `fuente`, que ahora contiene tres elementos exteriores.
+
+</details>
+
+## 7. Por qué esto importa para `ValueNotifier`
+
+En la unidad 7 vimos que el setter compara el valor anterior con el propuesto usando `==`. Si son iguales, retorna sin
+reemplazarlo ni avisar; si son distintos, guarda el nuevo valor y notifica.
+
+Este ejemplo usa el mismo tipo `TemaSimple` del apartado 2, pero incluye el programa completo para poder ejecutarlo por
+separado:
+
+```dart
+import 'package:flutter/foundation.dart';
+
+class TemaSimple {
+  const TemaSimple(this.nombre, this.borde);
+
+  final String nombre;
+  final int borde;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TemaSimple && nombre == other.nombre && borde == other.borde;
+
+  @override
+  int get hashCode => Object.hash(nombre, borde);
+}
+
+void main() {
+  final original = TemaSimple('claro', 1);
+  final equivalente = TemaSimple('claro', 1);
+  final distinto = TemaSimple('claro', 2);
+  final fuente = ValueNotifier<TemaSimple>(original);
+  var avisos = 0;
+
+  void observar() {
+    avisos = avisos + 1;
+    print('Aviso $avisos: borde ${fuente.value.borde}');
+  }
+
+  fuente.addListener(observar);
+  fuente.value = equivalente;
+  print('Conserva original: ${identical(fuente.value, original)}');
+  fuente.value = distinto;
+  print('Borde final: ${fuente.value.borde}');
+  fuente.removeListener(observar);
+  fuente.dispose();
+}
+```
+
+La salida es:
+
+```text
+Conserva original: true
+Aviso 1: borde 2
+Borde final: 2
+```
+
+`equivalente` es otro objeto, pero su nombre y borde son iguales a los de `original`. El setter retorna antes de
+guardarlo: la fuente conserva `original` y no avisa. `distinto` tiene borde `2`, así que la regla lo considera
+diferente: el setter lo guarda y el listener lee el nuevo borde.
+
+La elección de campos para `==` afecta a esta decisión. Si la igualdad ignorara un dato que el consumidor necesita,
+el notificador podría descartar un objeto nuevo con ese dato cambiado. Por eso identidad, igualdad y diseño del estado
+van juntas, aunque respondan a preguntas diferentes.
+
+### Practica 7
+
+Si quitamos `fuente.value = distinto;`, ¿cuántos avisos se imprimen y qué borde conserva la fuente?
+
+<details>
+<summary>Ver respuesta</summary>
+
+No se imprime ningún aviso y el borde sigue siendo `1`. La propuesta `equivalente` compara igual y se descarta; sin la
+segunda asignación no hay ningún valor distinto que guardar.
+
+</details>
+
+## 8. Identidad e igualdad en DaisyUI
+
+El [modelo de tema](../../../lib/themes/domain/theme.dart), `DaisyThemeModel`, se declara con `@freezed`. La igualdad
+generada compara el tipo y los campos `id`, `name`, `description`, `colors`, `radius`, `size` y `border`; cada campo
+aporta su propia regla de igualdad. `copyWith` permite crear un modelo con cambios sin modificar el original.
+Estudiaremos Freezed con más detalle en la unidad 27.
+
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en un
+`ValueNotifier<DaisyThemeModel>`. Por tanto, la igualdad del modelo participa en la decisión del setter de conservar el
+valor anterior o aceptar y notificar el nuevo.
+
+### Prueba guiada
+
+Esta prueba es un archivo completo de **prueba de Flutter**, no un programa para DartPad. Puedes guardarla temporalmente
+como `test/themes/estudio_unidad_08_test.dart` y ejecutar desde la raíz:
+
+```sh
+flutter test --no-pub test/themes/estudio_unidad_08_test.dart
+```
+
+Antes de ejecutarla, predice qué ocurre con la copia equivalente y con la copia que tiene otro borde:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -340,7 +480,7 @@ void main() {
     final controller = DaisyThemeController(initialTheme: original);
     addTearDown(controller.dispose);
     var avisos = 0;
-    void escuchar() => avisos++;
+    void escuchar() => avisos = avisos + 1;
     controller.theme.addListener(escuchar);
 
     expect(identical(original, equivalente), isFalse);
@@ -351,172 +491,49 @@ void main() {
     expect(modificado.border, 2.0);
 
     controller.setTheme(equivalente);
+    expect(identical(controller.theme.value, original), isTrue);
     expect(avisos, 0);
     controller.setTheme(modificado);
-    expect(avisos, 1);
     expect(controller.theme.value, modificado);
+    expect(avisos, 1);
     controller.theme.removeListener(escuchar);
   });
 }
 ```
 
-Predice cada `expect` antes de ejecutarla. La prueba observa estas instancias y operaciones concretas de la versión
-instalada; no demuestra que un widget se haya reconstruido. La prueba existente
-[del controlador](../../../test/themes/daisy_theme_controller_test.dart) también verifica que una copia equivalente de
-`light` no avisa y que cambiar a `dark` sí avisa. El setter de `ValueNotifier` compara los valores como vimos en la
-unidad 7; las señales de la unidad 9 son una implementación distinta.
+En esta prueba, `equivalente` es otra instancia que compara igual: el controlador conserva `original` y no avisa. La
+copia con borde `2` compara distinta; el controlador la acepta y se registra un aviso. El original conserva su borde
+`1`. La prueba comprueba estas instancias y notificaciones; no comprueba una reconstrucción de widget ni un repintado.
 
-### Comprobación
+### Practica 8
 
-- ¿Cómo sabes que cambiar `border` en la copia no cambió el original?
-- ¿Qué compara el operador generado del tema y quién compara cada objeto anidado?
-- ¿Qué permite afirmar exactamente la prueba sobre avisos? ¿Qué no comprueba?
+Si `controller.theme.value` sigue siendo idéntico a `original` después de proponer `equivalente`, ¿por qué no basta con
+decir que «se guardó la copia sin avisar»?
 
-## Materiales de estudio seleccionados
+<details>
+<summary>Ver respuesta</summary>
 
-Todos son gratuitos; las referencias oficiales están en inglés y esta guía en español.
+Porque el setter de `ValueNotifier` retorna antes de guardar una propuesta igual. La prueba comprueba que la fuente
+sigue conservando el objeto `original`; la copia no se guardó y tampoco produjo un aviso.
 
-- **D1 · Dart:** [`identical`](https://api.dart.dev/dart-core/identical.html) y
-  [variables, `final` y `const`](https://dart.dev/language/variables) — 8.1 y 8.5: referencias, identidad y constantes.
-- **D2 · Dart:** [`Object.==`](https://api.dart.dev/dart-core/Object/operator_equals.html),
-  [`Object.hashCode`](https://api.dart.dev/dart-core/Object/hashCode.html) y
-  [Effective Dart: igualdad](https://dart.dev/effective-dart/design#equality) — 8.2 y 8.4: contrato y diseño.
-- **D3 · Dart:** [`List.==`](https://api.dart.dev/dart-core/List/operator_equals.html),
-  [`List.unmodifiable`](https://api.dart.dev/dart-core/List/List.unmodifiable.html) y
-  [`UnmodifiableListView`](https://api.dart.dev/dart-collection/UnmodifiableListView-class.html) — 8.3 y 8.6.
-- **F1 · Flutter:** [`listEquals`](https://api.flutter.dev/flutter/foundation/listEquals.html) y
-  [setter de `ValueNotifier`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html) — 8.3 y 8.7.
-- **P1 · Freezed:** [documentación del paquete](https://pub.dev/packages/freezed) — 8.8; contrasta la documentación
-  con el código generado por la versión resuelta en este proyecto.
-- **P2 · Proyecto:** [modelo](../../../lib/themes/domain/theme.dart),
-  [código generado](../../../lib/themes/domain/generated/theme.freezed.dart),
-  [controlador](../../../lib/themes/application/daisy_theme_controller.dart) y
-  [pruebas](../../../test/themes/daisy_theme_controller_test.dart).
-- **P3 · Práctica:** [DartPad](https://dartpad.dev/) y su [documentación](https://dart.dev/tools/dartpad) para A–D y
-  el proyecto de la unidad; Flutter local para E.
+</details>
 
-## Proyecto de la unidad: un valor de configuración
+## Ejercicio final: una configuración de tema
 
-Diseña `Configuracion` con `nombre` y `borde` inmutables. Dos configuraciones son iguales si coinciden ambos campos.
-Añade un método `conBorde` que devuelva otra configuración con el mismo nombre y el borde indicado. Usa `==` y
-`hashCode` coherentes. No uses Freezed: implementa el ejercicio para entender qué contrato debe cumplir.
+Escribe un programa Dart completo que:
 
-### Requisitos
+1. Declare `Configuracion` con `nombre` y `borde` como campos `final`.
+2. Defina `==` y `hashCode` usando ambos campos. Añada `conBorde(int nuevoBorde)`, que devuelva una configuración nueva
+   con el mismo nombre y el borde indicado.
+3. Cree `inicial` con `'claro'` y borde `1`, `equivalente` con los mismos datos y `cambio` con `inicial.conBorde(2)`.
+4. Imprima si `inicial` y `equivalente` son idénticos y si son iguales; compare también `inicial` con `cambio`.
+5. Guarde los tres en un `Set`, imprima su tamaño y compruebe que el borde de `inicial` sigue siendo `1`.
 
-1. Crea `inicial` con `claro` y borde 1, `equivalente` con los mismos datos y `cambio` mediante `conBorde(2)`.
-2. Imprime si `inicial` y `equivalente` son idénticos y si son iguales; compara también `inicial` con `cambio`.
-3. Inserta los tres en un `Set` y muestra su tamaño. Comprueba que el borde de `inicial` sigue siendo 1.
-4. Predice todas las salidas antes de ejecutarlo. Explica qué ocurre con cada objeto y qué regla usa el conjunto.
+Predice la salida antes de ejecutar. Después explica por qué el conjunto conserva ese número de elementos. Como
+variación, imagina que la igualdad y el hash solo consideran el nombre: ¿cuántos elementos quedarían?
 
-### Variaciones
-
-- Haz que igualdad y hash utilicen solo `nombre`: ¿cuántos elementos quedan en el conjunto? ¿Por qué podría ser una
-  mala política si el borde se muestra en pantalla?
-- ¿Por qué crear `conBorde(1)` puede producir un objeto distinto pero igual?
-- ¿Qué peligro introduces si `borde` pasa a ser mutable después de guardar la instancia en un conjunto?
-- ¿Por qué no tiene sentido exigir que los hashes de dos configuraciones distintas sean diferentes?
-
-Una solución ejecutable aparece al final. Diseña primero la tuya; una implementación coherente puede seguir otras
-formas equivalentes.
-
-## Errores de comprensión que vamos a comprobar
-
-- Identificar dos variables diferentes con dos objetos diferentes, o una referencia guardada con una copia profunda.
-- Suponer que `==` significa siempre identidad o siempre igualdad profunda.
-- Creer que `identical` con constantes demuestra que todas las construcciones equivalentes son idénticas.
-- Pensar que dos objetos con el mismo hash son necesariamente iguales.
-- Cambiar un campo que interviene en igualdad mientras el objeto está en una colección basada en hash.
-- Pensar que `final` vuelve inmutable la lista a la que apunta o que `const` impide reasignar otra variable.
-- Confundir una vista respaldada por una fuente con una copia exterior y con una copia profunda.
-- Atribuir a cualquier `ValueListenable` la política del setter de `ValueNotifier`.
-- Dar por demostrada una reconstrucción de widget por una prueba que solo cuenta avisos.
-
-## Comprobación final
-
-Responde sin consultar las soluciones y justifica cada respuesta:
-
-1. ¿Qué pregunta responde `identical` y qué pregunta responde `==`?
-2. ¿Cómo pueden dos referencias distintas observar una mutación de la misma lista?
-3. ¿Por qué dos listas ordinarias del mismo contenido pueden no ser iguales con `==`?
-4. ¿Qué comprueba `listEquals` y qué límite tiene con listas anidadas?
-5. Indica el contrato entre `==` y `hashCode`. ¿Vale también a la inversa?
-6. ¿Qué riesgos aparecen al cambiar la igualdad de un objeto dentro de un `Set`?
-7. Distingue reasignar una variable `final`, modificar el objeto al que apunta y modificar una lista `const`.
-8. ¿Por qué las dos expresiones constantes de D son idénticas? ¿Ocurre siempre con cualquier constructor?
-9. ¿Qué protege una lista exterior no modificable? Compara copia exterior y vista.
-10. ¿Por qué el setter de `ValueNotifier` puede conservar el objeto anterior cuando recibe uno diferente?
-11. ¿Qué campos compara la igualdad generada del tema actual y cómo se comparan sus valores anidados?
-12. En E, ¿qué sabemos sobre las copias, el original y el número de avisos? ¿Qué no prueba?
-
-**Unidad dominada cuando:** puedes resolver el proyecto, justificar los ejemplos y separar identidad, igualdad e
-inmutabilidad sin copiar las respuestas.
-
-## Soluciones para contrastar después de practicar
-
-### Ejemplo A
-
-```text
-primera y alias: true
-primera y copia: false
-primera: [claro, oscuro]
-copia: [claro]
-```
-
-`primera` y `alias` apuntan a la misma lista. La expansión creó otra lista exterior, que no recibe el `add`.
-
-### Ejemplo B
-
-```text
-alias idéntico: true
-copia idéntica: false
-copia igual: true
-borde distinto: false
-hash igual: true
-```
-
-Sin igualdad personalizada, las dos instancias generativas no constantes diferentes usan la igualdad por identidad de
-`Object`. Si solo comparas el nombre, el par con distinto borde se consideraría igual; su `hashCode` también tendría que
-basarse únicamente en los campos relevantes para esa regla.
-
-### Ejemplo C
-
-```text
-objetos idénticos: false
-hashes iguales: true
-elementos: 2
-encuentra equivalente: true
-```
-
-`primero` y `equivalente` son distintos pero iguales; el segundo no añade un elemento equivalente adicional. El borde
-2 hace que el tercer valor no sea igual. El contrato no exige que su hash sea distinto.
-
-### Ejemplo D
-
-```text
-final mutable: [1, 2]
-const compartida: true
-fija: [1]
-elegida: [3]
-```
-
-Las listas constantes equivalentes del ejemplo se canonizan. El `add` actúa sobre una lista mutable; reasignar
-`elegida` cambia esa variable y no modifica la lista constante.
-
-### Fragmentos y ejercicio mental
-
-En 8.3, `listEquals(a, b)` es `true`, pero la comparación de las listas anidadas es `false` por los elementos
-interiores. En 8.6, `copia.length` es 1 y `copia[0]` es `[1, 9]`. Con una vista respaldada por `fuente`, el `add` a
-la fuente se reflejaría también en la vista.
-
-En 8.7 hay **un aviso**. La primera propuesta es igual y `ValueNotifier` conserva la instancia anterior; la segunda
-difiere por el borde, se almacena y se notifica. Esto describe el setter de `ValueNotifier`, no todas las señales.
-
-En E los `expect` pasan con los valores y dependencias del proyecto comprobados para esta guía. La copia equivalente
-es distinta e igual; el nuevo borde es distinto y el original conserva 1. Entre las dos llamadas al controlador se
-observa un solo aviso, correspondiente al modelo modificado. La prueba no mide reconstrucciones ni demuestra la política
-general del paquete Signals.
-
-### Una solución del proyecto
+<details>
+<summary>Ver una posible solución</summary>
 
 ```dart
 class Configuracion {
@@ -540,52 +557,58 @@ void main() {
   final equivalente = Configuracion('claro', 1);
   final cambio = inicial.conBorde(2);
   final conjunto = <Configuracion>{inicial, equivalente, cambio};
-  print('idénticos: ${identical(inicial, equivalente)}');
-  print('iguales: ${inicial == equivalente}');
-  print('cambio igual: ${inicial == cambio}');
-  print('elementos: ${conjunto.length}');
-  print('borde original: ${inicial.borde}');
+
+  print('Idénticos: ${identical(inicial, equivalente)}');
+  print('Iguales: ${inicial == equivalente}');
+  print('Cambio igual: ${inicial == cambio}');
+  print('Elementos: ${conjunto.length}');
+  print('Borde original: ${inicial.borde}');
 }
 ```
 
 ```text
-idénticos: false
-iguales: true
-cambio igual: false
-elementos: 2
-borde original: 1
+Idénticos: false
+Iguales: true
+Cambio igual: false
+Elementos: 2
+Borde original: 1
 ```
 
-Si igualdad y hash solo consideran el nombre, los tres valores resultan iguales y el conjunto tiene un elemento.
-`conBorde(1)` crea otra instancia no constante con los mismos datos. Un borde mutable rompería la estabilidad
-necesaria durante la pertenencia al conjunto. Hashes diferentes no están garantizados para valores desiguales.
+`inicial` y `equivalente` son objetos distintos pero iguales, por lo que el conjunto conserva un solo elemento para
+ese valor. `cambio` tiene otro borde y no compara igual, así que aporta el segundo. `conBorde` crea otra configuración
+y no modifica `inicial`.
 
-### Claves de la comprobación final
+Si igualdad y hash solo consideraran el nombre, los tres resultarían iguales y el conjunto tendría un elemento. Eso
+podría ser una mala regla si queremos distinguir configuraciones por su borde.
 
-1. Mismo objeto frente a regla de equivalencia del tipo.
-2. Ambas apuntan a la misma lista; cambiarla por una se observa por la otra.
-3. Su igualdad ordinaria no compara los elementos.
-4. Elementos en orden mediante su `==`; no recorre profundamente listas anidadas por defecto.
-5. Iguales implican igual hash; hash igual no implica objetos iguales.
-6. La colección puede dejar de encontrar o retirar correctamente el objeto.
-7. `final` impide reasignar; el objeto puede admitir cambios; la lista constante rechaza mutaciones.
-8. Canonización de constantes equivalentes; una construcción generativa no constante crea otra instancia.
-9. Protege longitud y elementos exteriores; la vista refleja cambios de la fuente, la copia exterior no, pero puede
-   compartir elementos mutables.
-10. Su comparación da `true` y retorna antes de guardar o notificar.
-11. Compara tipo, `id`, `name`, `description`, `colors`, `radius`, `size` y `border`; cada valor anidado aporta su
-    propia igualdad.
-12. La copia equivalente es distinta e igual, el cambio conserva el original y en ese flujo se registra un aviso;
-    no demuestra reconstrucción ni la política general de Signals.
+</details>
 
-## Qué se ha revisado y cómo se ha comprobado
+## Comprueba si puedes avanzar
 
-- Se contrastaron las referencias enlazadas y los archivos actuales del modelo, su código generado, el controlador y
-  sus pruebas. El proyecto resuelve Freezed 4.0.2 y `signals_flutter` 7.1.0; otras versiones pueden diferir.
-- El servidor del grafo rechazó indexar esta raíz por su configuración de acceso; los archivos del proyecto citados se
-  verificaron por lectura directa.
-- Se ejecutaron localmente los ejemplos A–D y la solución del proyecto: sus salidas coincidieron con las soluciones.
-  El analizador de Dart no encontró problemas en esos cinco programas. No se ejecutaron en DartPad.
-- Pasaron la prueba temporal E y las tres pruebas existentes del controlador: **4 pruebas**. Después se retiró el
-  archivo temporal. Estas pruebas no verifican la reconstrucción de widgets ni la apariencia de una pantalla.
-- Se comprobaron los enlaces locales, el equilibrio de los bloques de código y `git diff --check`.
+Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
+
+1. ¿Qué pregunta responde `identical` y cómo pueden dos variables acceder al mismo objeto? **Apartado 1.**
+2. ¿Pueden dos objetos distintos ser iguales con `==`? ¿Quién define esa regla? **Apartado 2.**
+3. ¿En qué se diferencian `==` y `listEquals` para las listas del ejemplo? **Apartado 3.**
+4. Si dos objetos son iguales, ¿qué debe cumplirse sobre sus hashes? ¿Vale la regla inversa? **Apartado 4.**
+5. ¿Qué impide `final` y qué diferencia hay con una lista `const`? **Apartado 5.**
+6. ¿Qué cambia entre una copia exterior no modificable y una vista respaldada por una fuente? **Apartado 6.**
+7. ¿Por qué `ValueNotifier` puede conservar el objeto anterior al recibir otro distinto? **Apartado 7.**
+8. En DaisyUI, ¿qué muestra la prueba de `copyWith` y qué no demuestra? **Apartado 8.**
+
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
+La siguiente unidad estudia señales de Signals como otro mecanismo observable; el controlador actual usa
+`ValueNotifier` para sus temas.
+
+## Para consultar si necesitas reforzar
+
+- [`identical`](https://api.dart.dev/dart-core/identical.html) y [`Object.==`](https://api.dart.dev/dart-core/Object/operator_equals.html):
+  identidad y regla de igualdad.
+- [`Object.hashCode`](https://api.dart.dev/dart-core/Object/hashCode.html) y
+  [Effective Dart: igualdad](https://dart.dev/effective-dart/design#equality): el contrato entre igualdad y hash.
+- [Variables en Dart](https://dart.dev/language/variables): `final` y `const`.
+- [`List.unmodifiable`](https://api.dart.dev/dart-core/List/List.unmodifiable.html) y
+  [`UnmodifiableListView`](https://api.dart.dev/dart-collection/UnmodifiableListView-class.html): copia exterior y vista.
+- [`listEquals`](https://api.flutter.dev/flutter/foundation/listEquals.html) y
+  [`ValueNotifier.value`](https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html): comparación de listas y
+  decisión del setter.
