@@ -383,9 +383,9 @@ que registra una **dependencia heredada de Flutter**, y lee `scope.notifier!.val
 Por otra parte, [`DaisyThemeScope`](../../../lib/themes/application/daisy_theme_scope.dart) extiende
 [
 `InheritedNotifier<ValueListenable<DaisyThemeModel>>`](https://api.flutter.dev/flutter/widgets/InheritedNotifier-class.html).
-Su notifier es la vista pública del controlador. Flutter escucha esa vista; `_ThemeListenable` reenvía la escucha a
-la señal. Son dos relaciones complementarias: el scope escucha al notifier y el consumidor queda registrado como
-dependiente del scope. `context.daisyTheme` no almacena otro tema.
+Su notifier es el `ValueNotifier` devuelto por `controller.theme` bajo el tipo `ValueListenable`. Son dos relaciones
+complementarias: el scope escucha al notifier y el consumidor queda registrado como dependiente del scope.
+`context.daisyTheme` no almacena otro tema ni registra una dependencia de Signals.
 
 ### Ejemplo E: controlador, scope y consumidor
 
@@ -419,9 +419,8 @@ void main() {
 }
 ```
 
-El test crea el controlador, monta el scope y construye un hijo que consulta el tema. Al cambiar a `dark`, la señal
-acepta el valor, el aviso llega por el adaptador al elemento del `InheritedNotifier`, y Flutter marca a sus
-dependientes.
+El test crea el controlador, monta el scope y construye un hijo que consulta el tema. Al cambiar a `dark`, el
+`ValueNotifier` acepta el valor, el aviso llega al `InheritedNotifier` y Flutter marca a sus dependientes.
 Después de `pump`, el `Builder` consumidor se reconstruye, vuelve a consultar el scope y muestra `dark`. No hay un
 `SignalBuilder` en este ejemplo.
 
@@ -468,7 +467,7 @@ no es una garantía de que *ningún otro* widget se reconstruya, ni una medició
   — escucha y dependencia heredada, incluidas las restricciones de ciclo de vida.
 - **F2 · Flutter:** [introducción a pruebas de widgets](https://docs.flutter.dev/cookbook/testing/widget/introduction)
   y [`WidgetTester.pump`](https://api.flutter.dev/flutter/flutter_test/WidgetTester/pump.html) — frames de prueba.
-- **P1 · DaisyUI:** [controlador y adaptador](../../../lib/themes/application/daisy_theme_controller.dart),
+- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
   [scope](../../../lib/themes/application/daisy_theme_scope.dart),
   [extensión](../../../lib/themes/core/extension/build_context.dart) y
   [pruebas de scopes](../../../test/themes/daisy_theme_scope_test.dart).

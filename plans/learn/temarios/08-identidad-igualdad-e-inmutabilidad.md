@@ -320,7 +320,7 @@ regla. Freezed genera `copyWith`; lo estudiaremos en detalle en la unidad 27.
 [`DaisyThemes.light`](../../../lib/themes/domain/daisy_themes.dart) es un tema constante. `copyWith` permite proponer otro
 modelo sin modificar el original. Compartir referencias a partes que no cambian no implica por sí solo una mutación ni
 una copia profunda. El [`DaisyThemeController`](../../../lib/themes/application/daisy_theme_controller.dart) conserva una
-señal interna, expone una vista de lectura y asigna mediante `setTheme`.
+instancia interna de `ValueNotifier`, expone una referencia de lectura y asigna mediante `setTheme`.
 
 ### Ejemplo E: prueba en el proyecto
 
@@ -361,10 +361,10 @@ void main() {
 ```
 
 Predice cada `expect` antes de ejecutarla. La prueba observa estas instancias y operaciones concretas de la versión
-instalada; no demuestra todas las reglas internas de Signals ni que un widget se haya reconstruido. La prueba existente
+instalada; no demuestra que un widget se haya reconstruido. La prueba existente
 [del controlador](../../../test/themes/daisy_theme_controller_test.dart) también verifica que una copia equivalente de
-`light` no avisa y que cambiar a `dark` sí avisa. No atribuyas sin verificar todas las ramas de `ValueNotifier` al
-setter de la señal: ese será nuestro estudio de la unidad 9.
+`light` no avisa y que cambiar a `dark` sí avisa. El setter de `ValueNotifier` compara los valores como vimos en la
+unidad 7; las señales de la unidad 9 son una implementación distinta.
 
 ### Comprobación
 
@@ -512,8 +512,9 @@ En 8.7 hay **un aviso**. La primera propuesta es igual y `ValueNotifier` conserv
 difiere por el borde, se almacena y se notifica. Esto describe el setter de `ValueNotifier`, no todas las señales.
 
 En E los `expect` pasan con los valores y dependencias del proyecto comprobados para esta guía. La copia equivalente
-es distinta e igual; el nuevo borde es distinto y el original conserva 1. Se observa un aviso en las dos llamadas al
-controlador. La prueba no mide reconstrucciones ni demuestra la política general del paquete Signals.
+es distinta e igual; el nuevo borde es distinto y el original conserva 1. Entre las dos llamadas al controlador se
+observa un solo aviso, correspondiente al modelo modificado. La prueba no mide reconstrucciones ni demuestra la política
+general del paquete Signals.
 
 ### Una solución del proyecto
 

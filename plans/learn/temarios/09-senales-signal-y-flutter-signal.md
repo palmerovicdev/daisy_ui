@@ -13,10 +13,9 @@ Podrás seguir la creación de una señal, su valor inicial, una lectura, el reg
 Identificarás qué objeto almacena el valor, qué compara la implementación instalada, cuándo el listener puede leer el
 nuevo valor y por qué un aviso no equivale por sí solo a una reconstrucción de Flutter.
 
-Aplicaremos ese recorrido a `_palette.value = theme` en `DaisyThemeController`. También distinguirás el objeto señal de
-su valor, el tipo `ValueListenable` de las capacidades reales de un objeto, y el adaptador público de DaisyUI de la
-señal privada. Las dependencias rastreadas y `SignalBuilder` se estudian a fondo en la unidad 10; `computed`, `effect`
-y propiedad de recursos tienen unidades posteriores.
+Estudiaremos Signals con ejemplos independientes y los compararemos con el controlador actual, que usa
+`ValueNotifier` para sus temas. Las dependencias rastreadas y `SignalBuilder` se estudian en la unidad 10;
+`computed`, `effect` y propiedad de recursos tienen unidades posteriores.
 
 ## Versiones y forma de practicar
 
@@ -46,7 +45,7 @@ Elimina el archivo de práctica cuando termines o guárdalo con otro nombre si q
 - [ ] [9.4. Orden de ejecución y valor actual](#94-orden-de-ejecución-y-valor-actual).
 - [ ] [9.5. Igualdad y conservación del valor](#95-igualdad-y-conservación-del-valor).
 - [ ] [9.6. Mutación interna y sustitución](#96-mutación-interna-y-sustitución).
-- [ ] [9.7. El recorrido en DaisyUI](#97-el-recorrido-en-daisyui).
+- [ ] [9.7. Comparar con DaisyUI](#97-comparar-con-daisyui).
 - [ ] [9.8. Avisos, widgets y ciclo de vida](#98-avisos-widgets-y-ciclo-de-vida).
 - [ ] [Resolver el proyecto de la unidad](#proyecto-de-la-unidad-un-selector-de-tema).
 - [ ] [Superar la comprobación final](#comprobación-final).
@@ -129,10 +128,11 @@ Crear una segunda señal con el mismo valor inicial crea otra celda independient
 [`ValueListenable<T>`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html): un consumidor Flutter
 puede leer `value` y registrar o retirar callbacks sin conocer toda la API de Signals.
 
-**Implementar la interfaz de `ValueNotifier` no significa heredar su implementación concreta.** La señal no es un
-`ChangeNotifier` solo porque admita ese contrato. Su almacenamiento, comparación y mecanismo de escucha proceden de
-Signals. `ValueListenable<T>` promete el getter y la escucha, no un setter ni `dispose`; el objeto real puede tener
-más capacidades que las expuestas por el tipo de una variable.
+**Implementar la interfaz de `ValueNotifier` no significa heredar su implementación concreta.** En Dart, esa relación
+también hace que la señal sea compatible con el tipo `ChangeNotifier`, por lo que `senal is ChangeNotifier` resulta
+verdadero. Sin embargo, `FlutterSignal` no extiende la clase `ChangeNotifier`: su almacenamiento, comparación y
+mecanismo de escucha proceden de Signals. `ValueListenable<T>` promete el getter y la escucha, no un setter ni
+`dispose`; el objeto real puede tener más capacidades que las expuestas por el tipo de una variable.
 
 En `signals_flutter` 7.1.0, `addListener(callback)` utiliza una suscripción interna de Signals para ejecutar ese
 callback. El puente registra el callback en un mapa y guarda cómo cancelar la suscripción. La suscripción interna se
@@ -175,8 +175,8 @@ void main() {
 
 La variable `lectura` y `tema` apuntan a la **misma señal**; cambiar el tipo declarado no crea un adaptador ni elimina
 las capacidades del objeto real. El tipo `ValueListenable` restringe qué operaciones se pueden escribir a través de
-esa variable, pero un consumidor podría reconocer el tipo real mediante un cast. DaisyUI utiliza un objeto adaptador
-separado para exponer su API pública.
+esa variable, pero un consumidor podría reconocer el tipo real mediante un cast. El controlador actual de DaisyUI
+expone de forma similar su `ValueNotifier` mediante el tipo `ValueListenable`; no usa un adaptador separado.
 
 ### Comprobación
 
@@ -223,7 +223,7 @@ Un detalle de implementación: el núcleo compara **propuesta `==` valor actual*
 Flutter compara **valor actual `==` propuesta**. Una igualdad bien implementada debe ser simétrica, así que normalmente
 el resultado coincide. No uses una igualdad asimétrica para explotar esta diferencia: violaría el contrato de `==`.
 Tampoco son el mismo setter: la señal admite opciones y `set(..., force: true)` para omitir la comparación, que no se
-usa en `DaisyThemeController`.
+aplica al `ValueNotifier` utilizado por `DaisyThemeController`.
 
 ### Ejemplo C: igual, distinto y mismo objeto conservado
 
@@ -325,62 +325,36 @@ estas últimas pueden definir operaciones y políticas adicionales.
 - ¿Qué ve `anterior` después de `add` y después de sustituir la lista?
 - ¿Por qué forzar un aviso no recupera el contenido anterior?
 
-## 9.7. El recorrido en DaisyUI
+## 9.7. Comparar con DaisyUI
 
-El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) contiene estas piezas:
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) no usa una señal para el tema:
 
 ```dart
-DaisyThemeController
-(
-{
-DaisyThemeModel
-initialTheme = DaisyThemes.light})
-    : _palette = signal<DaisyThemeModel>(initialTheme);
-
-final FlutterSignal<DaisyThemeModel> _palette;
-late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(_palette);
-ValueListenable<DaisyThemeModel> get theme => _theme;
-
-void setTheme(DaisyThemeModel theme) {
-_palette.value = theme;
-}
+final ValueNotifier<DaisyThemeModel> _palette;
+ValueListenable<DaisyThemeModel> get theme => _palette;
+void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-1. Al construir el controlador se llama a `signal<DaisyThemeModel>(initialTheme)`: se crea una señal con el modelo
-   inicial, por defecto `DaisyThemes.light`. Cada controlador construido crea su propia señal.
-2. `_palette` es una referencia privada y `final` a esa señal. La señal conserva el modelo actual y puede sustituirlo.
-3. Al acceder por primera vez a `controller.theme`, el campo `late final` crea `_ThemeListenable` con la señal como
-   fuente. Después se reutiliza ese adaptador; no es una copia del tema ni una segunda señal.
-4. El getter `value` del adaptador lee `_source.value`; `addListener` y `removeListener` reenvían a esa misma fuente.
-   El adaptador no emite un segundo aviso. Su API pública no ofrece escritura ni liberación de la señal.
-5. `controller.setTheme(nuevo)` ejecuta `_palette.value = nuevo`. Con las opciones predeterminadas actuales, la señal
-   compara propuesta y valor almacenado; si son iguales, conserva el valor anterior sin propagar; si son diferentes,
-   guarda el nuevo y propaga el cambio a sus suscriptores.
-6. Si un listener se registró mediante la vista, el puente de la señal lo invoca. Si consulta `controller.theme.value`,
-   el adaptador delega la lectura y devuelve el valor actual. El orden concreto depende también de lotes y reentradas.
-7. El dueño del controlador llama a `dispose()` cuando termina su uso. Un consumidor que solo pidió escuchar debe
-   retirar su listener cuando deje de necesitarlo; poseer y escuchar son responsabilidades distintas.
+El constructor crea un `ValueNotifier` por controlador. `theme` devuelve ese mismo objeto con el tipo de lectura y
+escucha `ValueListenable`; no crea una señal ni un adaptador. `setTheme` usa el setter del notificador, cuya comparación
+estudiamos en la unidad 7. El propietario libera el controlador y cada consumidor retira sus propios listeners.
 
-El [modelo de tema](../../../lib/themes/domain/theme.dart) usa Freezed;
-su [igualdad generada](../../../lib/themes/domain/generated/theme.freezed.dart)
-compara los campos actuales según las igualdades de sus valores. La prueba existente del
-[controlador](../../../test/themes/daisy_theme_controller_test.dart) observa que `light.copyWith()` no avisa y que cambiar
-a `dark` sí. Un cambio de tema y una reconstrucción de interfaz son eventos distintos.
+Las señales de esta unidad son ejercicios separados. Comparten con el notificador la capacidad de leer y escuchar,
+pero sus detalles de comparación, integración y ciclo de vida deben comprobarse en su propia implementación.
 
 ### Comprobación
 
-- ¿Cuántas señales se crean al construir dos controladores? ¿Qué comparten si se usa una sola instancia?
-- ¿Quién guarda el modelo, quién reenvía la escucha y quién puede escribir?
-- ¿Por qué `_ThemeListenable` no almacena una segunda copia del tema?
-- ¿Qué pasaría al asignar un `DaisyThemeModel` equivalente con la configuración actual?
+- ¿Qué objeto guarda el tema de cada controlador y qué tipo ofrece `theme`?
+- ¿Qué ocurre al proponer un tema equivalente según la igualdad del modelo?
+- ¿Por qué no puedes aplicar automáticamente al controlador las políticas de la señal estudiada?
 
 ## 9.8. Avisos, widgets y ciclo de vida
 
 El [scope](../../../lib/themes/application/daisy_theme_scope.dart) es un
 `InheritedNotifier<ValueListenable<DaisyThemeModel>>`. Recibe la vista del controlador, escucha su notifier y permite a
 los consumidores registrar una dependencia heredada al consultar `DaisyThemeScope.of(context)`. Cuando llega un aviso,
-Flutter puede marcar dependientes para su actualización y reconstruirlos en un frame posterior. El adaptador no dibuja
-ni reconstruye; la señal no reconstruye por sí sola toda la aplicación. Una reconstrucción tampoco equivale a afirmar
+Flutter puede marcar dependientes para su actualización y reconstruirlos en un frame posterior. El notificador no
+dibuja ni reconstruye por sí solo toda la aplicación. Una reconstrucción tampoco equivale a afirmar
 que todos los píxeles se repintaron.
 
 Una lectura corriente de `.value` fuera de un contexto reactivo es una consulta puntual. Dentro de un contexto reactivo
@@ -424,7 +398,7 @@ recursos se estudiarán en la unidad 13. No escribas ni sigas usando una señal 
 Crea una clase `SelectorTema` que posea una señal de `String` inicializada con `claro`. Expón una referencia de tipo
 `ValueListenable<String>` para leer y escuchar; conserva el método `seleccionar` y la liberación en el propietario.
 El objetivo es comprender el flujo. Como en B, exponer directamente la señal bajo otro tipo restringe las operaciones
-visibles al compilar, pero no es una barrera frente a casts; DaisyUI usa un adaptador separado.
+visibles al compilar, pero no es una barrera frente a casts. DaisyUI devuelve su `ValueNotifier` directamente bajo el tipo `ValueListenable`.
 
 ### Requisitos
 
@@ -465,7 +439,7 @@ visibles al compilar, pero no es una barrera frente a casts; DaisyUI usa un adap
 8. ¿En qué orden compara los operandos la señal y en qué orden los compara `ValueNotifier`? ¿Por qué una igualdad
    válida no debería depender de eso?
 9. En D, ¿qué operación invoca el setter y cuál modifica solo el interior de la lista?
-10. ¿Qué hacen `_palette`, `_ThemeListenable` y `setTheme` en DaisyUI?
+10. ¿Qué hacen `_palette`, `theme` y `setTheme` en DaisyUI?
 11. ¿Qué conecta un aviso con los dependientes en el flujo actual del scope? ¿Qué no prueba un test de listeners?
 12. ¿Quién retira la escucha y quién libera la señal? ¿Qué significa que un recurso sea prestado?
 
@@ -540,12 +514,12 @@ void main() {
 Las propuestas aceptadas antes de retirar el callback son `oscuro` y `bosque`; repetir `oscuro` se descarta. Después,
 `claro` se almacena sin ejecutar ese callback. Si no se retira, agrega `claro`. Si solo la primera propuesta cambia a
 `claro`, se descarta la primera, se aceptan la segunda (`oscuro`) y la tercera (`bosque`): siguen siendo dos avisos.
-Un adaptador separado como `_ThemeListenable` oculta la señal real tras otro objeto con la API de lectura.
+Un adaptador separado podría exponer otro objeto con API de lectura; el controlador actual no utiliza uno.
 
 ### Claves de la comprobación final
 
 1. Una `FlutterSignal<DaisyThemeModel>` inicializada con el modelo; la señal almacena la referencia al valor actual.
-2. Impide reasignar la variable `_palette`, no cambiar el valor de la señal.
+2. Impide reasignar la variable que contiene la señal, no cambiar su valor.
 3. Lectura y escucha; el objeto concreto puede ofrecer escritura y `dispose`.
 4. El mixin guarda el callback y usa una suscripción interna que puede cancelar al retirarlo.
 5. La opción predeterminada suprime el callback inicial; en B lo lee durante la asignación aceptada.
@@ -553,7 +527,7 @@ Un adaptador separado como `_ThemeListenable` oculta la señal real tras otro ob
 7. La igualdad predeterminada devuelve verdadero y no se reemplaza; el valor distinto se guarda y propaga.
 8. Señal: propuesta frente a actual; `ValueNotifier`: actual frente a propuesta. `==` debe ser simétrico.
 9. `estado.value = ...` ejecuta el setter; `estado.value.add(...)` modifica la lista devuelta.
-10. La señal conserva el tema, el adaptador reenvía lectura y escucha, y el controlador asigna a la señal.
+10. El `ValueNotifier` conserva el tema; `theme` devuelve ese objeto como `ValueListenable` y `setTheme` le asigna un valor.
 11. `InheritedNotifier` escucha y conecta el aviso con las dependencias heredadas; el test de listeners no prueba
     reconstrucción ni repintado.
 12. El consumidor retira lo que registró; el propietario libera la señal. Prestado significa que su vida útil la
@@ -561,13 +535,13 @@ Un adaptador separado como `_ThemeListenable` oculta la señal real tras otro ob
 
 ## Qué se ha revisado y cómo se ha comprobado
 
-- Se revisaron las referencias oficiales enlazadas, el controlador, el scope, el modelo generado y las pruebas del
-  proyecto. También se leyeron las implementaciones instaladas de `signals_flutter` 7.1.0, `signals_core` 7.0.0 y
+- En la revisión original se consultaron las referencias, el controlador, el scope, el modelo y las pruebas; el
+  controlador cambió posteriormente a `ValueNotifier`. También se leyeron las implementaciones instaladas de `signals_flutter` 7.1.0, `signals_core` 7.0.0 y
   `preact_signals` 7.0.0; las afirmaciones internas quedan limitadas a esas versiones y casos indicados.
 - El grafo rechazó indexar esta carpeta por su configuración de acceso; los archivos citados se contrastaron mediante
   lectura directa.
-- Pasaron los cuatro ejemplos, la solución del proyecto, dos comprobaciones adicionales de registro y de señales
-  independientes, y las tres pruebas existentes del controlador: **10 pruebas**. El analizador de Dart no encontró
+- En la revisión original pasaron los cuatro ejemplos, la solución del proyecto, dos comprobaciones adicionales y las
+  tres pruebas del controlador: **10 pruebas**. El analizador de Dart no encontró
   problemas en los seis archivos temporales; después se retiraron. Estas pruebas no demuestran reconstrucciones,
   repintados ni comportamiento en un dispositivo.
 - Se comprobaron los enlaces locales, los bloques de código y `git diff --check`. El estudio permanece pendiente hasta

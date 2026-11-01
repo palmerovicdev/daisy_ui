@@ -391,56 +391,38 @@ argumento: el widget lee el valor y después lo utiliza al llamar al builder.
 
 ## 7. La vista del tema en DaisyUI
 
-Abre el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart). Estos fragmentos pertenecen
-al archivo real; no forman un programa independiente:
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) conserva un `ValueNotifier`:
 
 ```dart
-final FlutterSignal<DaisyThemeModel> _palette;
+final ValueNotifier<DaisyThemeModel> _palette;
 
-late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
-  _palette,
-);
+ValueListenable<DaisyThemeModel> get theme => _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _theme;
-
-void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
-}
+void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-Sigue cada pieza:
+El constructor crea `_palette` con el tema inicial. `theme` devuelve **ese mismo objeto** como
+`ValueListenable<DaisyThemeModel>`, de modo que el consumidor puede consultar `.value` y registrar listeners.
+`setTheme` escribe en el notificador. El setter compara los valores antes de decidir si notifica, como veremos en la
+unidad 7.
 
-1. El controlador crea y posee `_palette`, una señal que conserva el tema actual.
-2. El getter `theme` ofrece una vista de tipo `ValueListenable<DaisyThemeModel>`: permite leer el tema y escuchar
-   avisos.
-3. Esa vista es `_ThemeListenable`, un **objeto adaptador distinto de la señal** que conserva una referencia a ella.
-   Su getter `value` devuelve `_source.value` y sus métodos de escucha reenvían el listener a `_source`.
-4. Para cambiar el tema, `setTheme` asigna el modelo a `_palette.value`. La señal es la fuente concreta que determina
-   cómo se producen los avisos; estudiaremos su funcionamiento en la unidad 9.
+El tipo público no ofrece setter ni `dispose`, pero el objeto real sigue siendo un `ValueNotifier`; un cast adecuado
+puede acceder a sus otras operaciones. No se crea un adaptador separado ni una copia del tema. Una variable que guarda
+el resultado de `controller.theme.value` conserva la lectura de ese momento y no vuelve a consultar la fuente sola.
 
-La vista del controlador no almacena una copia separada del tema. Cada lectura consulta la fuente a través del
-adaptador. Una variable que guarda el resultado de `controller.theme.value`, en cambio, conserva el modelo que obtuvo
-en ese momento.
-
-En el apartado 3, asignar un `ValueNotifier` a una variable `ValueListenable` conservaba una referencia al **mismo
-objeto**. Aquí el controlador ofrece un adaptador separado: su clase no implementa setter para `value` ni `dispose`.
-Esa diferencia no garantiza por sí sola que cualquier objeto devuelto por un getter sea inmutable.
-
-La [prueba existente del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba, entre otras
-cosas, el registro y retirada de listeners y la lectura de un tema nuevo. En el
-[scope de temas](../../../lib/themes/application/daisy_theme_scope.dart), la vista también se conecta a los dependientes
-de Flutter; estudiaremos ese recorrido más adelante.
+La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba la lectura, los avisos y la
+retirada. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza esta fuente para conectar los
+avisos con sus dependientes.
 
 ### Practica 7
 
-¿Qué tipo tiene `controller.theme.value`? Si guardas ese resultado antes de llamar a `setTheme`, ¿la variable guardada
-vuelve a consultar el controlador por sí sola?
+¿Qué tipo tiene `controller.theme.value`? Si guardas el resultado antes de cambiar el tema, ¿se actualiza la variable?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Tiene tipo `DaisyThemeModel`. La variable conserva el modelo obtenido en esa lectura; para obtener el tema vigente hay
-que volver a consultar `controller.theme.value`.
+La lectura devuelve `DaisyThemeModel`. La variable conserva el modelo obtenido entonces; para obtener el actual hay que
+consultar `controller.theme.value` de nuevo.
 
 </details>
 
@@ -527,7 +509,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 4. ¿Quién añade valores al historial y qué precaución existe si el valor es mutable? **Apartado 4.**
 5. ¿Por qué `mostrar` puede aceptar dos implementaciones diferentes? **Apartado 5.**
 6. ¿Quién conecta la fuente con el widget y qué demuestra la prueba de `pump`? **Apartado 6.**
-7. En DaisyUI, ¿qué almacena el tema, qué ofrece el adaptador y dónde se cambia el valor? **Apartado 7.**
+7. En DaisyUI, ¿qué almacena el tema, qué ofrece `theme` y dónde se cambia el valor? **Apartado 7.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
 La siguiente unidad estudia `ValueNotifier<T>` y su política al asignar valores.

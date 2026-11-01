@@ -418,66 +418,42 @@ Para `Caja<String>('oscuro')`, ¿qué representa `String` y qué representa `'os
 
 ## 7. Leer estas piezas en DaisyUI
 
-Abre el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart). Estos fragmentos pertenecen
-al archivo real y no son programas independientes:
+El [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) contiene:
 
 ```dart
-final FlutterSignal<DaisyThemeModel> _palette;
+final ValueNotifier<DaisyThemeModel> _palette;
 
-late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
-  _palette,
-);
+ValueListenable<DaisyThemeModel> get theme => _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _theme;
+void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-En el constructor del controlador se crea `_palette` con el tema inicial. La señal conserva el tema actual; el
-controlador también prepara una vista `_theme` que permite leerlo y escuchar avisos.
+El constructor crea `_palette` con el tema inicial. Su tipo concreto, `ValueNotifier<DaisyThemeModel>`, permite leer,
+escribir y escuchar. El getter `theme` devuelve ese **mismo objeto** con tipo declarado
+`ValueListenable<DaisyThemeModel>`: mediante ese tipo se puede leer y escuchar, pero no asignar a `.value` ni llamar a
+`dispose`. Un cast al tipo concreto puede recuperar esas capacidades; el tipo público no crea un adaptador separado.
 
-Lee `ValueListenable<DaisyThemeModel>` de dentro hacia fuera:
-
-1. `DaisyThemeModel` es el tipo de los datos de un tema.
-2. `ValueListenable<DaisyThemeModel>` describe una fuente con un `value` de ese tipo y operaciones para registrar y
-   retirar listeners.
-3. El getter público `theme` ofrece esa vista mediante ese contrato. Su tipo expone lectura y escucha, no las operaciones
-   de cambio y liberación de la señal interna.
-
-El objeto que devuelve el getter es una instancia de `_ThemeListenable`, cuyo código también está en el archivo:
-
-```dart
-final class _ThemeListenable implements ValueListenable<DaisyThemeModel> {
-  // ...
-  DaisyThemeModel get value => _source.value;
-
-  // También implementa addListener y removeListener.
-}
-```
-
-El fragmento omite miembros para concentrarnos en la lectura. `_ThemeListenable` **implementa** el contrato; su getter
-consulta `_source.value` cada vez que se lee. No guarda una copia separada del tema. Para cambiar la selección, el
-controlador ofrece `setTheme`, que asigna el nuevo modelo a `_palette.value`.
-
-En el [scope de temas](../../../lib/themes/application/daisy_theme_scope.dart) también aparece `extends`:
+`DaisyThemeModel` es el tipo del valor devuelto por `.value`. Para proponer otro tema, el controlador ofrece
+`setTheme`. En el [scope](../../../lib/themes/application/daisy_theme_scope.dart) aparece además:
 
 ```dart
 class DaisyThemeScope
     extends InheritedNotifier<ValueListenable<DaisyThemeModel>> {
 ```
 
-La declaración indica que `DaisyThemeScope` hereda de `InheritedNotifier` y que le proporciona un tipo concreto entre
-`<...>`. No necesitamos entender todavía todo el árbol de Flutter: el funcionamiento de los avisos empieza en la
-unidad 4 y las dependencias del scope se estudian más adelante.
+`DaisyThemeScope` hereda de `InheritedNotifier` y le proporciona un tipo concreto. Sus dependencias y reconstrucciones
+se estudian más adelante.
 
 ### Practica 7
 
-En el controlador, localiza `theme`, `_ThemeListenable.value` y `setTheme`. ¿Qué tipo obtiene quien lee
-`controller.theme.value`? ¿Qué método usa el controlador para aceptar un tema nuevo?
+¿Qué tipo obtiene quien lee `controller.theme.value`? ¿El getter público crea otro notificador? ¿Cómo se propone un
+tema nuevo?
 
 <details>
 <summary>Ver respuesta</summary>
 
-`controller.theme.value` obtiene un `DaisyThemeModel`. La vista `_ThemeListenable` reenvía esa lectura a su fuente.
-Para cambiar la selección se llama a `controller.setTheme(nuevoTema)`, que asigna el nuevo modelo a la señal.
+La lectura devuelve un `DaisyThemeModel`. `theme` devuelve el mismo `_palette` bajo el tipo `ValueListenable`; para
+proponer un cambio se llama a `controller.setTheme(nuevoTema)`.
 
 </details>
 

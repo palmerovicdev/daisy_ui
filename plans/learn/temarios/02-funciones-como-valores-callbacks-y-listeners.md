@@ -442,32 +442,21 @@ Esa función utiliza la variable local `theme` de esa ejecución de `build`. Si 
 vuelve a obtener `theme` y se prepara otro callback para el botón. Estudiaremos la reconstrucción en detalle más
 adelante; aquí interesa reconocer qué variable usa la función y quién la llama.
 
-En el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart), la vista pública `theme`
-permite registrar y retirar listeners. En el adaptador interno aparecen estas líneas:
-
-```dart
-void addListener(VoidCallback listener) => _source.addListener(listener);
-
-void removeListener(VoidCallback listener) =>
-    _source.removeListener(listener);
-```
-
-Cada método recibe una función `listener` y la entrega a `_source`. La flecha indica qué expresión ejecuta el método
-cuando se llama; no llama por sí misma al listener. La fuente se encarga de los avisos según su implementación.
-Veremos el contrato y la integración con la interfaz en unidades posteriores: que un listener se ejecute no demuestra
-por sí solo que un widget se haya reconstruido.
+En el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart), el getter público
+`theme` devuelve el notificador `_palette` con tipo `ValueListenable<DaisyThemeModel>`. El consumidor puede registrar
+una función con `controller.theme.addListener(avisar)` y retirarla con `controller.theme.removeListener(avisar)`.
+`setTheme` asigna a `_palette.value`; el `ValueNotifier` decide si avisa a los listeners registrados.
 
 ### Practica 7
 
-En el fragmento del botón, señala la función que se entrega a `onPressed` y la llamada que ocurre dentro de ella. En el
-controlador, señala quién recibe el listener y a quién se lo reenvía.
+En el botón, señala la función que se entrega a `onPressed` y la llamada que ocurre dentro de ella. ¿Qué recibe
+`controller.theme.addListener(avisar)`?
 
 <details>
 <summary>Ver respuesta</summary>
 
-La función entregada empieza por `() =>`; su cuerpo llama a `DaisyThemeService.setTheme(...)`. El botón llama a esa
-función al pulsarse. En el controlador, `addListener` recibe el parámetro `listener` y lo pasa a
-`_source.addListener(listener)`; `removeListener` hace lo correspondiente para retirarlo.
+La función entregada empieza por `() =>`; su cuerpo llama a `DaisyThemeService.setTheme(...)`. El botón la llama al
+pulsarse. `addListener` recibe la función `avisar`, sin ejecutarla por el hecho de escribir su nombre.
 
 </details>
 
@@ -543,7 +532,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si alguna idea no está
 4. ¿Para qué sirve `() => seleccionarTema('oscuro')`? **Apartado 4.**
 5. ¿Qué variable consulta una closure y cuándo? ¿Cómo se diferencia de una lectura guardada? **Apartado 5.**
 6. ¿Qué pasos registran, llaman y retiran un listener? ¿Por qué conservar la función registrada? **Apartado 6.**
-7. En DaisyUI, ¿quién ejecuta el callback del botón y adónde se reenvía un listener? **Apartado 7.**
+7. En DaisyUI, ¿quién ejecuta el callback del botón y dónde se registra un listener? **Apartado 7.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques estas respuestas con tus palabras.
 La siguiente unidad profundiza en objetos, referencias, tipos y contratos.

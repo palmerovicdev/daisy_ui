@@ -255,46 +255,41 @@ nuevo, la interfaz debe volver a construirse y leerlo. Otra causa podría provoc
 
 ## 6. La misma idea en DaisyUI
 
-Ahora mira el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart). Este fragmento procede
-de ese archivo; no es un programa completo:
+El [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) contiene estas piezas:
 
 ```dart
-DaisyThemeController({DaisyThemeModel initialTheme = DaisyThemes.light})
-    : _palette = signal<DaisyThemeModel>(initialTheme);
+DaisyThemeController({
+  DaisyThemeModel initialTheme = DaisyThemes.light,
+}) : _palette = ValueNotifier<DaisyThemeModel>(initialTheme);
 
-final FlutterSignal<DaisyThemeModel> _palette;
+final ValueNotifier<DaisyThemeModel> _palette;
 
-void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
-}
+ValueListenable<DaisyThemeModel> get theme => _palette;
+
+void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-Aunque la sintaxis es nueva, puedes reconocer el recorrido:
+El constructor recibe el tema inicial y crea `_palette`, el notificador que conserva el valor actual de ese controlador.
+`controller.theme.value` lo consulta; `controller.setTheme(nuevoTema)` propone otro valor. El getter `theme` devuelve el
+mismo notificador con el tipo de lectura `ValueListenable`, no una copia ni un objeto adaptador.
 
-1. Al crear un controlador se recibe un tema inicial; si no se indica otro, se usa `DaisyThemes.light`.
-2. `_palette` es la señal que conserva el tema actual de **ese controlador**.
-3. `setTheme` recibe otro tema y lo asigna a `_palette.value`.
-
-El controlador también expone `theme`, una vista que permite consultar el tema actual mediante
-`controller.theme.value`. Internamente, esa consulta se delega a la señal; la vista no guarda otro tema independiente.
-Si guardas el resultado de esa consulta y luego sustituyes el tema, la variable que guardaste sigue apuntando al modelo
-obtenido antes; tienes que consultar de nuevo para obtener el valor actual.
+Si guardas el resultado de una lectura y después cambias el tema, la variable guardada conserva el modelo que obtuvo
+antes. Para conocer el valor actual tienes que consultar de nuevo. La unidad 7 explica cómo decide `ValueNotifier` si
+acepta y notifica un cambio.
 
 El [servicio de temas](../../../lib/themes/application/daisy_theme_service.dart) conserva un controlador predeterminado.
-También puedes crear otro controlador para una selección independiente, como una vista previa. En las siguientes
-unidades estudiaremos cómo funcionan las señales, las vistas y los avisos; no hace falta dominarlos ahora.
+También puedes crear otro controlador para una selección independiente, como una vista previa.
 
 ### Practica 5
 
-En el archivo del controlador, localiza el tema inicial, la señal, el método de cambio y el getter `value` del adaptador.
-Explica qué línea consultarías para encontrar el valor actual y qué operación usarías para cambiarlo.
+En el archivo del controlador, localiza el tema inicial, el notificador, el getter público y el método de cambio.
+¿Cómo consultarías el valor actual y cómo propondrías otro?
 
 <details>
 <summary>Ver respuesta</summary>
 
-El constructor recibe `initialTheme` y crea `_palette` con ese valor. Desde fuera se consulta
-`controller.theme.value`: el getter del adaptador devuelve `_source.value`. Para cambiarlo se llama a
-`controller.setTheme(nuevoTema)`, que asigna el tema a `_palette.value`.
+El constructor crea `_palette` a partir de `initialTheme`. Puedes consultar `controller.theme.value` y proponer otro
+valor con `controller.setTheme(nuevoTema)`, que asigna a `_palette.value`.
 
 </details>
 

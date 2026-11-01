@@ -356,40 +356,24 @@ comprobarla hay que observar o probar también el widget que recibe la actualiza
 
 ## 8. Escuchar el tema en DaisyUI
 
-En el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart), el getter `theme` ofrece una
-vista `ValueListenable<DaisyThemeModel>`. Esa vista permite consultar el tema y registrar listeners. Cuando solo nos
-interesa escuchar, podemos usarla a través del contrato `Listenable`.
+En el [controlador](../../../lib/themes/application/daisy_theme_controller.dart), `theme` devuelve `_palette`, un
+`ValueNotifier<DaisyThemeModel>`, mediante el tipo público `ValueListenable<DaisyThemeModel>`. Puedes registrar
+`controller.theme.addListener(avisar)` y retirar esa misma función con `removeListener`.
 
-El adaptador interno reenvía las operaciones a su fuente. Este fragmento pertenece al archivo real:
-
-```dart
-@override
-void addListener(VoidCallback listener) => _source.addListener(listener);
-
-@override
-void removeListener(VoidCallback listener) =>
-    _source.removeListener(listener);
-```
-
-El adaptador recibe cada función y la pasa a `_source`; esas líneas no ejecutan el cuerpo del listener. El controlador
-cambia el tema en `setTheme`, que asigna el modelo a la señal `_palette`. La señal y su implementación se estudian más
-adelante; aquí importa reconocer dónde se registra, dónde se retira y qué objeto recibe esas operaciones.
-
-La prueba existente [daisy_theme_controller_test.dart](../../../test/themes/daisy_theme_controller_test.dart) muestra
-un recorrido concreto: registra un listener, comprueba que no se ha llamado al registrarlo, cambia a un tema distinto
-y comprueba el aviso; después lo retira y comprueba que otro cambio no vuelve a llamarlo. Esa prueba observa la
-notificación, no una reconstrucción de interfaz.
+`setTheme` asigna el modelo a `_palette.value`. El setter del notificador compara los valores y, si acepta el cambio,
+notifica a sus listeners. La unidad 7 estudia esa comparación; aquí interesa distinguir registrar, recibir y retirar.
+La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba avisos y retirada; eso no
+demuestra por sí solo una reconstrucción de interfaz.
 
 ### Practica 8
 
-Si un listener de la vista del controlador imprime `Aviso` y luego se retira de esa misma vista, ¿qué dos funciones del
-adaptador intervienen? ¿Qué hacen con el callback?
+Si registras `avisar` mediante `controller.theme`, ¿en qué objeto se registra? ¿Cómo dejas de escuchar?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Intervienen `addListener` y `removeListener`. La primera pasa el callback a `_source.addListener`; la segunda lo pasa
-a `_source.removeListener`. El adaptador reenvía esas operaciones a la fuente.
+Se registra en el notificador `_palette`, que es el objeto devuelto por `theme`. Para dejar de escuchar, llama a
+`controller.theme.removeListener(avisar)` con la misma función.
 
 </details>
 
@@ -480,7 +464,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 6. ¿Por qué el resultado de registrar dos veces depende de la implementación? **Apartado 6.**
 7. ¿Qué demuestra un listener que imprime un mensaje? ¿Qué hace falta comprobar para hablar de una reconstrucción?
    **Apartado 7.**
-8. En DaisyUI, ¿a quién reenvía el adaptador el registro y la retirada? **Apartado 8.**
+8. En DaisyUI, ¿qué objeto recibe el registro y la retirada? **Apartado 8.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
 La siguiente unidad estudia `ChangeNotifier`, una implementación de Flutter que permite producir avisos.

@@ -424,39 +424,33 @@ más tarde y entonces leer el dato nuevo.
 
 ## 8. Comparación con DaisyUI
 
-Usamos `ChangeNotifier` para estudiar un mecanismo de Flutter. El [controlador real de DaisyUI](../../../lib/themes/application/daisy_theme_controller.dart)
-**no extiende `ChangeNotifier`**. Este fragmento pertenece a su clase:
+El [controlador de DaisyUI](../../../lib/themes/application/daisy_theme_controller.dart) no extiende `ChangeNotifier`,
+pero posee un `ValueNotifier<DaisyThemeModel>`. Este último sí extiende `ChangeNotifier` y aporta el mecanismo de avisos.
 
 ```dart
-final FlutterSignal<DaisyThemeModel> _palette;
+final ValueNotifier<DaisyThemeModel> _palette;
 
-void setTheme(DaisyThemeModel theme) {
-  _palette.value = theme;
-}
+ValueListenable<DaisyThemeModel> get theme => _palette;
+
+void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-El controlador conserva una señal en `_palette` y cambia su valor mediante `setTheme`. Además, su getter `theme`
-ofrece una vista `ValueListenable<DaisyThemeModel>`; el adaptador `_ThemeListenable` reenvía los registros y retiradas
-de listeners a la fuente.
+`setTheme` escribe mediante el setter de `_palette`; el `ValueNotifier` compara el valor anterior con el nuevo y
+notifica cuando corresponde. El getter `theme` devuelve ese mismo objeto bajo el tipo `ValueListenable`, que permite
+leer y escuchar. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) lo conecta con sus dependientes.
 
-La pregunta sigue siendo útil: ¿quién guarda el dato, quién inicia el cambio y quién escucha? En nuestro contador,
-`incrementar()` asigna el número y llama explícitamente a `notifyListeners()`. En DaisyUI, `setTheme` asigna el tema
-a una señal. Las reglas concretas de esa señal se estudian en la unidad 9; no debemos asumir que sean las mismas de
-`ChangeNotifier`.
-
-El [scope de temas](../../../lib/themes/application/daisy_theme_scope.dart) utiliza la vista del controlador con
-`InheritedNotifier` para conectar los avisos con sus dependientes. Estudiaremos ese recorrido y el ciclo de vida del
-controlador más adelante.
+En nuestro contador llamamos explícitamente a `notifyListeners()`; en DaisyUI esa llamada está dentro del setter de
+`ValueNotifier`. La unidad 7 estudia su política de igualdad.
 
 ### Practica 8
 
-Si buscas `notifyListeners()` dentro de `DaisyThemeController.setTheme`, ¿lo encontrarás? ¿Qué línea cambia el tema?
+¿Hay una llamada a `notifyListeners()` dentro de `setTheme`? ¿Quién decide si se emite el aviso?
 
 <details>
 <summary>Ver respuesta</summary>
 
-No hay una llamada a `notifyListeners()` en ese método. El tema se asigna mediante `_palette.value = theme`; `_palette`
-es una señal, cuya implementación de avisos estudiaremos más adelante.
+No. `setTheme` asigna a `_palette.value`; el setter de `ValueNotifier` compara los valores y llama a
+`notifyListeners()` cuando son distintos según `==`.
 
 </details>
 
@@ -543,7 +537,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 5. ¿Qué pasa con dos registros iguales y una retirada entre emisiones? **Apartado 5.**
 6. ¿Qué diferencia hay entre retirar un listener y liberar el notificador? **Apartado 6.**
 7. ¿Qué pieza conecta el aviso con la construcción del texto? ¿Prueba un aviso que hubo repintado? **Apartado 7.**
-8. ¿Cómo cambia el tema el controlador de DaisyUI y por qué no debemos atribuirle `ChangeNotifier`? **Apartado 8.**
+8. ¿Cómo cambia el tema el controlador de DaisyUI y qué objeto aporta el mecanismo de `ChangeNotifier`? **Apartado 8.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
 La siguiente unidad estudia `ValueListenable<T>`, un contrato que combina escucha con lectura de un valor actual.

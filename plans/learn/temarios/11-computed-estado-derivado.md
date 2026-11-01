@@ -14,10 +14,9 @@ Seguirás la creación de un `computed`, su primer cálculo, las lecturas poster
 siguiente evaluación. Distinguirás la invalidación del cálculo, la comparación del resultado, un aviso al listener y
 una reconstrucción de Flutter.
 
-Al final lo relacionaremos con el controlador real de DaisyUI. También construiremos un texto derivado del tema
-mediante su vista pública, como ejercicio independiente: el controlador actual no necesita un `computed` que solamente
-reenvíe su tema. `effect` y la propiedad completa de recursos se estudian en las unidades 12 y 13; aquí se presentan
-solo las piezas necesarias para entender las prácticas. Preparar esta guía no marca la unidad como dominada.
+Al final compararemos Signals con el controlador real de DaisyUI y comprobaremos qué ocurre al leer su vista pública
+desde un `computed`. El controlador usa `ValueNotifier`, no una señal de Signals. `effect` y la propiedad de recursos
+se estudian en las unidades 12 y 13; aquí se presentan solo las piezas necesarias para entender las prácticas. Preparar esta guía no marca la unidad como dominada.
 
 ## Versiones y forma de practicar
 
@@ -63,7 +62,7 @@ cuando puedas explicar y resolver sus variaciones sin copiar las respuestas.
 Imagina una pantalla que debe mostrar `Tema: Light`. Tenemos varias piezas diferentes:
 
 - **Dato almacenado:** el modelo de tema actual, que puede seleccionarse o reemplazarse. En DaisyUI lo conserva la
-  señal privada `_palette` del controlador.
+  instancia privada `ValueNotifier` llamada `_palette` del controlador.
 - **Dato derivado:** el texto construido a partir del nombre de ese modelo, por ejemplo `Tema: ${tema.name}`. Su
   contenido depende del tema; no necesita convertirse en una segunda fuente de verdad modificable por separado.
 - **Vista de lectura:** una interfaz que deja consultar y escuchar el valor existente sin dar las mismas operaciones
@@ -396,26 +395,14 @@ repintado observado en un dispositivo físico.
 
 ## 11.7. El controlador real de DaisyUI
 
-El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) guarda una señal mutable privada
-`_palette`. Al exponer `theme`, construye una vez un `_ThemeListenable` que reenvía `value`, `addListener` y
-`removeListener` a esa señal. Su [scope](../../../lib/themes/application/daisy_theme_scope.dart) escucha esa vista como
-`ValueListenable<DaisyThemeModel>`. La extensión `context.daisyTheme` consulta el scope, como vimos en la unidad 10.
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) conserva el tema en un `ValueNotifier`.
+`theme` devuelve el mismo objeto con tipo `ValueListenable`; `setTheme` asigna a su setter. El
+[scope](../../../lib/themes/application/daisy_theme_scope.dart) escucha esa fuente con `InheritedNotifier`.
 
-Un `computed(() => _palette.value)` hipotético leería la fuente y devolvería exactamente el mismo modelo. Podría
-ofrecer un valor reactivo de lectura, pero añadiría otro objeto derivado, sus dependencias y una responsabilidad de
-ciclo de vida, sin transformar el tema. Una referencia declarada como `ValueListenable` directamente sobre la señal
-también permite leer y escuchar, pero el objeto real seguiría siendo mutable y podría recuperarse mediante un cast. El
-adaptador separado de DaisyUI expone un objeto distinto que delega en la fuente y no ofrece el setter ni `dispose` de
-la señal. Esta conclusión explica la decisión del código actual; no afirma que `computed` sea inútil cuando hay una
-transformación o una proyección relevante.
+Una lectura de un `ValueNotifier` no registra por sí sola una dependencia de Signals. Por eso no podemos suponer que un
+`computed` de Signals se invalidará al leer `controller.theme.value`. El siguiente ejemplo observa esa diferencia.
 
-El hecho de que un `computed` no tenga setter público de `value` tampoco significa que sea una barrera completa para
-todas las capacidades propias de su tipo: el objeto concreto tiene otras operaciones, como `recompute` y `dispose`.
-Las [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueban que la vista pública
-actual no expone esas operaciones al intentar acceder dinámicamente. Una interfaz de lectura, un adaptador separado y
-un valor derivado resuelven necesidades relacionadas pero diferentes.
-
-### Ejemplo E: una derivación real sobre la vista pública
+### Ejemplo E: una lectura que no registra una señal
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -423,7 +410,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  test('derivar un texto de la vista pública del controlador', () {
+  test('computed no observa automáticamente un ValueNotifier', () {
     final controller = DaisyThemeController();
     var calculos = 0;
     final titulo = computed(() {
@@ -438,28 +425,25 @@ void main() {
     expect(titulo.value, 'Tema: Light');
     expect(calculos, 1);
     controller.setTheme(DaisyThemes.dark);
-    expect(titulo.value, 'Tema: Dark');
-    expect(avisos, ['Tema: Dark']);
-    expect(calculos, 2);
+    expect(controller.theme.value, DaisyThemes.dark);
+    expect(titulo.value, 'Tema: Light');
+    expect(avisos, isEmpty);
+    expect(calculos, 1);
     titulo.removeListener(escuchar);
   });
 }
 ```
 
-El adaptador reenvía su getter a `_source.value`. Por eso, durante la evaluación del `computed` de este ejemplo, la
-lectura llega a la señal real y el contexto reactivo puede registrar esa dependencia. Al registrar el listener se
-obtiene
-`Tema: Light`; al cambiar el controlador a `dark`, el cálculo da `Tema: Dark` y llega un aviso. Esto es una práctica
-adicional basada en la implementación actual; **no significa que el controlador ya exponga ese `computed` ni que
-cualquier `ValueListenable` arbitrario se convierta en una dependencia de Signals al leerlo**. Si su getter no lee
-una señal dentro del contexto, habría que conectarlo mediante una integración apropiada.
+En esta prueba, el primer cálculo lee `Light`. Al cambiar el controlador a `dark`, su `ValueNotifier` sí cambia, pero
+el `computed` no detecta ninguna señal de Signals y conserva su resultado en caché. Para actualizar una derivación
+reactiva se necesita conectar explícitamente una fuente que ese mecanismo pueda observar; limitar el tipo a
+`ValueListenable` no crea esa conexión.
 
 ### Comprobación
 
-- ¿Qué aporta `_ThemeListenable` a la API pública del controlador?
-- ¿Por qué un derivado que solo devuelve `_palette.value` añade trabajo de seguimiento sin transformar el dato?
-- ¿Por qué en E el cálculo sí puede rastrear la señal que está detrás del adaptador?
-- ¿Por qué no debes extrapolar el resultado de E a cualquier implementación de `ValueListenable`?
+- ¿Qué objeto devuelve `controller.theme` y qué operaciones permite su tipo público?
+- ¿Por qué el `computed` de E no se invalida cuando cambia el controlador?
+- ¿Qué conexión de Flutter usa el scope para escuchar el notificador?
 
 ## 11.8. Elección, límites y propiedad
 
@@ -467,7 +451,7 @@ una señal dentro del contexto, habría que conectarlo mediante una integración
 Por ejemplo, el controlador conserva el tema elegido. **Usa un cálculo puntual** si solo necesitas una expresión en un
 lugar y momento concretos. **Considera un `computed`** si un resultado derivado debe poder leerse u observarse como
 fuente reactiva o si varias lecturas pueden beneficiarse de la caché. **Usa una vista de lectura** si necesitas limitar
-y delegar las operaciones sobre una fuente existente, como hace el adaptador actual.
+las operaciones disponibles mediante un tipo; un adaptador separado puede además ofrecer otro objeto con una API propia.
 
 Una derivación basada en la hora, archivos, red o una variable mutable no reactiva no se actualizará simplemente
 porque esos datos externos cambien. El paquete ofrece operaciones avanzadas como `recompute`, pero forzar cálculos no
@@ -498,7 +482,7 @@ libera: un build puede ejecutarse muchas veces.
 - **F1 · Flutter:** [`ValueListenable`](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html) y
   [`ValueListenableBuilder`](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html) — contrato de
   escucha y consumidor del resultado.
-- **P1 · DaisyUI:** [controlador y adaptador](../../../lib/themes/application/daisy_theme_controller.dart),
+- **P1 · DaisyUI:** [controlador](../../../lib/themes/application/daisy_theme_controller.dart),
   [scope](../../../lib/themes/application/daisy_theme_scope.dart),
   [pruebas del controlador](../../../test/themes/daisy_theme_controller_test.dart),
   [dependencias declaradas](../../../pubspec.yaml) y [versiones resueltas](../../../pubspec.lock).
@@ -551,9 +535,8 @@ almacenado; la etiqueta es un resultado derivado que no se modifica directamente
 7. En C, ¿qué señales usa el cálculo antes y después del cambio de rama?
 8. ¿Por qué una lectura capturada antes del callback no crea una dependencia de la señal original?
 9. En D, ¿quién escucha el derivado y por qué `pump` es un paso separado del cambio de señal?
-10. ¿Qué añade un `computed(() => _palette.value)` respecto al adaptador actual? ¿Qué diferencias de API existen?
-11. ¿Por qué la práctica E sí rastrea la señal detrás de la vista pública y por qué esto no vale para cualquier
-    `ValueListenable`?
+10. ¿Qué objeto devuelve `controller.theme` y qué limita su tipo público?
+11. ¿Por qué el `computed` de la práctica E no se invalida al cambiar el `ValueNotifier`?
 12. ¿Quién retira escuchas, desmonta widgets y libera las fuentes y derivaciones creadas en las prácticas?
 
 **Unidad dominada cuando:** puedes resolver el proyecto y explicar cuándo se consulta, recalcula y notifica un valor
@@ -587,9 +570,8 @@ Borde 3 ejecuta el tercer cálculo pero conserva el resultado igual y el contado
 
 ### Ejemplo E
 
-Registrar el listener evalúa `Tema: Light` una vez; cambiar el controlador a `dark` produce `Tema: Dark`, segundo
-cálculo y un aviso. El getter del adaptador alcanza la señal durante el contexto del cálculo. El ejemplo crea un
-resultado derivado para estudiar la relación; no cambia la implementación de DaisyUI.
+Registrar el listener evalúa `Tema: Light` una vez. Cambiar el controlador a `dark` actualiza el `ValueNotifier`,
+pero no invalida el `computed`: sigue mostrando `Tema: Light`, sin nuevo cálculo ni aviso en esta prueba.
 
 ### Una solución del proyecto
 
@@ -650,8 +632,8 @@ interpolación dentro de un consumidor que ya observe el tema puede ser suficien
 7. `usarLocal` y `local`; después del cambio de rama y la evaluación, `usarLocal` y `global`.
 8. El callback utiliza el valor guardado y no hace una lectura rastreada de la señal.
 9. `ValueListenableBuilder` escucha el derivado; Flutter procesa la reconstrucción solicitada al avanzar el frame.
-10. Una capa reactiva calculada y su ciclo de vida; el adaptador actual es otro objeto que delega y limita su API.
-11. Su getter reenvía a una señal real bajo el contexto del cálculo; otro getter podría no leer ninguna señal.
+10. El mismo `ValueNotifier`, expuesto mediante `ValueListenable`; el tipo permite leer y escuchar.
+11. La lectura del `ValueNotifier` no registra una dependencia de Signals.
 12. El consumidor retira lo que registró y desmonta el árbol; el propietario libera el derivado y luego las fuentes.
 
 ## Qué se ha revisado y cómo se ha comprobado
@@ -661,10 +643,9 @@ interpolación dentro de un consumidor que ya observe el tema puede ser suficien
   notificación están delimitados a esas versiones y ejemplos.
 - El servidor del grafo rechazó indexar esta carpeta por su configuración de acceso; se leyeron directamente los
   archivos pertinentes.
-- Pasaron los cinco ejemplos, la solución del proyecto, tres pruebas de variaciones —incluidos `batch` y
-  `SignalBuilder`— y las tres pruebas existentes del controlador: **12 pruebas**. El analizador de Dart no encontró
-  problemas en los ocho archivos temporales. Se verificó que los seis ejemplos completos de la guía coinciden con los
-  archivos ejecutados; después se retiraron los archivos temporales.
+- En la revisión original pasaron los ejemplos, el proyecto, variaciones y pruebas del controlador. Tras cambiar el
+  controlador a `ValueNotifier`, se actualizó y ejecutó de nuevo el ejemplo E junto a las pruebas del controlador y
+  del scope; el analizador no encontró problemas en esos archivos.
 - Se revisaron enlaces locales, anclas, bloques de código y `git diff --check`. Las pruebas de widgets comprueban
   árboles
   y frames controlados, no una pantalla física ni sus repintados. El estudio sigue pendiente hasta resolver y explicar
