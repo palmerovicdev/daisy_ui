@@ -391,24 +391,50 @@ argumento: el widget lee el valor y después lo utiliza al llamar al builder.
 
 ## 7. La vista del tema en DaisyUI
 
-El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) conserva un `ValueNotifier`:
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) conserva el tema en una señal, que
+estudiaremos en la unidad 9, y ofrece una vista para leerlo. Estos fragmentos proceden del archivo real:
 
 ```dart
-final ValueNotifier<DaisyThemeModel> _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _palette;
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-El constructor crea `_palette` con el tema inicial. `theme` devuelve **ese mismo objeto** como
-`ValueListenable<DaisyThemeModel>`, de modo que el consumidor puede consultar `.value` y registrar listeners.
-`setTheme` escribe en el notificador. El setter compara los valores antes de decidir si notifica, como veremos en la
-unidad 7.
+```dart
+final class _ThemeListenable implements ValueListenable<DaisyThemeModel> {
+  _ThemeListenable(this._source);
 
-El tipo público no ofrece setter ni `dispose`, pero el objeto real sigue siendo un `ValueNotifier`; un cast adecuado
-puede acceder a sus otras operaciones. No se crea un adaptador separado ni una copia del tema. Una variable que guarda
-el resultado de `controller.theme.value` conserva la lectura de ese momento y no vuelve a consultar la fuente sola.
+  final FlutterSignal<DaisyThemeModel> _source;
+
+  @override
+  DaisyThemeModel get value => _source.value;
+
+  @override
+  void addListener(VoidCallback listener) {
+    _source.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _source.removeListener(listener);
+  }
+}
+```
+
+El constructor crea `_palette` con el tema inicial. `_ThemeListenable` es otra implementación del contrato, como las
+clases propias del apartado 5: no guarda el tema ni los listeners, sino que reenvía cada operación a la señal. Por eso
+el consumidor de `controller.theme` puede consultar `.value` y registrar listeners sin conocer la clase concreta.
+`setTheme` escribe en la señal, que compara los valores antes de decidir si avisa.
+
+El tipo público no ofrece setter ni `dispose`, y en este caso el objeto real tampoco: `_ThemeListenable` solo tiene esas
+tres operaciones, así que un cast a la señal falla. La unidad 16 estudia esta decisión. Una variable que guarda el
+resultado de `controller.theme.value` conserva la lectura de ese momento y no vuelve a consultar la fuente sola.
 
 La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba la lectura, los avisos y la
 retirada. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza esta fuente para conectar los

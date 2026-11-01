@@ -260,29 +260,34 @@ El [controlador de temas](../../../lib/themes/application/daisy_theme_controller
 ```dart
 DaisyThemeController({
   DaisyThemeModel initialTheme = DaisyThemes.light,
-}) : _palette = ValueNotifier<DaisyThemeModel>(initialTheme);
+}) : _palette = FlutterSignal<DaisyThemeModel>(initialTheme);
 
-final ValueNotifier<DaisyThemeModel> _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _palette;
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-El constructor recibe el tema inicial y crea `_palette`, el notificador que conserva el valor actual de ese controlador.
-`controller.theme.value` lo consulta; `controller.setTheme(nuevoTema)` propone otro valor. El getter `theme` devuelve el
-mismo notificador con el tipo de lectura `ValueListenable`, no una copia ni un objeto adaptador.
+El constructor recibe el tema inicial y crea `_palette`, una **señal**: el objeto que conserva el valor actual de ese
+controlador. Por ahora basta con saber que ahí vive el dato; la unidad 9 estudia las señales. `controller.theme.value`
+lo consulta; `controller.setTheme(nuevoTema)` propone otro valor. El getter `theme` devuelve un pequeño objeto de
+lectura, `_ThemeListenable`, que consulta esa misma señal: no guarda una copia del tema.
 
 Si guardas el resultado de una lectura y después cambias el tema, la variable guardada conserva el modelo que obtuvo
-antes. Para conocer el valor actual tienes que consultar de nuevo. La unidad 7 explica cómo decide `ValueNotifier` si
-acepta y notifica un cambio.
+antes. Para conocer el valor actual tienes que consultar de nuevo. Las unidades 7 y 9 explican cómo se decide si un
+cambio se acepta y se notifica.
 
 El [servicio de temas](../../../lib/themes/application/daisy_theme_service.dart) conserva un controlador predeterminado.
 También puedes crear otro controlador para una selección independiente, como una vista previa.
 
 ### Practica 5
 
-En el archivo del controlador, localiza el tema inicial, el notificador, el getter público y el método de cambio.
+En el archivo del controlador, localiza el tema inicial, la señal, el getter público y el método de cambio.
 ¿Cómo consultarías el valor actual y cómo propondrías otro?
 
 <details>

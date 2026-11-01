@@ -94,7 +94,7 @@ profundidad al tema sin adelantar mecanismos de unidades posteriores como si ya 
   el contador sin notificar.
 - [X] **Dominado cuando:** puedes explicar quién decide emitir el aviso y dónde se toma esa decisión.
 
-El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`; el controlador no hereda de él.
+El controlador actual no usa `ChangeNotifier`: guarda el tema en una `FlutterSignal`, que aporta sus propios avisos.
 
 **Guía y materiales:** [05. ChangeNotifier: producir avisos](temarios/05-change-notifier-producir-avisos.md).
 
@@ -139,13 +139,13 @@ El controlador actual contiene un `ValueNotifier`, que extiende `ChangeNotifier`
 
 - **Conceptos:** celda de estado observable, función de creación, lectura de `.value`, escritura de `.value` e
   integración con Flutter.
-- **Debes comprender:** qué objeto crea `signal<DaisyThemeModel>(initialTheme)` y cómo se relaciona con los contratos
-  que Flutter puede escuchar.
+- **Debes comprender:** qué objeto crean `signal<DaisyThemeModel>(initialTheme)` y
+  `FlutterSignal<DaisyThemeModel>(initialTheme)`, y cómo se relaciona con los contratos que Flutter puede escuchar.
 - **Práctica:** crear una señal con el tema claro, registrar un listener, cambiar al tema oscuro y comprobar el orden de
   ejecución.
 - [X] **Dominado cuando:** puedes explicar cómo una señal de ejemplo almacena el valor y avisa a sus observadores.
 
-El controlador actual usa `ValueNotifier`, no una señal de Signals; esta unidad estudia Signals por separado.
+El controlador actual guarda el tema en una `FlutterSignal` y lo expone mediante el adaptador `_ThemeListenable`.
 
 **Guía y materiales:** [09. Señales: `signal<T>` y `FlutterSignal<T>`](temarios/09-senales-signal-y-flutter-signal.md).
 
@@ -155,7 +155,8 @@ El controlador actual usa `ValueNotifier`, no una señal de Signals; esta unidad
 - **Debes comprender:** cómo un consumidor reactivo descubre qué señales utiliza. Una lectura ordinaria de un valor no
   registra por sí sola una dependencia de reconstrucción en Flutter.
 - **Práctica:** comparar una lectura en un widget sin observación con una lectura dentro de un consumidor reactivo.
-  Mover una lectura fuera de su callback y analizar el resultado.
+  Mover una lectura fuera de su callback y analizar el resultado. Observar el tema real por el scope y con
+  `SignalBuilder`.
 - [ ] **Dominado cuando:** puedes identificar quién registra la dependencia en cada alternativa.
 
 **Guía y materiales:** [10. Dependencias reactivas y contextos de observación](temarios/10-dependencias-reactivas-y-contextos-de-observacion.md).
@@ -169,8 +170,8 @@ El controlador actual usa `ValueNotifier`, no una señal de Signals; esta unidad
   resultado.
 - [ ] **Dominado cuando:** puedes justificar si necesitas un dato almacenado, un dato calculado o una vista de lectura.
 
-El controlador actual usa `ValueNotifier`; `computed` se estudia con señales independientes. Leer el notificador
-desde un cálculo de Signals no registra por sí solo una dependencia reactiva.
+El controlador actual no necesita un `computed`, pero uno que lea `controller.theme.value` se actualiza porque esa vista
+lee una señal. Leer un `ValueNotifier` corriente desde un cálculo de Signals no registra una dependencia reactiva.
 
 **Guía y materiales:** [11. `computed`: estado derivado](temarios/11-computed-estado-derivado.md).
 
@@ -210,6 +211,8 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
   widget.
 - [ ] **Dominado cuando:** puedes explicar por qué dos controladores pueden administrar temas diferentes.
 
+**Guía y materiales:** [14. El concepto de controller](temarios/14-el-concepto-de-controller.md).
+
 ### 15. Construcción del controlador y sintaxis de Dart
 
 - **Conceptos:** constructor, parámetro nombrado, `required`, valor predeterminado, lista de inicialización `:`,
@@ -220,14 +223,20 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
   objetos y referencias.
 - [ ] **Dominado cuando:** puedes explicar cada parte del constructor y cuándo existe cada objeto.
 
+**Guía y materiales:** [15. Construcción del controlador y sintaxis de Dart](temarios/15-construccion-del-controlador-y-sintaxis-de-dart.md).
+
 ### 16. Vistas de lectura, getters y delegación
 
 - **Conceptos:** encapsulación, getter `get`, `late final`, inicialización diferida, adaptador, delegación y
   composición.
-- **Debes comprender:** cómo `theme` devuelve el mismo `ValueNotifier` mediante el tipo `ValueListenable`. El tipo
-  limita las operaciones disponibles, pero no impide recuperar el objeto concreto mediante un cast.
-- **Práctica:** dibujar el controlador y su notificador; comparar esa referencia con un adaptador separado hipotético.
+- **Debes comprender:** cómo `theme` devuelve un adaptador `_ThemeListenable` que delega en la señal privada. Limitar el
+  tipo de una referencia deja debajo el mismo objeto, que un cast puede recuperar; un adaptador es otro objeto y ese cast
+  falla.
+- **Práctica:** dibujar el controlador, su señal y el adaptador; comparar esa estructura con una vista hipotética que
+  devuelva la señal con el tipo `ValueListenable`.
 - [ ] **Dominado cuando:** puedes distinguir una interfaz de lectura de un objeto que realmente oculta la fuente mutable.
+
+**Guía y materiales:** [16. Vistas de lectura, getters y delegación](temarios/16-vistas-de-lectura-getters-y-delegacion.md).
 
 ### 17. Instancias, `static` y servicio global
 
@@ -238,6 +247,8 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
 - **Práctica:** utilizar el servicio global y dos controladores locales; predecir los tres valores después de cambiar
   solamente uno.
 - [ ] **Dominado cuando:** puedes justificar cuándo compartir estado y cuándo crear una instancia independiente.
+
+**Guía y materiales:** [17. Instancias, `static` y servicio global](temarios/17-instancias-static-y-servicio-global.md).
 
 ## Bloque 5. Cómo se conecta el estado con Flutter
 
@@ -387,13 +398,13 @@ contraste. Se estudian por separado, después de dominar el flujo reactivo.
 Recorre un cambio de tema utilizando los archivos reales. Distingue la preparación de la observación de lo que sucede
 después del cambio:
 
-1. Creación del controlador y de su `ValueNotifier`.
-2. Obtención de su vista pública de lectura.
-3. Montaje del scope y escucha del notifier.
+1. Creación del controlador y de su `FlutterSignal`.
+2. Obtención de su vista pública de lectura, el adaptador `_ThemeListenable`.
+3. Montaje del scope y escucha de la vista, que reenvía el listener a la señal.
 4. Lectura de `context.daisyTheme` y registro de la dependencia del consumidor.
 5. Pulsación del botón y ejecución de `setTheme`.
 6. Asignación del valor y decisión de notificar según la igualdad aplicable.
-7. El `ValueNotifier` llama a los listeners registrados mediante `theme`.
+7. La señal llama a los listeners registrados mediante `theme`.
 8. Solicitud de actualización de los dependientes por parte de Flutter.
 9. Reconstrucción y nueva lectura de los tokens que se muestran.
 10. Desmontaje, retirada de listeners y liberación por el propietario cuando corresponde.
@@ -425,7 +436,7 @@ Variantes que debes resolver:
 
 ## Archivos para acompañar el estudio
 
-- [Controlador y referencia de lectura](../../lib/themes/application/daisy_theme_controller.dart): unidades 9, 13–16.
+- [Controlador y adaptador de lectura](../../lib/themes/application/daisy_theme_controller.dart): unidades 9–16.
 - [Servicio global](../../lib/themes/application/daisy_theme_service.dart): unidad 17.
 - [Scope](../../lib/themes/application/daisy_theme_scope.dart): unidades 20–23 y 25.
 - [Extensión de BuildContext](../../lib/themes/core/extension/build_context.dart): unidad 24.

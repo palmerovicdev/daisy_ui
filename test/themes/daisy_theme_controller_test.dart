@@ -6,27 +6,25 @@ void main() {
   setUp(() => DaisyThemeService.setTheme(DaisyThemes.light));
   tearDown(() => DaisyThemeService.setTheme(DaisyThemes.light));
 
-  test(
-    'Public theme views expose the controller notifier as ValueListenable',
-    () {
-      final controller = DaisyThemeController();
-      addTearDown(controller.dispose);
+  test('Public theme views hide the mutable source behind an adapter', () {
+    final controller = DaisyThemeController();
+    addTearDown(controller.dispose);
 
-      for (final theme in [DaisyThemeService.theme, controller.theme]) {
-        expect(theme, isA<ValueNotifier<DaisyThemeModel>>());
-        expect(theme.value, DaisyThemes.light);
-      }
+    for (final theme in [DaisyThemeService.theme, controller.theme]) {
+      expect(theme, isNot(isA<ValueNotifier<DaisyThemeModel>>()));
+      expect(
+        () => theme as ValueNotifier<DaisyThemeModel>,
+        throwsA(isA<TypeError>()),
+      );
+      expect(theme.value, DaisyThemes.light);
+    }
 
-      expect(identical(controller.theme, controller.theme), isTrue);
-      DaisyThemeService.setTheme(DaisyThemes.dark);
-      expect(DaisyThemeService.theme.value, DaisyThemes.dark);
-      expect(controller.theme.value, DaisyThemes.light);
-
-      final notifier = controller.theme as ValueNotifier<DaisyThemeModel>;
-      notifier.value = DaisyThemes.cupcake;
-      expect(controller.theme.value, DaisyThemes.cupcake);
-    },
-  );
+    expect(identical(controller.theme, controller.theme), isTrue);
+    expect(identical(DaisyThemeService.theme, DaisyThemeService.theme), isTrue);
+    DaisyThemeService.setTheme(DaisyThemes.dark);
+    expect(DaisyThemeService.theme.value, DaisyThemes.dark);
+    expect(controller.theme.value, DaisyThemes.light);
+  });
 
   test('Controllers retain their own initial theme and updates', () {
     final first = DaisyThemeController(initialTheme: DaisyThemes.dark);

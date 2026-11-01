@@ -32,7 +32,7 @@ ejercicio final. Borra tu archivo de práctica cuando termines si no necesitas c
 Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals`
 7.0.0. Puedes consultar las versiones resueltas en [pubspec.lock](../../../pubspec.lock). Los detalles de las
 notificaciones se refieren a las opciones predeterminadas y las secuencias que se muestran. El controlador actual de
-DaisyUI usa `ValueNotifier`, no una señal: las señales de esta unidad son ejemplos independientes.
+DaisyUI guarda su tema en una señal como estas; lo veremos en el apartado 9.
 
 ## 1. Una caja que conserva un valor
 
@@ -244,7 +244,7 @@ asignaciones al setter y dos ejecuciones del listener.
 La comparación de la señal instalada aplica la igualdad de la propuesta frente al valor actual. El `ValueNotifier` de
 Flutter compara el actual frente a la propuesta. Una igualdad bien definida es simétrica, así que esa diferencia de
 orden no debería cambiar el resultado. La señal también admite opciones de comparación y operaciones avanzadas como
-`set(..., force: true)`; no las estamos usando aquí ni son reglas del `ValueNotifier` de DaisyUI.
+`set(..., force: true)`; no las estamos usando aquí ni las usa el controlador de DaisyUI.
 
 ### Practica 4
 
@@ -530,27 +530,60 @@ explicará los contextos de lectura rastreada de Signals.
 
 ## 9. ¿Dónde aparece esto en DaisyUI?
 
-El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) utiliza `ValueNotifier`:
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en una señal:
 
 ```dart
 DaisyThemeController({
   DaisyThemeModel initialTheme = DaisyThemes.light,
-}) : _palette = ValueNotifier<DaisyThemeModel>(initialTheme);
+}) : _palette = FlutterSignal<DaisyThemeModel>(initialTheme);
 
-final ValueNotifier<DaisyThemeModel> _palette;
-ValueListenable<DaisyThemeModel> get theme => _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
+
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
+
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
+
 void dispose() => _palette.dispose();
 ```
 
-Es un fragmento de la clase real, no un programa completo. Cada controlador crea su propio `ValueNotifier` privado
-`_palette`. El getter `theme` devuelve **ese mismo objeto** mediante el tipo `ValueListenable`, como la vista de
-lectura del apartado 7; `setTheme` asigna al notificador y `dispose` delega su limpieza. Exponerlo con otro tipo limita
-las operaciones visibles mediante esa referencia, pero no crea una segunda fuente ni impide todos los casts.
+Es un fragmento de la clase real, no un programa completo. Cada controlador crea su propia señal privada `_palette`
+llamando directamente al constructor `FlutterSignal`; la función `signal` del apartado 1 hace esa misma llamada.
+`setTheme` asigna a la señal, así que se aplica la comparación del apartado 4, y `dispose` delega su limpieza.
 
-El [scope](../../../lib/themes/application/daisy_theme_scope.dart) recibe la vista del controlador y usa
-`InheritedNotifier` para conectar sus avisos con consumidores que registran una dependencia heredada. Esa conexión se
-estudiará más adelante. En el flujo actual no hace falta inventar una señal de Signals ni atribuirle la reconstrucción.
+A diferencia de la vista de lectura del apartado 7, `theme` no devuelve la misma señal con otro tipo. Devuelve otro
+objeto, que cumple el contrato `ValueListenable` y reenvía cada operación a la señal:
+
+```dart
+final class _ThemeListenable implements ValueListenable<DaisyThemeModel> {
+  _ThemeListenable(this._source);
+
+  final FlutterSignal<DaisyThemeModel> _source;
+
+  @override
+  DaisyThemeModel get value => _source.value;
+
+  @override
+  void addListener(VoidCallback listener) {
+    _source.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _source.removeListener(listener);
+  }
+}
+```
+
+Este objeto no guarda otro tema: sigue habiendo una sola fuente. Pero como su clase real no es una señal, un cast a
+`FlutterSignal` falla, cosa que no ocurría en el apartado 7. La unidad 16 estudia esta decisión con detalle.
+
+El [scope](../../../lib/themes/application/daisy_theme_scope.dart) recibe esa vista y usa `InheritedNotifier` para
+conectar sus avisos con consumidores que registran una dependencia heredada. Esa conexión se estudiará más adelante. La
+señal guarda el tema y avisa; no se le puede atribuir por sí sola la reconstrucción de los widgets.
 
 ### Prueba guiada
 
@@ -559,14 +592,17 @@ Puedes ejecutar esta prueba dentro del proyecto para observar el controlador rea
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  test('la vista escucha el notificador del controlador', () {
+  test('la vista escucha la señal del controlador', () {
     final controller = DaisyThemeController();
     addTearDown(controller.dispose);
     final lectura = controller.theme;
     final avisos = <String>[];
     void escuchar() => avisos.add(lectura.value.name);
+
+    expect(lectura, isNot(isA<FlutterSignal<DaisyThemeModel>>()));
 
     lectura.addListener(escuchar);
     controller.setTheme(DaisyThemes.dark);
@@ -579,21 +615,21 @@ void main() {
 }
 ```
 
-La lista conserva `Dark` porque el listener estaba registrado durante ese cambio. Después de retirarlo, el
-controlador sigue cambiando y la lectura actual obtiene `cupcake`, sin añadir otro aviso. La prueba muestra lectura y
-escucha; no demuestra una reconstrucción de widgets.
+La primera comprobación muestra que la vista no es una señal. La lista conserva `Dark` porque el listener estaba
+registrado durante ese cambio. Después de retirarlo, el controlador sigue cambiando y la lectura actual obtiene
+`cupcake`, sin añadir otro aviso. La prueba muestra lectura y escucha; no demuestra una reconstrucción de widgets.
 
 ### Practica 9
 
-Si dos controladores se crean por separado y cambiamos el tema de uno, ¿se modifica por ello el notificador del otro?
+Si dos controladores se crean por separado y cambiamos el tema de uno, ¿se modifica por ello la señal del otro?
 ¿Qué pieza del constructor permite razonarlo?
 
 <details>
 <summary>Ver respuesta</summary>
 
-No por ese cambio: cada constructor ejecuta `ValueNotifier<DaisyThemeModel>(initialTheme)` y guarda su propio
-notificador en `_palette`. Los valores iniciales pueden coincidir, pero los controladores creados por separado
-administran fuentes distintas.
+No por ese cambio: cada constructor ejecuta `FlutterSignal<DaisyThemeModel>(initialTheme)` y guarda su propia señal en
+`_palette`. Los valores iniciales pueden coincidir, pero los controladores creados por separado administran fuentes
+distintas.
 
 </details>
 
@@ -666,7 +702,7 @@ obtiene `claro`. El selector posee la señal; el programa retira el listener que
 Si retiramos el listener después de la última selección, aparece `Aviso 3: claro`. Dos selectores construidos por
 separado crean señales distintas, por lo que cambiar uno no modifica el valor almacenado por el otro. La vista
 `ValueListenable` limita las operaciones disponibles por ese tipo; para ocultar la fuente mutable frente a un cast se
-necesitaría un objeto de lectura separado con un contrato adecuado.
+necesita un objeto de lectura separado, que es lo que hace `_ThemeListenable` en DaisyUI.
 
 </details>
 

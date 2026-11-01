@@ -10,7 +10,7 @@ para escribir el valor. Ahora estudiaremos `ValueNotifier<T>`, una implementaci�
 permite asignarle otro.
 
 Al terminar podrás predecir cuándo avisa al asignar un número o una lista, explicar por qué modificar una lista por
-dentro puede pasar desapercibido y reconocer cómo se usa en el controlador actual de DaisyUI.
+dentro puede pasar desapercibido y reconocer qué parte de esa política se mantiene en el controlador actual de DaisyUI.
 
 Los programas de consola completos usan Flutter. Puedes copiar cada uno en [DartPad](https://dartpad.dev/), elegir
 **Flutter** y pulsar **Run**; observa la consola. Predice la salida antes de ejecutar. Puedes hacer una pausa después
@@ -440,30 +440,38 @@ La nueva construcción vuelve a leer la misma lista, cuyo contenido ya había ca
 
 </details>
 
-## 8. `ValueNotifier` en DaisyUI
+## 8. `ValueNotifier` y DaisyUI
 
-El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) utiliza `ValueNotifier` para
-conservar el tema. Este fragmento procede del archivo real:
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) no guarda el tema en un
+`ValueNotifier`, sino en una señal, `FlutterSignal`, que estudiaremos en la unidad 9. Este fragmento procede del archivo
+real:
 
 ```dart
-final ValueNotifier<DaisyThemeModel> _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _palette;
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-El constructor crea `_palette` con el tema inicial. El getter público `theme` devuelve **el mismo notificador**, pero
-lo presenta con el tipo `ValueListenable<DaisyThemeModel>`, que permite leer y escuchar. `setTheme` escribe en el setter
-del notificador, así que la comparación mediante `==` decide si sustituye el modelo y avisa.
+Lo aprendido en esta unidad sigue siendo útil: `FlutterSignal` cumple el contrato de `ValueNotifier` y, con sus opciones
+predeterminadas, compara mediante `==`. `setTheme` escribe en el setter de la señal, así que una propuesta igual se
+descarta sin avisar y una distinta sustituye el modelo y avisa. Lo que cambia es la implementación que hay debajo; no
+hereda el código de `ChangeNotifier`.
 
-Este controlador no crea un adaptador de lectura separado: limitar el tipo de `theme` limita las operaciones disponibles
-a través de esa referencia, pero el objeto real sigue siendo el `ValueNotifier`. La clase permite al propietario
-liberarlo mediante `controller.dispose()`. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza la
-vista de lectura para conectar el tema con sus dependientes; estudiaremos ese recorrido más adelante.
+El getter público `theme` no devuelve la señal. Devuelve `_ThemeListenable`, un objeto de lectura separado que reenvía
+sus operaciones a `_palette`. En los ejemplos de esta unidad, limitar el tipo dejaba debajo el mismo notificador y un
+cast podía recuperar el setter. Aquí el objeto real no es un `ValueNotifier` y ese cast falla; la unidad 16 compara las
+dos estrategias. La clase permite al propietario liberar la señal mediante `controller.dispose()`. El
+[scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza la vista de lectura para conectar el tema con
+sus dependientes; estudiaremos ese recorrido más adelante.
 
-La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba que el objeto concreto es
-un `ValueNotifier`, que se puede recuperar mediante un cast y que los avisos y las retiradas funcionan.
+La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba que una copia igual no
+avisa, que un tema distinto sí lo hace y que las retiradas funcionan.
 
 ### Practica 8
 
@@ -473,8 +481,9 @@ una copia del tema?
 <details>
 <summary>Ver respuesta</summary>
 
-`setTheme` asigna a `_palette.value`, así que se ejecuta el setter de `ValueNotifier`. El getter `theme` devuelve el
-mismo `_palette` bajo el tipo `ValueListenable<DaisyThemeModel>`; no crea una copia ni un adaptador separado.
+`setTheme` asigna a `_palette.value`, así que se ejecuta el setter de la señal, que aplica la comparación mediante `==`.
+`controller.theme` sí es otro objeto, un `_ThemeListenable`, pero no almacena una copia: su getter `value` lee `_palette`
+en cada consulta.
 
 </details>
 

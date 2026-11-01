@@ -356,12 +356,13 @@ comprobarla hay que observar o probar también el widget que recibe la actualiza
 
 ## 8. Escuchar el tema en DaisyUI
 
-En el [controlador](../../../lib/themes/application/daisy_theme_controller.dart), `theme` devuelve `_palette`, un
-`ValueNotifier<DaisyThemeModel>`, mediante el tipo público `ValueListenable<DaisyThemeModel>`. Puedes registrar
-`controller.theme.addListener(avisar)` y retirar esa misma función con `removeListener`.
+En el [controlador](../../../lib/themes/application/daisy_theme_controller.dart), `theme` devuelve un objeto
+`_ThemeListenable` mediante el tipo público `ValueListenable<DaisyThemeModel>`. Ese objeto no conserva su propia lista
+de listeners: cuando registras `controller.theme.addListener(avisar)`, entrega la función a `_palette`, la señal que
+guarda el tema. Para retirar esa misma función usa `removeListener`.
 
-`setTheme` asigna el modelo a `_palette.value`. El setter del notificador compara los valores y, si acepta el cambio,
-notifica a sus listeners. La unidad 7 estudia esa comparación; aquí interesa distinguir registrar, recibir y retirar.
+`setTheme` asigna el modelo a `_palette.value`. La señal compara los valores y, si acepta el cambio, avisa a sus
+listeners. Las unidades 7 y 9 estudian esa comparación; aquí interesa distinguir registrar, recibir y retirar.
 La [prueba del controlador](../../../test/themes/daisy_theme_controller_test.dart) comprueba avisos y retirada; eso no
 demuestra por sí solo una reconstrucción de interfaz.
 
@@ -372,8 +373,8 @@ Si registras `avisar` mediante `controller.theme`, ¿en qué objeto se registra?
 <details>
 <summary>Ver respuesta</summary>
 
-Se registra en el notificador `_palette`, que es el objeto devuelto por `theme`. Para dejar de escuchar, llama a
-`controller.theme.removeListener(avisar)` con la misma función.
+Se registra en la señal `_palette`: el objeto devuelto por `theme` le reenvía la función. Para dejar de escuchar, llama
+a `controller.theme.removeListener(avisar)` con la misma función.
 
 </details>
 

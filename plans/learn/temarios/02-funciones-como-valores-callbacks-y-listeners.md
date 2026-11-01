@@ -443,9 +443,10 @@ vuelve a obtener `theme` y se prepara otro callback para el botón. Estudiaremos
 adelante; aquí interesa reconocer qué variable usa la función y quién la llama.
 
 En el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart), el getter público
-`theme` devuelve el notificador `_palette` con tipo `ValueListenable<DaisyThemeModel>`. El consumidor puede registrar
-una función con `controller.theme.addListener(avisar)` y retirarla con `controller.theme.removeListener(avisar)`.
-`setTheme` asigna a `_palette.value`; el `ValueNotifier` decide si avisa a los listeners registrados.
+`theme` devuelve una vista de lectura con tipo `ValueListenable<DaisyThemeModel>`. El consumidor puede registrar una
+función con `controller.theme.addListener(avisar)` y retirarla con `controller.theme.removeListener(avisar)`.
+`setTheme` asigna a `_palette.value`; `_palette` es una señal, que estudiaremos en la unidad 9, y es ella quien decide
+si avisa a los listeners registrados.
 
 ### Practica 7
 

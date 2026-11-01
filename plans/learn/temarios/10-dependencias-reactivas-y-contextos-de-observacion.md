@@ -26,8 +26,8 @@ una sesión, 4–6 en otra y terminar después con DaisyUI y el ejercicio final.
 Usaremos `pumpWidget` para montar un árbol de prueba y `pump` para procesar un frame después de cambiar una señal.
 `expect` comprueba lo observado en ese árbol; no demuestra por sí solo el aspecto de una pantalla física. Los ejemplos
 se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0; consulta
-[pubspec.lock](../../../pubspec.lock) para las versiones resueltas. El controlador actual de DaisyUI usa
-`ValueNotifier`, no una señal de Signals.
+[pubspec.lock](../../../pubspec.lock) para las versiones resueltas. El controlador actual de DaisyUI guarda su tema en
+una señal; en el apartado 8 veremos qué consecuencias tiene.
 
 ## 1. Una lectura no es una suscripción
 
@@ -443,24 +443,26 @@ escenario el texto puede actualizarse después del cambio y `pump`.
 
 </details>
 
-## 8. La dependencia en DaisyUI sigue otro camino
+## 8. Dos caminos hacia el mismo tema en DaisyUI
 
-En DaisyUI, el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) conserva un
-`ValueNotifier<DaisyThemeModel>` y lo expone como `ValueListenable`. El
-[scope](../../../lib/themes/application/daisy_theme_scope.dart) extiende `InheritedNotifier` y escucha esa vista.
-Cuando un consumidor usa `context.daisyTheme`, la
+En DaisyUI, el [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en una
+`FlutterSignal<DaisyThemeModel>` y lo expone con el tipo `ValueListenable`, mediante un objeto `_ThemeListenable` cuyo
+getter `value` lee esa señal. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) extiende
+`InheritedNotifier` y escucha esa vista. Cuando un consumidor usa `context.daisyTheme`, la
 [extensión](../../../lib/themes/core/extension/build_context.dart) llama a `DaisyThemeScope.of(context)`, que busca el
 scope y registra una dependencia heredada de Flutter.
 
-Esta prueba usa los objetos reales del proyecto:
+Hay por tanto dos maneras de observar el mismo tema. **Antes de mirar los `expect`**, predice qué muestra cada línea de
+esta prueba después de cambiar a `dark`. Usa los objetos reales del proyecto:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  testWidgets('el consumidor lee el scope de DaisyUI', (tester) async {
+  testWidgets('dos caminos para observar el tema', (tester) async {
     final controller = DaisyThemeController();
     addTearDown(controller.dispose);
 
@@ -469,42 +471,74 @@ void main() {
         textDirection: TextDirection.ltr,
         child: DaisyThemeScope(
           controller: controller,
-          child: Builder(
-            builder: (context) => Text(context.daisyTheme.name),
+          child: Column(
+            children: [
+              Builder(
+                builder: (context) => Text('Scope: ${context.daisyTheme.name}'),
+              ),
+              SignalBuilder(
+                builder: (_) => Text('Señal: ${controller.theme.value.name}'),
+              ),
+              Builder(
+                builder: (_) => Text('Puntual: ${controller.theme.value.name}'),
+              ),
+            ],
           ),
         ),
       ),
     );
-    expect(find.text('Light'), findsOneWidget);
+    expect(find.text('Scope: Light'), findsOneWidget);
+    expect(find.text('Señal: Light'), findsOneWidget);
+    expect(find.text('Puntual: Light'), findsOneWidget);
 
     controller.setTheme(DaisyThemes.dark);
     await tester.pump();
-    expect(find.text('Dark'), findsOneWidget);
+    expect(find.text('Scope: Dark'), findsOneWidget);
+    expect(find.text('Señal: Dark'), findsOneWidget);
+    expect(find.text('Puntual: Light'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 ```
 
-Primero se muestra `Light`. Al llamar a `setTheme`, el controlador cambia el valor de su notificador. El scope escucha
-ese notificador; Flutter puede actualizar el consumidor que registró una dependencia heredada. Después de `pump`, el
-callback vuelve a leer el tema y se muestra `Dark`. El test desmonta el scope y después libera el controlador que creó.
+El resultado esperado después de cambiar el tema y procesar el frame es:
 
-Aquí no interviene `SignalBuilder`: la dependencia de `context.daisyTheme` pertenece al mecanismo heredado de Flutter,
-no al rastreo de señales de Signals. Más adelante estudiaremos con detalle contextos, ancestros e
-`InheritedNotifier`; por ahora basta con identificar quién escucha y quién consulta el scope.
+```text
+Scope: Dark
+Señal: Dark
+Puntual: Light
+```
+
+Paso a paso:
+
+1. El primer `Builder` llama a `context.daisyTheme`. Quien registra la dependencia es Flutter, mediante el mecanismo
+   heredado: el callback no tiene ningún contexto de Signals activo.
+2. El `SignalBuilder` lee `controller.theme.value`. En el callback no aparece ninguna señal, pero el getter `value` de
+   `_ThemeListenable` se ejecuta durante esa construcción y lee `_source.value`. Es una lectura rastreada, como en el
+   apartado 6: lo decisivo es cuándo se ejecuta, no cuántas llamadas intermedias haya.
+3. El último `Builder` hace esa misma lectura, pero nadie está observando: no hay ni dependencia heredada ni contexto
+   de Signals.
+4. `setTheme` cambia la señal. Esta avisa al scope, que había registrado un listener, y al elemento del `SignalBuilder`.
+   Cada uno solicita su actualización, y `pump` procesa el frame. El tercer texto no tiene ninguna causa para
+   reconstruirse y sigue mostrando la lectura anterior.
+
+El test desmonta el árbol y después libera el controlador que creó. Más adelante estudiaremos con detalle contextos,
+ancestros e `InheritedNotifier`; por ahora basta con identificar quién registra cada relación. La aplicación de ejemplo
+usa `context.daisyTheme`, y las [pruebas del scope](../../../test/themes/daisy_theme_scope_test.dart) comprueban también
+la observación directa con `SignalBuilder`.
 
 ### Practica 8
 
-Si el controlador de DaisyUI usa `ValueNotifier`, ¿por qué esta prueba no necesita envolver `context.daisyTheme` en un
-`SignalBuilder` para que el consumidor del scope se actualice?
+`controller.theme` no es una señal, sino un `_ThemeListenable`. ¿Por qué `SignalBuilder` se actualiza al leer
+`controller.theme.value`? ¿Y por qué `context.daisyTheme` no necesita un `SignalBuilder` para actualizarse?
 
 <details>
 <summary>Ver respuesta</summary>
 
-El scope ya escucha el notificador y la consulta registra una dependencia heredada mediante Flutter. Esa relación
-permite actualizar al consumidor cuando llega el aviso. Añadir `SignalBuilder` no convierte ese `ValueNotifier` en una
-señal de Signals ni sustituye la relación del scope.
+El getter `value` de la vista lee la señal real durante el callback observado, así que esa lectura queda registrada. En
+el otro camino, el scope ya escucha la vista y la consulta registra una dependencia heredada mediante Flutter; esa
+relación actualiza al consumidor sin el rastreo de Signals. Son dos mecanismos distintos que parten de la misma señal.
 
 </details>
 
@@ -600,7 +634,8 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 5. ¿Qué señales observa el panel de la rama local y cuáles después de construir la rama global? **Apartado 5.**
 6. ¿Por qué una lectura en el callback de un `Builder` hijo puede quedar fuera del callback observado? **Apartado 6.**
 7. ¿Qué hace `peek()` y por qué `dependencies` puede mantener una observación de esa misma señal? **Apartado 7.**
-8. ¿Qué escucha el scope de DaisyUI y qué tipo de dependencia registra `context.daisyTheme`? **Apartado 8.**
+8. ¿Qué escucha el scope de DaisyUI, qué dependencia registra `context.daisyTheme` y por qué `SignalBuilder` también
+   puede observar `controller.theme.value`? **Apartado 8.**
 9. ¿Qué demuestran las pruebas con `pump` y qué haría falta para valorar una pantalla física? **Apartados 2 y 8.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques dónde ocurre cada lectura,

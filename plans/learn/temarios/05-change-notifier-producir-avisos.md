@@ -424,23 +424,30 @@ más tarde y entonces leer el dato nuevo.
 
 ## 8. Comparación con DaisyUI
 
-El [controlador de DaisyUI](../../../lib/themes/application/daisy_theme_controller.dart) no extiende `ChangeNotifier`,
-pero posee un `ValueNotifier<DaisyThemeModel>`. Este último sí extiende `ChangeNotifier` y aporta el mecanismo de avisos.
+El [controlador de DaisyUI](../../../lib/themes/application/daisy_theme_controller.dart) no extiende `ChangeNotifier`
+ni contiene uno. Guarda el tema en `_palette`, una `FlutterSignal<DaisyThemeModel>`, y esa señal aporta su propio
+mecanismo de avisos. La estudiaremos en la unidad 9.
 
 ```dart
-final ValueNotifier<DaisyThemeModel> _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _palette;
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-`setTheme` escribe mediante el setter de `_palette`; el `ValueNotifier` compara el valor anterior con el nuevo y
-notifica cuando corresponde. El getter `theme` devuelve ese mismo objeto bajo el tipo `ValueListenable`, que permite
-leer y escuchar. El [scope](../../../lib/themes/application/daisy_theme_scope.dart) lo conecta con sus dependientes.
+En nuestro contador llamamos explícitamente a `notifyListeners()`. En DaisyUI, `setTheme` escribe mediante el setter de
+`_palette`; la señal compara el valor anterior con el nuevo y avisa cuando corresponde. El getter `theme` devuelve un
+objeto de lectura que le reenvía los listeners, y el [scope](../../../lib/themes/application/daisy_theme_scope.dart) lo
+conecta con sus dependientes.
 
-En nuestro contador llamamos explícitamente a `notifyListeners()`; en DaisyUI esa llamada está dentro del setter de
-`ValueNotifier`. La unidad 7 estudia su política de igualdad.
+La idea de este tema se mantiene: alguien administra los listeners y alguien decide cuándo avisar. Lo que cambia es el
+mecanismo. La señal no hereda de `ChangeNotifier`, así que detalles como registrar dos veces la misma función o lo que
+ocurre después de `dispose` siguen otras reglas; las veremos en las unidades 9 y 13.
 
 ### Practica 8
 
@@ -449,8 +456,8 @@ En nuestro contador llamamos explícitamente a `notifyListeners()`; en DaisyUI e
 <details>
 <summary>Ver respuesta</summary>
 
-No. `setTheme` asigna a `_palette.value`; el setter de `ValueNotifier` compara los valores y llama a
-`notifyListeners()` cuando son distintos según `==`.
+No. `setTheme` solo asigna a `_palette.value`. El setter de la señal compara los valores y avisa a sus observadores
+cuando son distintos según `==`.
 
 </details>
 
@@ -537,7 +544,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 5. ¿Qué pasa con dos registros iguales y una retirada entre emisiones? **Apartado 5.**
 6. ¿Qué diferencia hay entre retirar un listener y liberar el notificador? **Apartado 6.**
 7. ¿Qué pieza conecta el aviso con la construcción del texto? ¿Prueba un aviso que hubo repintado? **Apartado 7.**
-8. ¿Cómo cambia el tema el controlador de DaisyUI y qué objeto aporta el mecanismo de `ChangeNotifier`? **Apartado 8.**
+8. ¿Cómo cambia el tema el controlador de DaisyUI y qué objeto aporta allí el mecanismo de avisos? **Apartado 8.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
 La siguiente unidad estudia `ValueListenable<T>`, un contrato que combina escucha con lectura de un valor actual.

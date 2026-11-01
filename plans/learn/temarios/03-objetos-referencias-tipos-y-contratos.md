@@ -421,17 +421,29 @@ Para `Caja<String>('oscuro')`, ¿qué representa `String` y qué representa `'os
 El [controlador de temas](../../../lib/themes/application/daisy_theme_controller.dart) contiene:
 
 ```dart
-final ValueNotifier<DaisyThemeModel> _palette;
+final FlutterSignal<DaisyThemeModel> _palette;
 
-ValueListenable<DaisyThemeModel> get theme => _palette;
+late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
+  _palette,
+);
+
+ValueListenable<DaisyThemeModel> get theme => _theme;
 
 void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 ```
 
-El constructor crea `_palette` con el tema inicial. Su tipo concreto, `ValueNotifier<DaisyThemeModel>`, permite leer,
-escribir y escuchar. El getter `theme` devuelve ese **mismo objeto** con tipo declarado
-`ValueListenable<DaisyThemeModel>`: mediante ese tipo se puede leer y escuchar, pero no asignar a `.value` ni llamar a
-`dispose`. Un cast al tipo concreto puede recuperar esas capacidades; el tipo público no crea un adaptador separado.
+El constructor crea `_palette`, una señal (unidad 9), con el tema inicial. Su tipo concreto,
+`FlutterSignal<DaisyThemeModel>`, permite leer, escribir y escuchar. El getter `theme` devuelve **otro objeto**, de la
+clase `_ThemeListenable`, con tipo declarado `ValueListenable<DaisyThemeModel>`: mediante ese tipo se puede leer y
+escuchar, pero no asignar a `.value` ni llamar a `dispose`. La misma clase es un caso real de `implements`:
+
+```dart
+final class _ThemeListenable implements ValueListenable<DaisyThemeModel> {
+```
+
+Promete el contrato y cumple cada operación consultando la señal. Tipo declarado y objeto real vuelven a ser cosas
+distintas: como el objeto real no es una señal, un cast a `FlutterSignal` no recupera el setter, sino que falla al
+ejecutarse. `late final` se explica en la unidad 16.
 
 `DaisyThemeModel` es el tipo del valor devuelto por `.value`. Para proponer otro tema, el controlador ofrece
 `setTheme`. En el [scope](../../../lib/themes/application/daisy_theme_scope.dart) aparece además:
@@ -446,14 +458,15 @@ se estudian más adelante.
 
 ### Practica 7
 
-¿Qué tipo obtiene quien lee `controller.theme.value`? ¿El getter público crea otro notificador? ¿Cómo se propone un
-tema nuevo?
+¿Qué tipo obtiene quien lee `controller.theme.value`? ¿El objeto que devuelve `theme` guarda su propia copia del tema?
+¿Cómo se propone un tema nuevo?
 
 <details>
 <summary>Ver respuesta</summary>
 
-La lectura devuelve un `DaisyThemeModel`. `theme` devuelve el mismo `_palette` bajo el tipo `ValueListenable`; para
-proponer un cambio se llama a `controller.setTheme(nuevoTema)`.
+La lectura devuelve un `DaisyThemeModel`. `theme` devuelve un `_ThemeListenable` bajo el tipo `ValueListenable`; no
+guarda otro tema, sino que consulta `_palette` en cada lectura. Para proponer un cambio se llama a
+`controller.setTheme(nuevoTema)`.
 
 </details>
 

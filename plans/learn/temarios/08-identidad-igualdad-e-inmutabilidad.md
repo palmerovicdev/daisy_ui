@@ -448,14 +448,16 @@ segunda asignación no hay ningún valor distinto que guardar.
 
 ## 8. Identidad e igualdad en DaisyUI
 
-El [modelo de tema](../../../lib/themes/domain/theme.dart), `DaisyThemeModel`, se declara con `@freezed`. La igualdad
-se define con Equatable: `props` enumera los campos `id`, `name`, `description`, `colors`, `radius`, `size` y
-`border`, y cada campo aporta su propia regla de igualdad. `copyWith` permite crear un modelo con cambios sin
-modificar el original. Estudiaremos Freezed con más detalle en la unidad 27.
+El [modelo de tema](../../../lib/themes/domain/theme.dart), `DaisyThemeModel`, se declara con
+`@Freezed(equal: false, toStringOverride: true)`. Con `equal: false`, Freezed no genera la igualdad: se define con
+Equatable, donde `props` enumera los campos `id`, `name`, `description`, `colors`, `radius`, `size` y `border`, y cada
+campo aporta su propia regla de igualdad. `copyWith` permite crear un modelo con cambios sin modificar el original.
+Estudiaremos Freezed con más detalle en la unidad 27.
 
-El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en un
-`ValueNotifier<DaisyThemeModel>`. Por tanto, la igualdad del modelo participa en la decisión del setter de conservar el
-valor anterior o aceptar y notificar el nuevo.
+El [controlador](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en una señal,
+`FlutterSignal<DaisyThemeModel>`, que estudiaremos en la próxima unidad. Esa señal aplica la misma regla que el
+`ValueNotifier` del apartado 7, así que la igualdad del modelo participa en la decisión de conservar el valor anterior
+o aceptar y notificar el nuevo.
 
 ### Prueba guiada
 
@@ -513,8 +515,8 @@ decir que «se guardó la copia sin avisar»?
 <details>
 <summary>Ver respuesta</summary>
 
-Porque el setter de `ValueNotifier` retorna antes de guardar una propuesta igual. La prueba comprueba que la fuente
-sigue conservando el objeto `original`; la copia no se guardó y tampoco produjo un aviso.
+Porque el setter de la señal retorna antes de guardar una propuesta igual, como el de `ValueNotifier`. La prueba
+comprueba que la fuente sigue conservando el objeto `original`; la copia no se guardó y tampoco produjo un aviso.
 
 </details>
 
@@ -597,8 +599,8 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 8. En DaisyUI, ¿qué muestra la prueba de `copyWith` y qué no demuestra? **Apartado 8.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques las respuestas con tus palabras.
-La siguiente unidad estudia señales de Signals como otro mecanismo observable; el controlador actual usa
-`ValueNotifier` para sus temas.
+La siguiente unidad estudia las señales de Signals, el mecanismo observable que usa el controlador actual para guardar
+sus temas.
 
 ## Para consultar si necesitas reforzar
 

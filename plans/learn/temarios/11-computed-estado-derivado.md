@@ -26,7 +26,7 @@ apartados 1–3 en una sesión, 4–6 en otra y terminar después con DaisyUI y 
 
 Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals`
 7.0.0; consulta [pubspec.lock](../../../pubspec.lock) para las versiones resueltas. Los detalles de evaluación y avisos
-se refieren a esas versiones y a las secuencias mostradas. El controlador actual de DaisyUI usa `ValueNotifier`; las
+se refieren a esas versiones y a las secuencias mostradas. Salvo en el apartado 9, que usa el controlador real, las
 señales y los `computed` de esta unidad son ejemplos independientes.
 
 ## 1. Un dato guardado y otro que se obtiene de él
@@ -432,8 +432,8 @@ void main() {
 ```
 
 `lectura` y `tema` apuntan al mismo objeto. El tipo `ValueListenable` permite leer y escuchar, pero no declara un
-setter; no crea otra señal ni impide recuperar el tipo real mediante un cast. Un adaptador separado podría ofrecer otra
-frontera de API si hiciera falta.
+setter; no crea otra señal ni impide recuperar el tipo real mediante un cast. Un adaptador separado ofrece otra frontera
+de API, que es lo que hace DaisyUI, como veremos en el apartado 9.
 
 `computed(() => tema.value)` crearía **otro objeto derivado** que devuelve el mismo dato, con sus propias dependencias y
 vida útil. Puede tener sentido si se necesita expresamente un derivado de Signals, pero añade una capa si solo queremos
@@ -454,24 +454,85 @@ responsabilidades de ciclo de vida.
 
 </details>
 
-## 8. El controlador real de DaisyUI
+## 8. Agrupar cambios con `batch`
 
-El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) crea un
-`ValueNotifier<DaisyThemeModel>` privado y lo expone mediante `ValueListenable`. Su `setTheme` cambia ese notificador;
-el [scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza `InheritedNotifier` para escuchar su vista.
-El flujo actual no usa una señal de Signals para almacenar el tema.
+Si dos fuentes cambian por separado, un observador del derivado puede ver un resultado intermedio. `batch` agrupa las
+escrituras para que los observadores procesen juntos los cambios al terminar la función que recibe.
 
-¿Qué pasaría si escribimos un `computed` que lea ese notificador como si fuera una señal? En esta prueba el controlador
-empieza en `Light`. Antes de mirar los `expect`, predice qué contiene el controlador y qué devuelve la etiqueta tras
-cambiar a `dark`.
+**Antes de mirar los `expect`**, predice cuántas veces se evaluará la etiqueta, contando la evaluación inicial al
+registrar el listener, y qué valores guardará ese listener.
 
 ```dart
-import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  test('leer el notificador no registra una señal', () {
+  test('agrupar los cambios de tema y borde', () {
+    final tema = signal('claro');
+    final borde = signal(1);
+    var calculos = 0;
+    final etiqueta = computed(() {
+      calculos++;
+      final tipo = borde.value >= 2 ? 'grueso' : 'fino';
+      return '${tema.value}: $tipo';
+    });
+    addTearDown(tema.dispose);
+    addTearDown(borde.dispose);
+    addTearDown(etiqueta.dispose);
+    final avisos = <String>[];
+    void escuchar() => avisos.add(etiqueta.value);
+
+    etiqueta.addListener(escuchar);
+    expect(calculos, 1);
+    batch(() {
+      borde.value = 2;
+      tema.value = 'oscuro';
+    });
+    expect(calculos, 2);
+    expect(avisos, ['oscuro: grueso']);
+    etiqueta.removeListener(escuchar);
+  });
+}
+```
+
+1. Al registrar el listener se calcula `claro: fino`; el contador pasa a 1 y no hay aviso externo.
+2. Dentro del lote las dos señales guardan sus valores nuevos, pero el observador todavía no se procesa.
+3. Al terminar la función se evalúa una sola vez la etiqueta, que combina los dos valores finales. El listener guarda
+   `oscuro: grueso` y nunca llega a ver `claro: grueso`.
+
+Esta prueba no lee la etiqueta dentro del lote ni establece el comportamiento de todos los casos posibles de lotes.
+
+### Practica 8
+
+Si quitamos `batch` y hacemos las mismas dos escrituras por separado, ¿cuántos cálculos habrá y qué guardará el listener?
+
+<details>
+<summary>Ver respuesta</summary>
+
+Habrá tres cálculos: el inicial y uno por cada escritura. El listener guardará `claro: grueso` y `oscuro: grueso`,
+porque sin el lote el observador procesa el resultado intermedio.
+
+</details>
+
+## 9. El controlador real de DaisyUI
+
+El [controlador actual](../../../lib/themes/application/daisy_theme_controller.dart) guarda el tema en una
+`FlutterSignal<DaisyThemeModel>` privada y lo expone mediante un objeto `_ThemeListenable`, cuyo getter `value` lee esa
+señal. Su `setTheme` escribe en ella; el [scope](../../../lib/themes/application/daisy_theme_scope.dart) utiliza
+`InheritedNotifier` para escuchar la vista.
+
+¿Qué pasa si escribimos un `computed` que lea `controller.theme.value`? ¿Y uno que lea un `ValueNotifier` corriente de
+la unidad 7? **Antes de mirar los `expect`**, predice qué devuelve cada etiqueta tras el cambio y si la copia igual del
+tema provoca otro cálculo.
+
+```dart
+import 'package:daisy_ui/daisy_ui.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+void main() {
+  test('la vista del controlador lee una señal', () {
     final controller = DaisyThemeController();
     var calculos = 0;
     final etiqueta = computed(() {
@@ -486,34 +547,61 @@ void main() {
     etiqueta.addListener(escuchar);
     expect(etiqueta.value, 'Tema: Light');
     expect(calculos, 1);
+
     controller.setTheme(DaisyThemes.dark);
-    expect(controller.theme.value, DaisyThemes.dark);
-    expect(etiqueta.value, 'Tema: Light');
-    expect(calculos, 1);
-    expect(avisos, isEmpty);
+    expect(etiqueta.value, 'Tema: Dark');
+    expect(calculos, 2);
+    expect(avisos, ['Tema: Dark']);
+
+    controller.setTheme(DaisyThemes.dark.copyWith());
+    expect(calculos, 2);
+    expect(avisos, ['Tema: Dark']);
     etiqueta.removeListener(escuchar);
+  });
+
+  test('un ValueNotifier corriente no registra una dependencia', () {
+    final fuente = ValueNotifier<String>('claro');
+    var calculos = 0;
+    final etiqueta = computed(() {
+      calculos++;
+      return 'Tema: ${fuente.value}';
+    });
+    addTearDown(fuente.dispose);
+    addTearDown(etiqueta.dispose);
+
+    expect(etiqueta.value, 'Tema: claro');
+    fuente.value = 'oscuro';
+    expect(fuente.value, 'oscuro');
+    expect(etiqueta.value, 'Tema: claro');
+    expect(calculos, 1);
   });
 }
 ```
 
-Al registrar la escucha se calcula `Tema: Light`. El controlador sí cambia a `dark`, pero la lectura de un
-`ValueNotifier` no registra por sí sola una dependencia del mecanismo de Signals. En esta prueba el `computed` no
-observa ninguna señal que invalide su caché: conserva `Tema: Light`, sin otro cálculo ni aviso. Necesitaríamos una
-conexión explícita adecuada para observar esa fuente; cambiar su tipo declarado no crea esa conexión.
+En la primera prueba, la función del derivado llama al getter de la vista y este lee la señal real. Esa lectura queda
+registrada aunque en el callback no se nombre ninguna señal: al cambiar a `dark`, la etiqueta se recalcula y avisa. La
+copia igual se descarta en la señal, antes de llegar al derivado, y no produce otro cálculo.
 
-Este ejemplo muestra un fallo de diseño deliberado para aprender la diferencia. El scope real ya escucha el
-notificador mediante Flutter; no se necesita añadir este `computed` para explicar el flujo de temas del proyecto.
+En la segunda prueba, `ValueNotifier` no pertenece al mecanismo de Signals. Leer su `value` no registra nada, así que el
+`computed` no tiene ninguna señal que invalide su caché: conserva `Tema: claro` aunque la fuente ya contenga `oscuro`. Lo
+que decide no es que un objeto tenga un `value` o cumpla `ValueListenable`, sino si durante el cálculo se lee realmente
+una señal.
 
-### Practica 8
+El flujo real de temas no necesita este `computed`: el scope escucha la vista mediante Flutter. Si una etiqueta se usa
+solo dentro de un build que ya depende del tema, una interpolación también basta. El derivado cobra sentido cuando el
+mismo cálculo se comparte o se quiere observar por separado.
 
-Si `controller.theme.value` ya devuelve `DaisyThemes.dark`, ¿por qué la etiqueta del test sigue diciendo `Tema: Light`?
+### Practica 9
+
+Tanto `controller.theme` como un `ValueNotifier` ofrecen `.value`. ¿Por qué la etiqueta de la primera prueba se actualiza
+y la de la segunda conserva el resultado anterior?
 
 <details>
 <summary>Ver respuesta</summary>
 
-El notificador sí se actualizó, pero el cálculo de Signals no registró una señal observable al leerlo. No se invalidó
-su resultado en esa prueba y la lectura devolvió la caché anterior. Leer un `ValueListenable` no equivale por sí solo
-a registrar una dependencia de Signals.
+El getter `value` de la vista lee una señal durante el cálculo, y esa lectura registra la dependencia. El getter de
+`ValueNotifier` devuelve su valor sin avisar a Signals, de modo que nada invalida la caché del derivado. Cumplir
+`ValueListenable` no equivale por sí solo a registrar una dependencia de Signals.
 
 </details>
 
@@ -584,66 +672,6 @@ el mismo resultado, puede haber una evaluación sin un nuevo aviso, como vimos e
 
 </details>
 
-### Una primera prueba con `batch`
-
-`batch` permite agrupar escrituras para que los observadores procesen juntos los cambios al terminar la función. Parte
-de nuevo de `tema = 'claro'`, `borde = 1` y un listener de la etiqueta ya registrado. En vez de hacer las escrituras
-por separado, usa este **fragmento**, sin leer la etiqueta dentro del bloque:
-
-```dart
-batch(() {
-  borde.value = 2;
-  tema.value = 'oscuro';
-});
-```
-
-Predice cuántas veces se evaluará la etiqueta, contando también la evaluación inicial al registrar el listener, y qué
-valores guardará ese listener. Para probarlo, crea una prueba nueva con el estado inicial indicado, registra el listener
-y realiza únicamente las dos escrituras del lote antes de comprobar el resultado. Contrasta después con la solución.
-
-<details>
-<summary>Ver respuesta</summary>
-
-```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:signals_flutter/signals_flutter.dart';
-
-void main() {
-  test('agrupar los cambios de tema y borde', () {
-    final tema = signal('claro');
-    final borde = signal(1);
-    var calculos = 0;
-    final etiqueta = computed(() {
-      calculos++;
-      final tipo = borde.value >= 2 ? 'grueso' : 'fino';
-      return '${tema.value}: $tipo';
-    });
-    addTearDown(tema.dispose);
-    addTearDown(borde.dispose);
-    addTearDown(etiqueta.dispose);
-    final avisos = <String>[];
-    void escuchar() => avisos.add(etiqueta.value);
-
-    etiqueta.addListener(escuchar);
-    expect(calculos, 1);
-    batch(() {
-      borde.value = 2;
-      tema.value = 'oscuro';
-    });
-    expect(calculos, 2);
-    expect(avisos, ['oscuro: grueso']);
-    etiqueta.removeListener(escuchar);
-  });
-}
-```
-
-En la secuencia indicada hay dos cálculos: el inicial y otro al terminar el lote. El listener guarda solo
-`'oscuro: grueso'`, que combina los dos valores finales. Si las escrituras se hacen por separado, el observador puede
-ver también el resultado intermedio. Esta práctica no establece el comportamiento de todos los casos posibles de
-lotes ni de lecturas realizadas dentro de ellos.
-
-</details>
-
 ## Comprueba si puedes avanzar
 
 Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
@@ -656,8 +684,10 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 6. ¿Qué cambia entre leer una señal dentro del callback y usar una captura anterior? **Apartado 5.**
 7. ¿Quién escucha el derivado en la prueba de widgets y qué papel tiene `pump`? **Apartado 6.**
 8. ¿Cuándo puede bastar una vista `ValueListenable` en lugar de otro `computed`? **Apartado 7.**
-9. ¿Por qué el `computed` de la prueba con el controlador real conserva `Light`? **Apartado 8.**
-10. ¿Quién retira los listeners y libera las fuentes y derivaciones que crean estas pruebas? **Apartados 2 y 4.**
+9. ¿Qué cambia en lo que ve un listener del derivado si dos escrituras se agrupan con `batch`? **Apartado 8.**
+10. ¿Por qué un `computed` que lee `controller.theme.value` se actualiza y uno que lee un `ValueNotifier` corriente no?
+    **Apartado 9.**
+11. ¿Quién retira los listeners y libera las fuentes y derivaciones que crean estas pruebas? **Apartados 2 y 4.**
 
 Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques cuándo se consulta, se calcula y
 se notifica un valor sin confundir esos pasos. La unidad 12 estudia acciones y efectos secundarios.
