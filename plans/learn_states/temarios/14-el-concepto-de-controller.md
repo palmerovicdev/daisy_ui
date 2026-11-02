@@ -458,7 +458,7 @@ final class DaisyThemeController {
 
 Reconoces las mismas piezas que en `SelectorTema`: el estado es `_palette`, la lectura es `theme`, la operación de cambio es `setTheme` y la limpieza es `dispose`. El fragmento omite el campo `_theme` y la clase `_ThemeListenable`, que se estudian en la unidad 16; la sintaxis del constructor corresponde a la unidad 15.
 
-La interfaz está en [example/lib/main.dart](../../../example/lib/main.dart). Este fragmento pertenece al botón de `_ThemeExample`:
+Para la interfaz usaremos la versión del ejemplo anterior al commit `41fe41f`, que tenía dos botones para cambiar de tema. El ejemplo actual ya no los tiene, pero puedes consultar esa versión con `git show 41fe41f~1:example/lib/main.dart`, y está reproducida en el [apartado 8 de la unidad 25](25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo). Este fragmento pertenece al botón de `_ThemeExample`:
 
 ```dart
 onPressed: () => DaisyThemeService.setTheme(
@@ -509,18 +509,18 @@ Un tema creado en la prueba, que no aparece en `DaisyThemes`, se acepta sin más
 
 ¿Es esto un defecto? Es una decisión de diseño con consecuencias en ambos sentidos. Los dos botones alternan entre parejas de temas distintas, y la misma clase sirve para ambos porque no impone ninguna política. A cambio, esa lógica solo se ejecuta al pulsar, se comprueba con pruebas de widget y habría que repetirla si otro botón necesitara la misma alternancia. En nuestro `SelectorTema` elegimos lo contrario. La pregunta útil es **qué reglas debe garantizar el estado sea quien sea el que lo cambie**, y cuáles dependen de una pantalla concreta.
 
-Dos piezas del ejemplo siguen esta separación de otra manera. `_ThemePreviewState` crea su propio controlador en `initState` y lo libera en `dispose`: es su propietario, como en la unidad 13. Y `_ThemeExample` no crea ninguno: llama a `DaisyThemeService`, que conserva un controlador compartido. Lo estudiaremos en la unidad 17.
+Dos piezas de esa versión siguen esta separación de otra manera. `_ThemePreviewState` crea su propio controlador en `initState` y lo libera en `dispose`: es su propietario, como en la unidad 13. Y `_ThemeExample` no crea ninguno: llama a `DaisyThemeService`, que conserva un controlador compartido. Lo estudiaremos en la unidad 17.
 
 ### Practica 8
 
-Clasifica estas piezas como modelo, controlador o widget, e indica qué hace cada una: `DaisyThemes.dark`, `setTheme`, `_palette`, el `onPressed` de la vista previa y el `Text` que muestra `theme.name`. ¿Por qué pueden `MyApp` y la vista previa mostrar temas diferentes en la misma pantalla?
+Clasifica estas piezas como modelo, controlador o widget, e indica qué hace cada una: `DaisyThemes.dark`, `setTheme`, `_palette`, el `onPressed` de la vista previa y el `Text` que muestra `theme.name`. ¿Por qué podían `MyApp` y la vista previa de esa versión mostrar temas diferentes en la misma pantalla?
 
 <details>
 <summary>Ver respuesta</summary>
 
 `DaisyThemes.dark` es un modelo: datos de un tema. `setTheme` y `_palette` pertenecen al controlador: la operación de cambio y la señal que conserva el estado. El `onPressed` y el `Text` pertenecen al widget: el primero decide qué tema pedir y llama a la operación, y el segundo muestra un dato leído.
 
-Muestran temas diferentes porque usan controladores diferentes: la aplicación usa el del servicio y la vista previa crea el suyo. Cada controlador conserva su propia señal, así que cambiar uno no altera el valor del otro.
+Mostraban temas diferentes porque usaban controladores diferentes: la aplicación usaba el del servicio y la vista previa creaba el suyo. Cada controlador conserva su propia señal, así que cambiar uno no altera el valor del otro.
 
 </details>
 
@@ -671,4 +671,4 @@ Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y clasi
 - [`TextEditingController`](https://api.flutter.dev/flutter/widgets/TextEditingController-class.html): un controlador de Flutter, con su propio contrato, para comparar con el del proyecto.
 - [`GestureDetector`](https://api.flutter.dev/flutter/widgets/GestureDetector-class.html) y [`WidgetTester.tap`](https://api.flutter.dev/flutter/flutter_test/WidgetController/tap.html): pulsación real y simulada.
 - [`SignalBuilder`](https://pub.dev/documentation/signals_flutter/latest/signals_flutter/SignalBuilder-class.html): conexión entre lecturas de señales y construcciones. Compara `latest` con la versión instalada.
-- [Controlador](../../../lib/themes/application/daisy_theme_controller.dart), [modelo](../../../lib/themes/domain/theme.dart), [catálogo de temas](../../../lib/themes/application/daisy_themes.dart) y [ejemplo](../../../example/lib/main.dart): las piezas reales repartidas en esta unidad.
+- [Controlador](../../../lib/themes/application/daisy_theme_controller.dart), [modelo](../../../lib/themes/domain/theme.dart) y [catálogo de temas](../../../lib/themes/application/daisy_themes.dart): las piezas reales repartidas en esta unidad.

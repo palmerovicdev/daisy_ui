@@ -379,7 +379,7 @@ No se imprime `Aviso: oscuro`: en este programa ni registrar ni asignar ejecuta 
 
 ## 7. Estas funciones en DaisyUI
 
-Abre el [ejemplo de la aplicación](../../../example/lib/main.dart). Dentro del `build` de `_ThemeExample` encontrarás este fragmento; depende del resto del archivo y no es un programa independiente:
+Hasta el commit `41fe41f`, el ejemplo de la aplicación tenía un botón que cambiaba el tema. El ejemplo actual ya no lo tiene, pero puedes consultar esa versión con `git show 41fe41f~1:example/lib/main.dart`. Dentro del `build` de `_ThemeExample` estaba este fragmento; depende del resto del archivo y no es un programa independiente:
 
 ```dart
 final theme = context.daisyTheme;

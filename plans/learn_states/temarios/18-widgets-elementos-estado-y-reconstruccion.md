@@ -4,7 +4,7 @@
 
 ## Qué vas a aprender
 
-En el Bloque 4 dejamos el tema guardado en un controlador, con una señal que avisa cuando cambia. Falta el último tramo: ¿qué tiene que ocurrir para que un texto de la pantalla muestre el valor nuevo? En las pruebas anteriores usamos `pumpWidget`, `Builder` o `build` sin detenernos a explicar qué son. Ahora les toca a ellos.
+En el Bloque 4 dejamos el tema guardado en un controlador, con una señal que avisa cuando cambia. Falta el último tramo: ¿qué tiene que ocurrir para que un texto de la pantalla muestre el valor nuevo? En las pruebas anteriores usamos `pumpWidget` o `build` sin detenernos a explicar qué son. Ahora les toca a ellos; `Builder` llegará en la unidad 20, junto con el contexto.
 
 Al terminar podrás explicar qué es un widget y por qué se vuelve a crear, qué conserva un `State` y qué papel tiene `build`. Distinguirás cambiar un dato de solicitar una reconstrucción, y reconstruir de volver a pintar. También podrás predecir cuántas veces se ejecuta un `build` y qué hay realmente dentro de `ValueListenableBuilder`.
 
@@ -742,7 +742,7 @@ class _DaisyButtonState extends State<DaisyButton> {
 
 El widget tiene la configuración: `enabled`, `child`, `onPressed`. El `State` tiene lo que cambia durante la interacción: si el ratón está encima y si está pulsado. Fíjate en `_setPressed`: comprueba antes si el valor cambia. No es necesario para que funcione, pero evita solicitar una construcción cuando no hay nada nuevo, ya que `setState` no lo comprueba por ti (apartado 5).
 
-**Antes de mirar los `expect`**, predice la elevación después de que el padre entregue otra descripción:
+`DaisyButtonTheme` tiene por defecto `elevation: 0` y `hoverElevation: 4`, de modo que la elevación pasa a `4` con el ratón encima. **Antes de mirar los `expect`**, predice la elevación después de que el padre entregue otra descripción:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -918,7 +918,7 @@ void main() {
 
 Al montar, los tres se construyen. Cambiar la fuente marca solo el `State` interno del `ValueListenableBuilder`. La segunda asignación es igual y no avisa, de modo que no hay nada que construir.
 
-Cambiar `local` sin `setState` deja el dato en `1` y el texto en `A: 0`. Al llamar a `sumar`, `local` llega a `2` y el `build` del panel se ejecuta: el texto muestra `A: 2`. Ese `build` también crea un `ValueListenableBuilder` nuevo, cuyo callback es otra función, y por eso se ejecuta su `builder` aunque la fuente no haya cambiado. `const Fijo()`, en cambio, es el mismo objeto de antes y Flutter no trabaja en él.
+Cambiar `local` sin `setState` deja el dato en `1` y el texto en `A: 0`. Al llamar a `sumar`, `local` llega a `2` y el `build` del panel se ejecuta: el texto muestra `A: 2`. Ese `build` también crea un `ValueListenableBuilder` nuevo, es decir, otro objeto, y por eso se ejecuta su `builder` aunque la fuente no haya cambiado. `const Fijo()`, en cambio, es el mismo objeto de antes y Flutter no trabaja en él.
 
 Al entregar otro `Panel`, mismo tipo y sin `key`, el `State` permanece: se conserva `2` y se usa el nuevo título.
 

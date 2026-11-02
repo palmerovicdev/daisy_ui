@@ -207,7 +207,7 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
 
 - **Conceptos:** `initState`, `didChangeDependencies`, `didUpdateWidget`, `dispose`, montaje y desmontaje.
 - **Debes comprender:** por qué un controlador debe conservarse entre reconstrucciones, cuándo actualizar dependencias y cuándo liberar lo que posee un widget.
-- **Práctica:** seguir el ciclo de vida de la vista previa del ejemplo y observar qué problema introduciría crear su controlador dentro de `build`.
+- **Práctica:** seguir el ciclo de vida de una vista previa con su propio controlador, reproducida en la guía a partir de la versión anterior del ejemplo, y observar qué problema introduciría crear su controlador dentro de `build`.
 - [ ] **Dominado cuando:** puedes colocar creación, actualización y limpieza en el lugar adecuado y explicar el motivo.
 
 **Guía y materiales:** [19. Ciclo de vida y lugar correcto para crear recursos](temarios/19-ciclo-de-vida-y-lugar-correcto-para-crear-recursos.md).
@@ -272,7 +272,7 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
 
 - **Conceptos:** token de diseño, rol semántico, superficie, contenido, paleta, `DaisyThemeColorPair`, radios, tamaños, grosor de borde y unidades.
 - **Debes comprender:** por qué agrupamos colores por función y por qué existen pares de fondo y contenido. Qué representa cada dato de un tema.
-- **Práctica:** localizar los tokens que utilizan el texto y el contenedor de la vista previa del ejemplo, y calcular `md` a partir de `DaisyThemeSizeConfig.base`. Convertir un `RayOklch` a `Color` con `.toColor()`.
+- **Práctica:** localizar los tokens que utilizan el texto y el contenedor de la vista previa, reproducida en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo), y el radio que usa `_ButtonContent` en el ejemplo actual, y calcular `md` a partir de `DaisyThemeSizeConfig.base`. Convertir un `RayOklch` a `Color` con `.toColor()`.
 - [ ] **Dominado cuando:** puedes elegir el token apropiado y distinguir los datos de DaisyUI de su aplicación explícita a widgets o a `ThemeData`.
 
 Profundización de color: componentes L, C y H de OKLCH, opacidad, conversión a RGB, límites de representación y contraste. Se estudian por separado, después de dominar el flujo reactivo.
@@ -309,7 +309,7 @@ Profundización de color: componentes L, C y H de OKLCH, opacidad, conversión a
 
 ### 31. Ejercicio final: explicar todo el flujo
 
-Recorre un cambio de tema utilizando los archivos reales. Distingue la preparación de la observación de lo que sucede después del cambio:
+Recorre un cambio de tema utilizando los archivos reales de `lib/`. El ejemplo actual ya no tiene un botón que cambie el tema, de modo que para la interfaz usa la aplicación reproducida en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo). Distingue la preparación de la observación de lo que sucede después del cambio:
 
 1. Creación del controlador y de su `FlutterSignal`.
 2. Obtención de su vista pública de lectura, el adaptador `_ThemeListenable`.
@@ -351,7 +351,8 @@ Variantes que debes resolver:
 - [Modelo de tema](../../lib/themes/domain/theme.dart): unidades 8 y 27–29.
 - [Colores y pares de color](../../lib/themes/domain/theme/theme_color.dart), [radios](../../lib/themes/domain/theme/theme_radius.dart), [tamaños](../../lib/themes/domain/theme/theme_size.dart) y [bordes](../../lib/themes/domain/theme/theme_border.dart): unidad 26.
 - [Catálogo de temas](../../lib/themes/application/daisy_themes.dart): datos para los ejercicios.
-- [Ejemplo de aplicación y vista previa](../../example/lib/main.dart): unidades 18–25 y 31.
+- [Ejemplo de aplicación](../../example/lib/main.dart): unidades 18, 20, 21, 23 y 24.
+- Vista previa y botones de cambio de tema de la versión anterior del ejemplo (`git show 41fe41f~1:example/lib/main.dart`), reproducidos en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo): unidades 19, 25, 26 y 31.
 - [Pruebas de controladores](../../test/themes/daisy_theme_controller_test.dart), [scopes](../../test/themes/daisy_theme_scope_test.dart), [JSON](../../test/themes/daisy_theme_json_test.dart) y [ejemplo](../../example/test/widget_test.dart): unidad 30.
 - [API pública](../../lib/daisy_ui.dart), [dependencias](../../pubspec.yaml) y [configuración de generación](../../build.yaml): unidades 29 y 32.
 

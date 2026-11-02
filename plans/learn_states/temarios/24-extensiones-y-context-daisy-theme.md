@@ -186,7 +186,7 @@ Paso a paso:
 Tres consecuencias prácticas de que se resuelvan al compilar:
 
 - **Un miembro de la clase siempre gana.** Si `Caja` tuviera su propio `doble`, la extensión se ignoraría.
-- **Con `dynamic` no funcionan.** Si una variable se declara `dynamic`, el compilador no sabe a qué tipo aplicarla. Lo veremos en la unidad 28.
+- **Con `dynamic` no funcionan.** Si una variable se declara `dynamic`, el compilador no sabe a qué tipo aplicarla.
 - **Hay que importarlas.** Una extensión solo está disponible si su biblioteca es visible. Sin importarla, este **fragmento** falla:
 
 ```dart
@@ -547,11 +547,11 @@ void main() {
 
 `nombreCacheado` falla ya al montar: el consumidor interior muestra `Light`, el tema del scope exterior, porque se construye después y reutiliza lo que este guardó. Tras el cambio, sigue mostrando `Light`, aunque se haya reconstruido.
 
-La dependencia sí se registra en los dos, porque ambos llaman a `daisyTheme`: por eso **escribimos primero `final actual`**. Si escribiéramos `_cache ??= daisyTheme.name`, a partir de la segunda llamada `??=` ni siquiera evaluaría el lado derecho, de modo que el consumidor interior no llegaría a registrar la dependencia y no se reconstruiría. En cualquier caso, el resultado es incorrecto.
+La dependencia sí se registra en los dos, porque ambos llaman a `daisyTheme`: por eso escribimos primero `final actual`. Si escribiéramos `_cache ??= daisyTheme.name`, a partir de la segunda llamada `??=` no evaluaría el lado derecho, así que **ese atajo** no registraría nada. Aquí no se notaría, porque `Consumidor` también lee `nombreTema`, pero un consumidor que solo usara `nombreCacheado` no se reconstruiría. En cualquier caso, el resultado es incorrecto.
 
 `_cache` es global (unidad 17): una segunda prueba del mismo archivo lo encontraría ya relleno, con la misma dependencia del orden de la unidad 17.
 
-Para que fuera un atajo sobre el modelo: `extension AtajosModelo on DaisyThemeModel { String get nombreEnMayusculas => name.toUpperCase(); }`, y se usaría con `context.daisyTheme.nombreEnMayusculas`.
+Para que fuera un atajo sobre el modelo: `extension AtajosModelo on DaisyThemeModel { String get nombreTema => name; }`, y se usaría con `context.daisyTheme.nombreTema`. Apenas aporta sobre `.name`; un cálculo, como pasar el nombre a mayúsculas, sí lo justificaría.
 
 Esta es la distinción de toda la unidad: la comodidad de escritura no cuesta nada. Almacenar sí cambia el comportamiento, y requiere un dueño para el dato.
 

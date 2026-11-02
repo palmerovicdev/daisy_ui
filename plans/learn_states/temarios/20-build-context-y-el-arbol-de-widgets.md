@@ -39,7 +39,7 @@ Marca('raíz')
 
 Los **ancestros** de un nodo son los que encuentras subiendo desde él hasta la raíz: los de `a1` son `a`, `Column` y `raíz`. Sus **descendientes** son los que hay por debajo: los de `a` son solo `a1`. Dos nodos con el mismo padre, como `a` y `b`, son **hermanos**: ninguno es ancestro del otro.
 
-Comprobémoslo en un árbol real. `Marca` es un widget propio que apunta su contexto en un mapa, para que la prueba pueda consultarlo después. `visitAncestorElements` recorre los elementos de los ancestros, desde el más cercano, y se detiene cuando la función devuelve `false`. `elemento.widget` es el widget actual de cada uno, y `is` comprueba su tipo (unidad 3).
+Comprobémoslo en un árbol real. `Marca` es un widget propio que apunta su contexto en un mapa, para que la prueba pueda consultarlo después. `visitAncestorElements` recorre los elementos de los ancestros, desde el más cercano, y se detiene cuando la función devuelve `false`. `elemento.widget` es el widget actual de cada uno, y `is` comprueba su tipo (unidad 16).
 
 **Antes de mirar los `expect`**, predice las marcas que encontrará cada contexto:
 
@@ -431,7 +431,7 @@ ConBuilder               ← context exterior
 
 ### Practica 5
 
-Con la forma 1, escribimos `const NombreDelTema()` y cambiamos el `Text` para que reciba el nombre por parámetro, leyéndolo en `ConWidgetPropio.build`. ¿Sigue funcionando? ¿Por qué?
+Con la forma 1, `NombreDelTema` pasa a recibir el nombre por parámetro, y `ConWidgetPropio.build` lo lee y se lo entrega. ¿Sigue funcionando? ¿Por qué?
 
 <details>
 <summary>Ver respuesta</summary>

@@ -125,7 +125,7 @@ Las líneas nuevas:
 
 ### Practica 2
 
-Colocamos dos proveedores anidados: `BordeHeredado(grosor: 1, child: BordeHeredado(grosor: 5, child: Caja()))`. ¿Qué muestra la caja? ¿Qué ocurre si no hay ninguno? ¿Y si `Caja` usa su contexto dentro del `build` de un widget situado por encima del proveedor?
+Colocamos dos proveedores anidados: `BordeHeredado(grosor: 1, child: BordeHeredado(grosor: 5, child: Caja()))`. ¿Qué muestra la caja? ¿Qué ocurre si no hay ninguno? ¿Y si la consulta se hace con el contexto de un widget situado por encima del proveedor?
 
 <details>
 <summary>Ver respuesta</summary>
@@ -659,7 +659,7 @@ void main() {
 }
 ```
 
-Aunque el callback ya no lea el grosor, `builds` sigue subiendo cuando este cambia. **La dependencia permanece hasta que el elemento se retira del árbol.** Se añade al leer y no se elimina al dejar de leer. La última línea demuestra que tampoco se avisa si el valor no cambia.
+Aunque `build` ya no lea el grosor, `builds` sigue subiendo cuando este cambia. **La dependencia permanece hasta que el elemento se retira del árbol.** Se añade al leer y no se elimina al dejar de leer. La última línea demuestra que tampoco se avisa si el valor no cambia.
 
 No suele ser un problema: como mucho, una reconstrucción de más. Pero es una diferencia real con `SignalBuilder`, y un ejemplo de que «reactivo» no significa lo mismo en cada mecanismo.
 

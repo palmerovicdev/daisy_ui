@@ -183,7 +183,7 @@ Paso a paso:
 3. El scope recibe esa fuente distinta y el texto vuelve a `Cupcake`. **La elección del usuario se ha perdido.**
 4. El primer controlador sigue existiendo con `dark`, pero ya nadie lo conoce salvo la lista de la prueba. **Nadie llamará a su `dispose`**: quedaría una señal sin liberar por cada reconstrucción.
 
-Es la consecuencia de la unidad 18: `build` debe poder repetirse sin consecuencias, y crear un recurso es una consecuencia. No hay ningún error ni aviso; aparece más tarde y según qué reconstruya al padre, por lo que es difícil de localizar.
+Es la consecuencia de la unidad 18: `build` debe poder repetirse sin consecuencias, y crear un recurso es una consecuencia. No hay ningún error ni aviso: el fallo aparece más tarde y según qué reconstruya al padre, por lo que es difícil de localizar.
 
 ### Practica 2
 
@@ -732,7 +732,7 @@ Con todo lo anterior, la decisión se reduce a contar cuántas veces debe ocurri
 
 ### Practica 7
 
-Clasifica estos errores según el lugar que falta o sobra: (a) el tema elegido se pierde cuando el padre se reconstruye; (b) el widget sigue mostrando datos de una fuente antigua después de recibir otra; (c) una prueba falla con `setState() called after dispose()` tras cerrar una pantalla.
+Clasifica estos errores según el lugar que falta o sobra: (a) el tema elegido se pierde cuando el padre se reconstruye; (b) tras recibir otra fuente, el widget no se actualiza cuando esta cambia, y sí cuando cambia la anterior; (c) una prueba falla con `setState() called after dispose()` tras cerrar una pantalla.
 
 <details>
 <summary>Ver respuesta</summary>
@@ -843,7 +843,7 @@ void didUpdateWidget(covariant DaisyButton oldWidget) {
 }
 ```
 
-Si el padre desactiva el botón mientras el ratón está encima, ya no llegará el aviso de que se ha ido, porque el botón deja de atender esos eventos. Sin este código, `_isHovering` quedaría en `true` para siempre. El método resetea los campos sin `setState`, ya que a continuación se ejecuta `build`. `covariant` permite declarar el parámetro con el tipo concreto `DaisyButton`; en los ejemplos anteriores no lo hemos escrito porque el tipo de `State<T>` ya lo admite. Compruébalo:
+Si el padre desactiva el botón mientras el ratón está encima, ya no llegará el aviso de que se ha ido, porque el botón deja de atender esos eventos. Sin este código, `_isHovering` quedaría en `true` para siempre. El método resetea los campos sin `setState`, ya que a continuación se ejecuta `build`. `State<T>` declara `didUpdateWidget(covariant T oldWidget)`. En `State<DaisyButton>`, `T` ya es `DaisyButton`, de modo que el `covariant` del botón es redundante: equivale a lo que escribimos en los ejemplos anteriores. Compruébalo:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
@@ -1036,7 +1036,7 @@ El paso 4 entrega un valor distinto: `didUpdateWidget` llama a `setTheme`. No ne
 
 El paso 5 traslada el listener: `a` ya no suma y `b` sí. En el paso 6, `dispose` retira el listener de la fuente actual, y el listener de `a` se retiró en el paso 5. Por eso ningún cambio posterior se cuenta ni lanza un error.
 
-Si el controlador se creara en `build`, cada descripción crearía uno nuevo con `temaInicial`, por lo que `dark` se perdería en el paso 3, y además quedarían controladores sin liberar. Si en `dispose` llamaras a `widget.avisos.dispose()`, liberarías un objeto prestado: la prueba, que es su propietaria, fallaría al usarlo en el paso 6 y al liberarlo una segunda vez.
+Si el controlador se creara en `build`, cada descripción crearía uno nuevo con `temaInicial`, por lo que `dark` se perdería en el paso 3, y además quedarían controladores sin liberar. Si en `dispose` llamaras a `widget.avisos.dispose()`, no compilaría: `ValueListenable` no declara `dispose`, y esa es una ventaja de recibir una vista de lectura (unidad 16). Si forzaras un cast con `(widget.avisos as ValueNotifier<int>).dispose()`, liberarías un objeto prestado: la prueba, que es su propietaria, fallaría al usar `b` en el paso 6 y al liberarlo una segunda vez.
 
 </details>
 

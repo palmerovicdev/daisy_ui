@@ -627,7 +627,7 @@ void main() {
 Paso a paso:
 
 1. **Cerrar la vista previa** retira el scope: su elemento quita el listener (unidad 22). El controlador no se libera, porque es de `Taller`, y su señal conserva el tema.
-2. **Cambiar con el scope cerrado** funciona. Es solo una señal, sin observadores. La unidad 13 ya lo comprobó en `Unmounting a scope does not dispose its borrowed controller`.
+2. **Cambiar con el scope cerrado** funciona. Es solo una señal, sin observadores. La unidad 13 ya lo comprobó (`desmontar, reutilizar y volver a montar`), y el proyecto lo cubre con `Unmounting a scope does not dispose its borrowed controller`.
 3. **Abrir de nuevo** crea un scope nuevo, que lee el valor actual. El tema `Light` no estaba en el scope, sino en el controlador.
 4. **Retirar `Taller`** sí termina con el recurso: su `State` recibe `dispose`, y el controlador deja de aceptar escrituras.
 
@@ -1080,13 +1080,13 @@ void main() {
 
 Cada controlador tiene una cadena independiente: servicio → `app`; `compartido` → `a` y `b`; `solo` → `c`. Como los lectores son `const` y `Taller` no se reconstruye con esos avisos, solo se construyen los dependientes.
 
-En el paso 5, `c` se reconstruye porque ha cambiado su fuente: `updateShouldNotify` compara notifiers, no temas (unidad 22). Cambiar `solo` ya no tiene efecto; cambiar `reserva` sí. `setState` reconstruye `Taller`, pero los lectores `const` no se tocan. El de `c` solo se debe a la nueva dependencia del scope.
+En el paso 5, `c` se reconstruye porque ha cambiado su fuente: `updateShouldNotify` compara notifiers, no temas (unidad 22). Cambiar `solo` ya no tiene efecto; cambiar `reserva` sí. `setState` reconstruye `Taller`, pero los lectores `const` no se tocan. La construcción de `c` se debe solo a que su scope ha recibido otra fuente y avisa a la dependencia que ya existía.
 
 El paso 6 tiene una sorpresa: al quitar `b`, **`c` se reconstruye**, aunque nada de lo suyo ha cambiado. `if (mostrarB)` es una colección condicional: sin `b`, la lista de hijos del `Column` pasa de cuatro a tres. Flutter compara las dos listas por posición, con la regla de tipo y `key` de la unidad 18. En la tercera posición había un `DaisyThemeScope`, el de `b`, y sigue habiendo uno, el de `c`. Como no hay `key`, **reutiliza el elemento que era de `b` para mostrar `c`**: cambia su fuente de `compartido` a `reserva`, y su hijo pasa de `Lector('b')` a `Lector('c')`. El elemento que estaba en la cuarta posición se retira.
 
 Aquí no se pierde nada, porque los lectores no tienen estado. Pero si lo tuvieran, el `State` de `b` pasaría a `c`, y el de `c` se perdería. Para evitarlo, se identifica cada hijo con una `key`, como `DaisyThemeScope(key: const ValueKey('b'), ...)`. Después, cambiar `compartido` llega solo a `a`: el `b` ya no existe.
 
-Retirar `Taller` llama a su `dispose`, y sus tres controladores dejan de aceptar escrituras. Si no liberara `reserva`, su señal quedaría sin liberar: la prueba no lo detectaría, y por eso importa razonarlo. El servicio sigue funcionando, ya que nadie puede liberarlo.
+Retirar `Taller` llama a su `dispose`, y sus tres controladores dejan de aceptar escrituras. Si no liberara `reserva`, la comprobación final fallaría, porque `setTheme` no lanzaría el error. Sin esa comprobación explícita, nada avisaría de la señal sin liberar, y por eso importa razonarlo. El servicio sigue funcionando, ya que nadie puede liberarlo.
 
 Si `compartido` se liberara en el paso 6, `a` seguiría mostrando el último valor, con un aviso de lectura, y la siguiente escritura lanzaría un error, como mostró el apartado 5. Por eso se libera solo cuando desaparecen todos los que lo tienen prestado.
 

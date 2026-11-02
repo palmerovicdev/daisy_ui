@@ -4,7 +4,7 @@
 
 ## Qué vas a aprender
 
-Hasta ahora, para usar un tema creábamos un `DaisyThemeController` y guardábamos la referencia. Sin embargo, el botón del ejemplo de DaisyUI llama a `DaisyThemeService.setTheme(...)` sin haber creado ningún objeto. ¿Dónde está entonces el tema que cambia? ¿Quién lo creó y quién más lo ve?
+Hasta ahora, para usar un tema creábamos un `DaisyThemeController` y guardábamos la referencia. Sin embargo, cualquier botón puede llamar a `DaisyThemeService.setTheme(...)` sin haber creado ningún objeto. ¿Dónde está entonces el tema que cambia? ¿Quién lo creó y quién más lo ve?
 
 Al terminar podrás distinguir lo que pertenece a una instancia de lo que pertenece a una clase, y sabrás cuándo se inicializa un campo `static`. También podrás leer `abstract final class` y seguir una llamada al servicio hasta su señal. Con eso predecirás qué comparten dos consumidores del servicio, qué conservan dos controladores propios y por qué las pruebas del proyecto reinician el servicio. Por último, podrás justificar cuándo compartir estado y cuándo crear una instancia independiente.
 
@@ -504,7 +504,7 @@ Leen `Light`, `Cupcake` y `Cupcake`: el cambio solo afecta a la señal del servi
 
 ## 8. ¿Compartir o crear una instancia?
 
-El [ejemplo de la aplicación](../../../example/lib/main.dart) usa las dos opciones a la vez. Estos son **fragmentos** de ese archivo:
+La versión del ejemplo anterior al commit `41fe41f` usaba las dos opciones a la vez. Puedes consultarla con `git show 41fe41f~1:example/lib/main.dart`, y está reproducida en el [apartado 8 de la unidad 25](25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo). Estos son **fragmentos** de ese archivo:
 
 ```dart
 // MyApp: un scope sin controlador usa el servicio.
@@ -516,6 +516,8 @@ onPressed: () => DaisyThemeService.setTheme(/* ... */),
 // _ThemePreviewState: la vista previa crea, usa y libera el suyo.
 _controller = DaisyThemeController(initialTheme: DaisyThemes.cupcake);
 ```
+
+El [ejemplo actual](../../../example/lib/main.dart) solo conserva la primera: `MyApp` monta un scope sin controlador, con lo que usa el servicio. La vista previa sigue siendo un buen caso para comparar.
 
 La aplicación tiene un solo tema general, que muchas partes consultan y que dura tanto como ella: encaja con el servicio. La vista previa quiere probar un tema sin alterar el resto y solo vive mientras está en pantalla: encaja con una instancia propia, de la que es propietaria. La línea `controller?.theme ?? DaisyThemeService.theme` del constructor del scope hace esta elección; `??` y sus ramas se estudian en la unidad 23.
 
@@ -656,4 +658,4 @@ Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y justi
 - [Variables en Dart](https://dart.dev/language/variables#late-variables): inicialización diferida y `late`.
 - [Effective Dart: clases con solo miembros estáticos](https://dart.dev/effective-dart/design#avoid-defining-a-class-that-contains-only-static-members): la recomendación general y sus alternativas.
 - [`setUp`](https://api.flutter.dev/flutter/flutter_test/setUp.html), [`tearDown`](https://api.flutter.dev/flutter/flutter_test/tearDown.html) y [`addTearDown`](https://api.flutter.dev/flutter/flutter_test/addTearDown.html): preparación y limpieza de pruebas.
-- [Servicio](../../../lib/themes/application/daisy_theme_service.dart), [controlador](../../../lib/themes/application/daisy_theme_controller.dart), [ejemplo](../../../example/lib/main.dart) y [pruebas del scope](../../../test/themes/daisy_theme_scope_test.dart): comportamiento actual de DaisyUI.
+- [Servicio](../../../lib/themes/application/daisy_theme_service.dart), [controlador](../../../lib/themes/application/daisy_theme_controller.dart), [ejemplo](../../../example/lib/main.dart) y [pruebas del scope](../../../test/themes/daisy_theme_scope_test.dart): comportamiento actual de DaisyUI; el ejemplo ya no incluye la vista previa.

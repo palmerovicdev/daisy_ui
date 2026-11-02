@@ -109,7 +109,7 @@ sin controlador
 Las líneas importantes:
 
 - `Controlador? controlador` admite un `Controlador` o `null`.
-- Dentro del `if`, el programa retorna si es `null`. Después de esa comprobación, Dart sabe que `controlador` no es `null` y permite escribir `controlador.tema`. Esto se llama **promoción de tipos**.
+- Dentro del `if`, el programa retorna si es `null`. Después de esa comprobación, Dart sabe que `controlador` no es `null` y permite escribir `controlador.tema`. Esto se llama **promoción de tipos**. También ocurre al asignar un valor no nulo a una variable local.
 
 Sin la comprobación, el analizador rechaza el programa. Este **fragmento** no compila:
 
