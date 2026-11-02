@@ -354,8 +354,9 @@ Si `VistaPrevia` recibiera un parámetro no constante, como `VistaPrevia(titulo:
 <summary>Ver respuesta</summary>
 
 Se reconstruirá su `build` cuando cambie ese parámetro, y es lógico: ha cambiado. Para no reconstruir el contenido que
-no depende de él, se puede separar en un widget propio que sí sea `const`, o mantenerlo en un campo. Es la misma técnica
-del `child` por parámetro de la unidad 21. Lo importante es saber qué causa cada reconstrucción, no eliminarlas todas.
+no depende de él, se puede separar en un widget propio que sí sea `const`, o crearlo una vez y guardarlo en un campo. Es
+la misma técnica del `child` por parámetro de la unidad 21. Lo importante es saber qué causa cada reconstrucción, no
+eliminarlas todas.
 
 </details>
 
@@ -1145,12 +1146,16 @@ void main() {
 
     taller.quitarB();
     await tester.pump();
+    expect(find.textContaining('b:'), findsNothing);
+    expect(find.text('c: Dark'), findsOneWidget);
+    expect(builds['c'], 5);
+
     compartido.setTheme(DaisyThemes.dark);
     await tester.pump();
     expect(find.text('a: Dark'), findsOneWidget);
-    expect(find.textContaining('b:'), findsNothing);
     expect(builds['a'], 3);
     expect(builds['b'], 2);
+    expect(builds['c'], 5);
 
     await tester.pumpWidget(const SizedBox.shrink());
     for (final controller in [compartido, solo, reserva]) {
@@ -1173,12 +1178,16 @@ En el paso 5, `c` se reconstruye porque ha cambiado su fuente: `updateShouldNoti
 22). Cambiar `solo` ya no tiene efecto; cambiar `reserva` sí. `setState` reconstruye `Taller`, pero los lectores `const`
 no se tocan. El de `c` solo se debe a la nueva dependencia del scope.
 
-En el paso 6, `if (mostrarB)` es una **colección condicional**: sin `b`, la lista de hijos cambia. El elemento del
-`DaisyThemeScope` que queda en esa posición es el de `c`. Flutter lo reconcilia por tipo y posición: aquí hay tres
-scopes con hijos distintos, pero como `a` queda igual y el tercer scope del árbol anterior pasa a ser el segundo, sus
-elementos se reutilizan con cuidado. En este árbol no se pierde ningún dato, porque los lectores no tienen estado. Si lo
-tuvieran, conviene añadir una `key` a cada scope. El tema de `a` cambia a `Dark`, y `b` no lo recibe porque se ha
-retirado.
+El paso 6 tiene una sorpresa: al quitar `b`, **`c` se reconstruye**, aunque nada de lo suyo ha cambiado. `if (mostrarB)`
+es una colección condicional: sin `b`, la lista de hijos del `Column` pasa de cuatro a tres. Flutter compara las dos
+listas por posición, con la regla de tipo y `key` de la unidad 18. En la tercera posición había un `DaisyThemeScope`, el
+de `b`, y sigue habiendo uno, el de `c`. Como no hay `key`, **reutiliza el elemento que era de `b` para mostrar `c`**:
+cambia su fuente de `compartido` a `reserva`, y su hijo pasa de `Lector('b')` a `Lector('c')`. El elemento que estaba en
+la cuarta posición se retira.
+
+Aquí no se pierde nada, porque los lectores no tienen estado. Pero si lo tuvieran, el `State` de `b` pasaría a `c`, y el
+de `c` se perdería. Para evitarlo, se identifica cada hijo con una `key`, como
+`DaisyThemeScope(key: const ValueKey('b'), ...)`. Después, cambiar `compartido` llega solo a `a`: el `b` ya no existe.
 
 Retirar `Taller` llama a su `dispose`, y sus tres controladores dejan de aceptar escrituras. Si no liberara `reserva`,
 su señal quedaría sin liberar: la prueba no lo detectaría, y por eso importa razonarlo. El servicio sigue funcionando,

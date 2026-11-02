@@ -1,39 +1,26 @@
 # 21. `InheritedWidget` y registro de dependencias
 
-[Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) ·
-[Repasar la unidad 20](20-build-context-y-el-arbol-de-widgets.md) · **Estado:** pendiente
+[Volver al plan de estudio](../plan-de-estudio-reactividad-daisy-ui.md) · [Repasar la unidad 20](20-build-context-y-el-arbol-de-widgets.md) · **Estado:** pendiente
 
 ## Qué vas a aprender
 
-La unidad 20 mostró que un contexto puede **encontrar** datos en sus ancestros. Pero encontrar algo una vez no sirve de
-mucho si ese dato cambia después. `Text(context.daisyTheme.name)` se actualiza cuando cambia el tema: ¿cómo sabe Flutter
-que **ese** widget, y no otro, necesita volver a construirse?
+La unidad 20 mostró que un contexto puede **encontrar** datos en sus ancestros. Pero encontrar algo una vez no sirve de mucho si ese dato cambia después. `Text(context.daisyTheme.name)` se actualiza cuando cambia el tema: ¿cómo sabe Flutter que **ese** widget, y no otro, necesita volver a construirse?
 
-Al terminar podrás escribir un `InheritedWidget` propio y explicar qué relación se establece entre el consumidor y el
-proveedor. Distinguirás consultar un valor de consultarlo registrando una dependencia, y sabrás identificar qué
-consumidores dependen de un valor heredado. También sabrás por qué un widget puede actualizarse «por casualidad» sin
-haber registrado ninguna dependencia, y qué papel tiene `updateShouldNotify`.
+Al terminar podrás escribir un `InheritedWidget` propio y explicar qué relación se establece entre el consumidor y el proveedor. Distinguirás consultar un valor de consultarlo registrando una dependencia, y sabrás identificar qué consumidores dependen de un valor heredado. También sabrás por qué un widget puede actualizarse «por casualidad» sin haber registrado ninguna dependencia, y qué papel tiene `updateShouldNotify`.
 
-Los ejemplos completos son pruebas de widgets independientes. Copia **una cada vez** a `test/estudio_heredado_test.dart`
-y ejecuta desde la raíz del proyecto:
+Los ejemplos completos son pruebas de widgets independientes. Copia **una cada vez** a `test/estudio_heredado_test.dart` y ejecuta desde la raíz del proyecto:
 
 ```shell
 flutter test --no-pub test/estudio_heredado_test.dart
 ```
 
-Necesitas las dependencias ya resueltas. Predice cada resultado antes de mirarlo. Los fragmentos identificados como
-tales no son archivos completos. Puedes estudiar los apartados 1–3 en una sesión, 4–6 en otra y terminar con 7–8 y el
-ejercicio final.
+Necesitas las dependencias ya resueltas. Predice cada resultado antes de mirarlo. Los fragmentos identificados como tales no son archivos completos. Puedes estudiar los apartados 1–3 en una sesión, 4–6 en otra y terminar con 7–8 y el ejercicio final.
 
-Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0;
-consulta [pubspec.lock](../../../pubspec.lock) para las versiones resueltas. Los nombres internos de Flutter que
-citemos, como `_dependents`, sirven para seguir el mecanismo y pueden cambiar entre versiones; lo que no cambia es el
-contrato de los métodos públicos.
+Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signals_core` 7.0.0 y `preact_signals` 7.0.0; consulta [pubspec.lock](../../../pubspec.lock) para las versiones resueltas. Los nombres internos de Flutter que citemos, como `_dependents`, sirven para seguir el mecanismo y pueden cambiar entre versiones; lo que no cambia es el contrato de los métodos públicos.
 
 ## 1. El problema: pasar un dato por todos los niveles
 
-Imagina una pantalla con un grosor de borde. Solo la caja del fondo lo utiliza, pero entre la raíz y la caja hay varios
-widgets. Con lo que conocemos hasta ahora, cada nivel debe recibirlo y entregarlo. Este **fragmento** lo muestra:
+Imagina una pantalla con un grosor de borde. Solo la caja del fondo lo utiliza, pero entre la raíz y la caja hay varios widgets. Con lo que conocemos hasta ahora, cada nivel debe recibirlo y entregarlo. Este **fragmento** lo muestra:
 
 ```dart
 class Pantalla extends StatelessWidget {
@@ -53,32 +40,24 @@ class Seccion extends StatelessWidget {
 }
 ```
 
-Esto funciona, pero tiene tres inconvenientes. `Seccion` declara un dato que no usa, y añadir otro dato obliga a
-modificar todos los niveles. Además, cuando cambia el grosor, cada nivel recibe una descripción distinta y se
-reconstruye sin necesidad (unidad 18).
+Esto funciona, pero tiene tres inconvenientes. `Seccion` declara un dato que no usa, y añadir otro dato obliga a modificar todos los niveles. Además, cuando cambia el grosor, cada nivel recibe una descripción distinta y se reconstruye sin necesidad (unidad 18).
 
-Nos gustaría que la raíz **publicara** el dato para todo lo que tiene debajo, y que quien lo necesite lo recogiera. Ya
-sabemos la mitad de la solución: buscar hacia arriba desde el contexto. Falta el widget que publica y la manera de
-avisar.
+Nos gustaría que la raíz **publicara** el dato para todo lo que tiene debajo, y que quien lo necesite lo recogiera. Ya sabemos la mitad de la solución: buscar hacia arriba desde el contexto. Falta el widget que publica y la manera de avisar.
 
 ### Practica 1
 
-En la cadena `Pantalla → Seccion → Caja`, ¿qué widgets deberían conocer `grosor` si solo `Caja` lo muestra? ¿Qué widgets
-lo conocen con el código del fragmento?
+En la cadena `Pantalla → Seccion → Caja`, ¿qué widgets deberían conocer `grosor` si solo `Caja` lo muestra? ¿Qué widgets lo conocen con el código del fragmento?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Debería conocerlo `Caja` y quien lo proporciona. Con el fragmento, lo conocen los tres, y `Seccion` solo por tener que
-reenviarlo. Esa es la dependencia innecesaria que queremos eliminar.
+Debería conocerlo `Caja` y quien lo proporciona. Con el fragmento, lo conocen los tres, y `Seccion` solo por tener que reenviarlo. Esa es la dependencia innecesaria que queremos eliminar.
 
 </details>
 
 ## 2. Un primer `InheritedWidget`
 
-Un `InheritedWidget` es un widget que **publica datos para sus descendientes**. No dibuja nada: tiene un `child` y unos
-campos. A pesar del nombre, no tiene relación con heredar de una clase mediante `extends`. Aquí «heredado» significa que
-el dato se recibe por la **posición en el árbol**.
+Un `InheritedWidget` es un widget que **publica datos para sus descendientes**. No dibuja nada: tiene un `child` y unos campos. A pesar del nombre, no tiene relación con heredar de una clase mediante `extends`. Aquí «heredado» significa que el dato se recibe por la **posición en el árbol**.
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -138,35 +117,26 @@ Las líneas nuevas:
 
 - `extends InheritedWidget` declara un proveedor. `required super.child` reenvía el hijo a la clase padre (unidad 15).
 - `grosor` es el dato publicado. Como en cualquier widget, es `final`.
-- `updateShouldNotify` decide si hay que avisar a los dependientes cuando llega otra descripción. Lo veremos en el
-  apartado 6.
-- `of` es un método estático: se llama con el nombre de la clase, antes de tener una instancia (unidad 17). Agrupa la
-  búsqueda y el tratamiento del error.
-- `dependOnInheritedWidgetOfExactType<BordeHeredado>()` es la operación central. Devuelve el `BordeHeredado` más cercano
-  o `null`, y hace algo más que veremos enseguida.
+- `updateShouldNotify` decide si hay que avisar a los dependientes cuando llega otra descripción. Lo veremos en el apartado 6.
+- `of` es un método estático: se llama con el nombre de la clase, antes de tener una instancia (unidad 17). Agrupa la búsqueda y el tratamiento del error.
+- `dependOnInheritedWidgetOfExactType<BordeHeredado>()` es la operación central. Devuelve el `BordeHeredado` más cercano o `null`, y hace algo más que veremos enseguida.
 
-`Seccion` ya no sabe nada del grosor, y por eso puede ser `const`. Así, la conexión entre `Caja` y `BordeHeredado` se
-resuelve mediante el árbol. La búsqueda sigue la regla de la unidad 20: hacia arriba, el más cercano y por tipo.
+`Seccion` ya no sabe nada del grosor, y por eso puede ser `const`. Así, la conexión entre `Caja` y `BordeHeredado` se resuelve mediante el árbol. La búsqueda sigue la regla de la unidad 20: hacia arriba, el más cercano y por tipo.
 
 ### Practica 2
 
-Colocamos dos proveedores anidados: `BordeHeredado(grosor: 1, child: BordeHeredado(grosor: 5, child: Caja()))`. ¿Qué
-muestra la caja? ¿Qué ocurre si no hay ninguno? ¿Y si `Caja` usa su contexto dentro del `build` de un widget situado por
-encima del proveedor?
+Colocamos dos proveedores anidados: `BordeHeredado(grosor: 1, child: BordeHeredado(grosor: 5, child: Caja()))`. ¿Qué muestra la caja? ¿Qué ocurre si no hay ninguno? ¿Y si `Caja` usa su contexto dentro del `build` de un widget situado por encima del proveedor?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Muestra `Grosor: 5`, el más cercano. Sin ninguno, `encontrado` es `null` y se lanza el error. Si el contexto está por
-encima del proveedor, no lo encuentra: se aplica lo mismo que en la unidad 20, porque un `InheritedWidget` solo es
-visible para sus descendientes.
+Muestra `Grosor: 5`, el más cercano. Sin ninguno, `encontrado` es `null` y se lanza el error. Si el contexto está por encima del proveedor, no lo encuentra: se aplica lo mismo que en la unidad 20, porque un `InheritedWidget` solo es visible para sus descendientes.
 
 </details>
 
 ## 3. Cuando cambia el dato: solo se reconstruye el consumidor
 
-Pongamos ahora el dato en un `State` y comprobemos quién se reconstruye. `Raiz` recibe su `child` por parámetro. `Ajeno`
-es otro descendiente que no lee el grosor.
+Pongamos ahora el dato en un `State` y comprobemos quién se reconstruye. `Raiz` recibe su `child` por parámetro. `Ajeno` es otro descendiente que no lee el grosor.
 
 **Antes de mirar los `expect`**, predice los tres contadores después de `cambiar(2)`:
 
@@ -264,41 +234,31 @@ void main() {
 }
 ```
 
-`Seccion` no se ha reconstruido y `Caja`, que está debajo de ella, sí. Es la diferencia con el apartado 1. Sigamos qué
-ocurre, sin dar nada por «automático»:
+`Seccion` no se ha reconstruido y `Caja`, que está debajo de ella, sí. Es la diferencia con el apartado 1. Sigamos qué ocurre, sin dar nada por «automático»:
 
 1. `cambiar` llama a `setState`, que marca el elemento de `Raiz`. `pump` lo procesa y ejecuta su `build`.
-2. Ese `build` crea un **nuevo** `BordeHeredado` con `grosor: 2`. Mismo tipo y misma `key`: su elemento permanece y
-   recibe la descripción nueva (unidad 18).
-3. Ese elemento, un `InheritedElement`, llama a `updateShouldNotify(anterior)`. El grosor ha cambiado, y devuelve
-   `true`.
-4. Recorre **la lista de elementos que registraron una dependencia** y, para cada uno, llama a `didChangeDependencies`.
-   Su efecto es marcarlo para reconstruir con `markNeedsBuild`. En nuestro árbol, esa lista contiene solo el elemento de
-   `Caja`.
-5. El `InheritedElement` continúa con su hijo: `widget.child` es **el mismo objeto** `Seccion` de antes, así que Flutter
-   no trabaja en él (unidad 18). Se detiene ahí.
+2. Ese `build` crea un **nuevo** `BordeHeredado` con `grosor: 2`. Mismo tipo y misma `key`: su elemento permanece y recibe la descripción nueva (unidad 18).
+3. Ese elemento, un `InheritedElement`, llama a `updateShouldNotify(anterior)`. El grosor ha cambiado, y devuelve `true`.
+4. Recorre **la lista de elementos que registraron una dependencia** y, para cada uno, llama a `didChangeDependencies`. Su efecto es marcarlo para reconstruir con `markNeedsBuild`. En nuestro árbol, esa lista contiene solo el elemento de `Caja`.
+5. El `InheritedElement` continúa con su hijo: `widget.child` es **el mismo objeto** `Seccion` de antes, así que Flutter no trabaja en él (unidad 18). Se detiene ahí.
 6. El elemento marcado de `Caja` se procesa en este mismo frame. Su `build` lee el grosor nuevo.
 
 Por eso `Raiz` recibe el `child` por parámetro: es lo que hace que `widget.child` sea siempre el mismo objeto.
 
 ### Practica 3
 
-¿Qué contadores obtenemos si `Caja` se escribe `const Caja()` dentro de un `Column` sin `const` en `Seccion`, y llamamos
-a `cambiar(2)`? ¿Cambia algo?
+¿Qué contadores obtenemos si `Caja` se escribe `const Caja()` dentro de un `Column` sin `const` en `Seccion`, y llamamos a `cambiar(2)`? ¿Cambia algo?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Los mismos: `seccion` 1, `caja` 2 y `ajeno` 1. `Seccion` no llega a ejecutar `build`, de modo que nadie crea esa
-`Column`. El paso 5 se detiene antes. El `const` importa dentro de un `build` que sí se ejecuta, como veremos en el
-apartado 5.
+Los mismos: `seccion` 1, `caja` 2 y `ajeno` 1. `Seccion` no llega a ejecutar `build`, de modo que nadie crea esa `Column`. El paso 5 se detiene antes. El `const` importa dentro de un `build` que sí se ejecuta, como veremos en el apartado 5.
 
 </details>
 
 ## 4. Consultar con dependencia y sin ella
 
-Hasta ahora dependíamos del dato cada vez que lo consultábamos. `BuildContext` ofrece otra operación con un resultado
-parecido: `getInheritedWidgetOfExactType`. Busca lo mismo, pero **no registra nada**.
+Hasta ahora dependíamos del dato cada vez que lo consultábamos. `BuildContext` ofrece otra operación con un resultado parecido: `getInheritedWidgetOfExactType`. Busca lo mismo, pero **no registra nada**.
 
 **Antes de mirar los `expect`**, predice qué muestra cada consumidor después de cambiar el grosor:
 
@@ -369,13 +329,10 @@ void main() {
 }
 ```
 
-`!` afirma que el resultado no es `null`, porque sabemos que el proveedor existe en este árbol; se estudia en la unidad
-23.
+`!` afirma que el resultado no es `null`, porque sabemos que el proveedor existe en este árbol; se estudia en la unidad 23.
 
-1. Al cambiar el grosor, el proveedor avisa solo a sus dependientes. `ConDependencia` se reconstruye; `SinDependencia`
-   no figura en la lista y sigue mostrando la lectura anterior.
-2. Cuando otra causa reconstruye a `SinDependencia`, su consulta encuentra el proveedor actual y lee `2`. El valor no
-   estaba guardado en ningún sitio: se consulta cada vez.
+1. Al cambiar el grosor, el proveedor avisa solo a sus dependientes. `ConDependencia` se reconstruye; `SinDependencia` no figura en la lista y sigue mostrando la lectura anterior.
+2. Cuando otra causa reconstruye a `SinDependencia`, su consulta encuentra el proveedor actual y lee `2`. El valor no estaba guardado en ningún sitio: se consulta cada vez.
 
 Las dos consultas responden a preguntas diferentes:
 
@@ -384,28 +341,22 @@ Las dos consultas responden a preguntas diferentes:
 | `dependOnInheritedWidgetOfExactType` | ¿Qué vale ahora, y me avisas cuando cambie?            | Sí                |
 | `getInheritedWidgetOfExactType`    | ¿Qué vale ahora?                                         | No                |
 
-Es la misma distinción que venimos haciendo desde la unidad 1, entre consultar un dato y enterarse de sus cambios. En
-`build`, lo habitual es querer la primera, ya que queremos mostrar el valor actual. La segunda encaja con usos
-puntuales, como leer un dato al pulsar un botón.
+Es la misma distinción que venimos haciendo desde la unidad 1, entre consultar un dato y enterarse de sus cambios. En `build`, lo habitual es querer la primera, ya que queremos mostrar el valor actual. La segunda encaja con usos puntuales, como leer un dato al pulsar un botón.
 
 ### Practica 4
 
-Un botón lee el grosor **solo** dentro de `onPressed`, para enviarlo a un servidor, y no lo muestra en pantalla. ¿Qué
-operación elegirías? ¿Qué ocurriría con cada una?
+Un botón lee el grosor **solo** dentro de `onPressed`, para enviarlo a un servidor, y no lo muestra en pantalla. ¿Qué operación elegirías? ¿Qué ocurriría con cada una?
 
 <details>
 <summary>Ver respuesta</summary>
 
-`getInheritedWidgetOfExactType`. Lee el valor actual en el momento de la pulsación y no añade reconstrucciones. Con
-`dependOnInheritedWidgetOfExactType`, también obtendrías el valor correcto, pero a partir de esa pulsación el botón
-quedaría registrado y se reconstruiría en cada cambio, sin mostrar nada nuevo. Lo comprobaremos en la unidad 23.
+`getInheritedWidgetOfExactType`. Lee el valor actual en el momento de la pulsación y no añade reconstrucciones. Con `dependOnInheritedWidgetOfExactType`, también obtendrías el valor correcto, pero a partir de esa pulsación el botón quedaría registrado y se reconstruiría en cada cambio, sin mostrar nada nuevo. Lo comprobaremos en la unidad 23.
 
 </details>
 
 ## 5. Dos causas de reconstrucción: la trampa del árbol en línea
 
-En el apartado 3 tuvimos cuidado de entregar `child` por parámetro. ¿Y si lo creamos dentro del `build` del `State`,
-como suele hacerse al empezar? **Antes de mirar los `expect`**, predice si `SinLeer` se actualiza:
+En el apartado 3 tuvimos cuidado de entregar `child` por parámetro. ¿Y si lo creamos dentro del `build` del `State`, como suele hacerse al empezar? **Antes de mirar los `expect`**, predice si `SinLeer` se actualiza:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -479,36 +430,26 @@ void main() {
 }
 ```
 
-¡El texto se actualiza, aunque `SinLeer` no registró ninguna dependencia! La causa es otra: el `build` de
-`RaizEnLineaState` crea un `SinLeer` **nuevo** cada vez, de modo que este se reconstruye como cualquier hijo con una
-descripción distinta. Parece que funciona, pero solo porque quien lo actualiza es el padre.
+¡El texto se actualiza, aunque `SinLeer` no registró ninguna dependencia! La causa es otra: el `build` de `RaizEnLineaState` crea un `SinLeer` **nuevo** cada vez, de modo que este se reconstruye como cualquier hijo con una descripción distinta. Parece que funciona, pero solo porque quien lo actualiza es el padre.
 
-Esto importa cuando pruebas tu código. Si un consumidor mal escrito está debajo de un `build` que se repite, no verás el
-error. En cuanto alguien haga `const` ese widget, o lo mueva, dejará de actualizarse. Por eso las pruebas de esta unidad
-y de las siguientes separan bien las causas, con `const` o con `child` por parámetro.
+Esto importa cuando pruebas tu código. Si un consumidor mal escrito está debajo de un `build` que se repite, no verás el error. En cuanto alguien haga `const` ese widget, o lo mueva, dejará de actualizarse. Por eso las pruebas de esta unidad y de las siguientes separan bien las causas, con `const` o con `child` por parámetro.
 
-Un consumidor bien escrito puede reconstruirse por las dos causas en el mismo frame, y Flutter solo ejecutará su `build`
-una vez: marcar un elemento ya marcado no añade otra construcción.
+Un consumidor bien escrito puede reconstruirse por las dos causas en el mismo frame, y Flutter solo ejecutará su `build` una vez: marcar un elemento ya marcado no añade otra construcción.
 
 ### Practica 5
 
-En `RaizEnLinea` escribimos `const SinLeer(etiqueta: 'En línea')`. Después de `cambiar(2)`, ¿qué texto muestra y cuánto
-vale `buildsSinLeer`? ¿Cómo se arregla?
+En `RaizEnLinea` escribimos `const SinLeer(etiqueta: 'En línea')`. Después de `cambiar(2)`, ¿qué texto muestra y cuánto vale `buildsSinLeer`? ¿Cómo se arregla?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Muestra `En línea: 1` y `buildsSinLeer` queda en `1`. Ahora el hijo es el mismo objeto constante, y no hay dependencia
-que lo marque. Se arregla registrando la dependencia con `dependOnInheritedWidgetOfExactType`. Quitar el `const` también
-lo «arregla», pero solo oculta el problema.
+Muestra `En línea: 1` y `buildsSinLeer` queda en `1`. Ahora el hijo es el mismo objeto constante, y no hay dependencia que lo marque. Se arregla registrando la dependencia con `dependOnInheritedWidgetOfExactType`. Quitar el `const` también lo «arregla», pero solo oculta el problema.
 
 </details>
 
 ## 6. `updateShouldNotify`: el proveedor decide si avisa
 
-Cada vez que llega una descripción nueva del proveedor, Flutter se lo pregunta a `updateShouldNotify`, con la
-descripción anterior como argumento. Ese método es una **política**, como la de `ValueNotifier` con `==` (unidad 7),
-pero la escribes tú.
+Cada vez que llega una descripción nueva del proveedor, Flutter se lo pregunta a `updateShouldNotify`, con la descripción anterior como argumento. Ese método es una **política**, como la de `ValueNotifier` con `==` (unidad 7), pero la escribes tú.
 
 **Antes de mirar los `expect`**, predice qué pasa con cada proveedor:
 
@@ -602,27 +543,20 @@ void main() {
 
 Paso a paso:
 
-1. **Mismo valor en una descripción nueva.** `arbol(1)` crea otro `BordeComparado` con `grosor: 1`. Su política devuelve
-   `false`, de modo que el consumidor no se reconstruye. El `Column` es constante y no hay nada más que hacer.
-2. **Valor distinto.** `BordeComparado` avisa y `BordeMudo` no, aunque su campo también ha cambiado. El `LectorMudo` sí
-   tiene una dependencia registrada, pero no recibe el aviso. Sigue mostrando `1`.
-3. **Otra causa de construcción.** Al refrescar, `LectorMudo` lee el valor actual. **`updateShouldNotify` no impide que
-   el dato cambie**: solo decide si se avisa. El elemento ya ha adoptado la descripción nueva.
+1. **Mismo valor en una descripción nueva.** `arbol(1)` crea otro `BordeComparado` con `grosor: 1`. Su política devuelve `false`, de modo que el consumidor no se reconstruye. El `Column` es constante y no hay nada más que hacer.
+2. **Valor distinto.** `BordeComparado` avisa y `BordeMudo` no, aunque su campo también ha cambiado. El `LectorMudo` sí tiene una dependencia registrada, pero no recibe el aviso. Sigue mostrando `1`.
+3. **Otra causa de construcción.** Al refrescar, `LectorMudo` lee el valor actual. **`updateShouldNotify` no impide que el dato cambie**: solo decide si se avisa. El elemento ya ha adoptado la descripción nueva.
 
-La política habitual es comparar los campos que publica. Una trampa frecuente es olvidar alguno: si añades un campo y no
-lo incluyes en la comparación, los cambios de ese campo no se notifican.
+La política habitual es comparar los campos que publica. Una trampa frecuente es olvidar alguno: si añades un campo y no lo incluyes en la comparación, los cambios de ese campo no se notifican.
 
 ### Practica 6
 
-`BordeHeredado` tiene dos campos, `grosor` y `color`, y su `updateShouldNotify` solo compara `grosor`. Un consumidor
-muestra el color. ¿Qué ocurre si cambia solo `color`? ¿Y si cambian los dos a la vez?
+`BordeHeredado` tiene dos campos, `grosor` y `color`, y su `updateShouldNotify` solo compara `grosor`. Un consumidor muestra el color. ¿Qué ocurre si cambia solo `color`? ¿Y si cambian los dos a la vez?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Si cambia solo `color`, no se avisa y el consumidor sigue mostrando el color anterior. Si cambian los dos, la
-comparación de `grosor` devuelve `true`, el consumidor se reconstruye y lee ambos valores nuevos. Por eso el error es
-intermitente y difícil de localizar: depende de qué otra cosa cambie a la vez.
+Si cambia solo `color`, no se avisa y el consumidor sigue mostrando el color anterior. Si cambian los dos, la comparación de `grosor` devuelve `true`, el consumidor se reconstruye y lee ambos valores nuevos. Por eso el error es intermitente y difícil de localizar: depende de qué otra cosa cambie a la vez.
 
 </details>
 
@@ -645,28 +579,18 @@ T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>() {
 
 De aquí salen varias conclusiones:
 
-1. **La relación es entre elementos, no entre widgets.** Los widgets se sustituyen en cada descripción; los elementos
-   permanecen. El consumidor no se suscribe a un valor, ni a un objeto `BordeHeredado` concreto, sino al **sitio** del
-   proveedor.
-2. **La relación se registra en los dos sentidos.** El proveedor conserva sus `_dependents`, para saber a quién avisar.
-   El consumidor conserva sus `_dependencies`, para darse de baja al desmontarse.
-3. **`_inheritedElements` es un mapa.** Cada elemento tiene disponible un mapa que asocia cada tipo de `InheritedWidget`
-   con el proveedor más cercano de ese tipo. Por eso la búsqueda no recorre todo el árbol y es rápida, y por eso busca
-   por tipo exacto.
-4. **Nadie ha creado un listener.** No hay `addListener` en esta relación. Es otro mecanismo que `Listenable`, aunque
-   resuelve un problema parecido.
+1. **La relación es entre elementos, no entre widgets.** Los widgets se sustituyen en cada descripción; los elementos permanecen. El consumidor no se suscribe a un valor, ni a un objeto `BordeHeredado` concreto, sino al **sitio** del proveedor.
+2. **La relación se registra en los dos sentidos.** El proveedor conserva sus `_dependents`, para saber a quién avisar. El consumidor conserva sus `_dependencies`, para darse de baja al desmontarse.
+3. **`_inheritedElements` es un mapa.** Cada elemento tiene disponible un mapa que asocia cada tipo de `InheritedWidget` con el proveedor más cercano de ese tipo. Por eso la búsqueda no recorre todo el árbol y es rápida, y por eso busca por tipo exacto.
+4. **Nadie ha creado un listener.** No hay `addListener` en esta relación. Es otro mecanismo que `Listenable`, aunque resuelve un problema parecido.
 
-Cuando el proveedor avisa, llama a `didChangeDependencies` en cada elemento de la lista. Para un `StatelessWidget`, esto
-solo lo marca para reconstruir. Para un `StatefulWidget`, además hace que se ejecute el `didChangeDependencies` de su
-`State` (unidad 19).
+Cuando el proveedor avisa, llama a `didChangeDependencies` en cada elemento de la lista. Para un `StatelessWidget`, esto solo lo marca para reconstruir. Para un `StatefulWidget`, además hace que se ejecute el `didChangeDependencies` de su `State` (unidad 19).
 
 ### Una dependencia dura lo que dura el elemento
 
-Hay una diferencia importante con `SignalBuilder`. En la unidad 10 viste que este recalcula sus dependencias en cada
-construcción, y que deja de observar una señal si ya no la lee. ¿Ocurre lo mismo aquí?
+Hay una diferencia importante con `SignalBuilder`. En la unidad 10 viste que este recalcula sus dependencias en cada construcción, y que deja de observar una señal si ya no la lee. ¿Ocurre lo mismo aquí?
 
-Para que su `build` solo pueda deberse al aviso, el hijo es siempre el mismo objeto `const`. **Antes de mirar los
-`expect`**, predice si este consumidor se reconstruye después de dejar de leer:
+Para que su `build` solo pueda deberse al aviso, el hijo es siempre el mismo objeto `const`. **Antes de mirar los `expect`**, predice si este consumidor se reconstruye después de dejar de leer:
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -735,31 +659,24 @@ void main() {
 }
 ```
 
-Aunque el callback ya no lea el grosor, `builds` sigue subiendo cuando este cambia. **La dependencia permanece hasta que
-el elemento se retira del árbol.** Se añade al leer y no se elimina al dejar de leer. La última línea demuestra que
-tampoco se avisa si el valor no cambia.
+Aunque el callback ya no lea el grosor, `builds` sigue subiendo cuando este cambia. **La dependencia permanece hasta que el elemento se retira del árbol.** Se añade al leer y no se elimina al dejar de leer. La última línea demuestra que tampoco se avisa si el valor no cambia.
 
-No suele ser un problema: como mucho, una reconstrucción de más. Pero es una diferencia real con `SignalBuilder`, y un
-ejemplo de que «reactivo» no significa lo mismo en cada mecanismo.
+No suele ser un problema: como mucho, una reconstrucción de más. Pero es una diferencia real con `SignalBuilder`, y un ejemplo de que «reactivo» no significa lo mismo en cada mecanismo.
 
 ### Practica 7
 
-Un widget lee `BordeHeredado` en su primer `build` y `OtroHeredado` en el segundo, por una condición. Después del
-segundo `build`, ¿de cuántos proveedores depende? ¿Y un `SignalBuilder` que hace lo mismo con dos señales?
+Un widget lee `BordeHeredado` en su primer `build` y `OtroHeredado` en el segundo, por una condición. Después del segundo `build`, ¿de cuántos proveedores depende? ¿Y un `SignalBuilder` que hace lo mismo con dos señales?
 
 <details>
 <summary>Ver respuesta</summary>
 
-El widget depende de **los dos** proveedores, porque las dependencias heredadas se acumulan mientras el elemento siga
-montado. El `SignalBuilder`, según vimos en la unidad 10, observa solo lo que leyó en la última construcción: la señal
-de la otra rama deja de provocar construcciones.
+El widget depende de **los dos** proveedores, porque las dependencias heredadas se acumulan mientras el elemento siga montado. El `SignalBuilder`, según vimos en la unidad 10, observa solo lo que leyó en la última construcción: la señal de la otra rama deja de provocar construcciones.
 
 </details>
 
 ## 8. `DaisyThemeScope` también es un `InheritedWidget`
 
-El [scope real](../../../lib/themes/application/daisy_theme_scope.dart) hereda de `InheritedNotifier`, que a su vez
-hereda de `InheritedWidget`. Sin el constructor, este **fragmento** ya te resulta familiar:
+El [scope real](../../../lib/themes/application/daisy_theme_scope.dart) hereda de `InheritedNotifier`, que a su vez hereda de `InheritedWidget`. Sin el constructor, este **fragmento** ya te resulta familiar:
 
 ```dart
 class DaisyThemeScope
@@ -777,10 +694,7 @@ class DaisyThemeScope
 }
 ```
 
-Las piezas coinciden con `BordeHeredado`: un método estático `of`, una búsqueda con dependencia y un error si no hay
-proveedor. La diferencia es que no guarda el dato en un campo propio, sino que lo consulta en `notifier`. Como
-consecuencia, cuando cambia el tema **nadie entrega una descripción nueva del scope**. Cómo se avisa entonces a los
-dependientes es el tema de la unidad 22.
+Las piezas coinciden con `BordeHeredado`: un método estático `of`, una búsqueda con dependencia y un error si no hay proveedor. La diferencia es que no guarda el dato en un campo propio, sino que lo consulta en `notifier`. Como consecuencia, cuando cambia el tema **nadie entrega una descripción nueva del scope**. Cómo se avisa entonces a los dependientes es el tema de la unidad 22.
 
 También puedes comparar los dos tipos de consulta con el scope real:
 
@@ -835,26 +749,18 @@ void main() {
 }
 ```
 
-El resultado coincide con el apartado 4. Quien registra la dependencia es `dependOnInheritedWidgetOfExactType`, ya sea
-directamente o, como aquí, a través de `context.daisyTheme` y `DaisyThemeScope.of`. Ni `Text` ni `StatelessWidget` hacen
-nada especial.
+El resultado coincide con el apartado 4. Quien registra la dependencia es `dependOnInheritedWidgetOfExactType`, ya sea directamente o, como aquí, a través de `context.daisyTheme` y `DaisyThemeScope.of`. Ni `Text` ni `StatelessWidget` hacen nada especial.
 
-DaisyUI no es el único que sigue este patrón. En el [ejemplo](../../../example/lib/main.dart), `_Header` llama a
-`MediaQuery.sizeOf(context)`, que busca un `InheritedWidget` llamado `MediaQuery` y registra una dependencia: por eso
-`_Header` se reconstruye al cambiar el tamaño de la ventana.
+DaisyUI no es el único que sigue este patrón. En el [ejemplo](../../../example/lib/main.dart), `_Header` llama a `MediaQuery.sizeOf(context)`, que busca un `InheritedWidget` llamado `MediaQuery` y registra una dependencia: por eso `_Header` se reconstruye al cambiar el tamaño de la ventana.
 
 ### Practica 8
 
-En el árbol del ejemplo, `_Header` depende de `MediaQuery`, pero no lee el tema. `_ButtonContent` lee el tema. Si cambia
-el tema, ¿cuál se reconstruye? ¿Y si cambia el tamaño de la ventana?
+En el árbol del ejemplo, `_Header` depende de `MediaQuery`, pero no lee el tema. `_ButtonContent` lee el tema. Si cambia el tema, ¿cuál se reconstruye? ¿Y si cambia el tamaño de la ventana?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Si cambia el tema, se reconstruye `_ButtonContent`, junto con el `State` del botón, que también lo lee; `_Header` no
-figura como dependiente del scope. Si cambia el tamaño, se reconstruye `_Header`, que depende de `MediaQuery`. También
-lo haría `LayoutBuilder`, aunque por otro mecanismo, el de sus restricciones, que no estudiamos aquí. Cada proveedor
-avisa solo a sus dependientes.
+Si cambia el tema, se reconstruye `_ButtonContent`, junto con el `State` del botón, que también lo lee; `_Header` no figura como dependiente del scope. Si cambia el tamaño, se reconstruye `_Header`, que depende de `MediaQuery`. También lo haría `LayoutBuilder`, aunque por otro mecanismo, el de sus restricciones, que no estudiamos aquí. Cada proveedor avisa solo a sus dependientes.
 
 </details>
 
@@ -862,10 +768,8 @@ avisa solo a sus dependientes.
 
 Escribe una prueba que reúna las ideas de la unidad:
 
-1. Declara `DensidadHeredada`, un `InheritedWidget` con dos campos, `espacio` (`int`) y `nombre` (`String`), y un
-   `updateShouldNotify` que compare **solo** `espacio`.
-2. Declara `Tabla` (`StatefulWidget`), que conserva esos dos valores y construye `DensidadHeredada` con su
-   `widget.child`. Debe tener un método `cambiar(espacio, nombre)` con `setState`.
+1. Declara `DensidadHeredada`, un `InheritedWidget` con dos campos, `espacio` (`int`) y `nombre` (`String`), y un `updateShouldNotify` que compare **solo** `espacio`.
+2. Declara `Tabla` (`StatefulWidget`), que conserva esos dos valores y construye `DensidadHeredada` con su `widget.child`. Debe tener un método `cambiar(espacio, nombre)` con `setState`.
 3. Debajo coloca, sin que nadie pase parámetros, tres consumidores constantes que cuenten sus construcciones:
    - `Lector` lee `espacio` con dependencia.
    - `Consulta` lee `espacio` sin dependencia.
@@ -873,8 +777,7 @@ Escribe una prueba que reúna las ideas de la unidad:
 4. Monta el árbol con `espacio: 1` y `nombre: 'compacto'`.
 5. Cambia a `(2, 'compacto')`. Después a `(2, 'amplio')`. Después a `(3, 'amplio')`. Procesa un frame tras cada cambio.
 
-Predice los textos y los tres contadores tras cada paso. Como variaciones: ¿qué aviso falta si un consumidor solo
-necesita `nombre`? ¿Qué ocurriría si `Tabla` creara a sus hijos dentro de su `build`, sin `const`?
+Predice los textos y los tres contadores tras cada paso. Como variaciones: ¿qué aviso falta si un consumidor solo necesita `nombre`? ¿Qué ocurriría si `Tabla` creara a sus hijos dentro de su `build`, sin `const`?
 
 <details>
 <summary>Ver una posible solución</summary>
@@ -1001,21 +904,13 @@ void main() {
 }
 ```
 
-Al pasar a `(2, 'compacto')`, cambia `espacio` y se avisa a los dependientes: `Lector` y también `Etiqueta`, aunque su
-dato no haya cambiado. **La dependencia es con el proveedor, no con un campo.** `Consulta` no recibe aviso y sigue en
-`1`.
+Al pasar a `(2, 'compacto')`, cambia `espacio` y se avisa a los dependientes: `Lector` y también `Etiqueta`, aunque su dato no haya cambiado. **La dependencia es con el proveedor, no con un campo.** `Consulta` no recibe aviso y sigue en `1`.
 
-Al pasar a `(2, 'amplio')`, la política devuelve `false`: nadie se reconstruye, y `Etiqueta` muestra un nombre obsoleto.
-Es el error del apartado 6. Al pasar a `(3, 'amplio')`, vuelve a avisar y `Etiqueta` se pone al día, por una causa ajena
-a su dato.
+Al pasar a `(2, 'amplio')`, la política devuelve `false`: nadie se reconstruye, y `Etiqueta` muestra un nombre obsoleto. Es el error del apartado 6. Al pasar a `(3, 'amplio')`, vuelve a avisar y `Etiqueta` se pone al día, por una causa ajena a su dato.
 
-La política correcta comparará también `nombre`. Aun así, `Lector` se reconstruiría cuando cambie solo `nombre`.
-Evitarlo exige dividir el proveedor en dos o usar
-[`InheritedModel`](https://api.flutter.dev/flutter/widgets/InheritedModel-class.html), que no necesitamos en este plan.
+La política correcta comparará también `nombre`. Aun así, `Lector` se reconstruiría cuando cambie solo `nombre`. Evitarlo exige dividir el proveedor en dos o usar [`InheritedModel`](https://api.flutter.dev/flutter/widgets/InheritedModel-class.html), que no necesitamos en este plan.
 
-Si `Tabla` creara a los hijos en su `build`, sin `const`, todos se reconstruirían en cada cambio. `Consulta` mostraría
-siempre el valor actual y `Etiqueta` también. El árbol parecería correcto, y los errores que hemos encontrado quedarían
-ocultos.
+Si `Tabla` creara a los hijos en su `build`, sin `const`, todos se reconstruirían en cada cambio. `Consulta` mostraría siempre el valor actual y `Etiqueta` también. El árbol parecería correcto, y los errores que hemos encontrado quedarían ocultos.
 
 </details>
 
@@ -1025,8 +920,7 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 
 1. ¿Qué problema resuelve un `InheritedWidget` frente a pasar parámetros? **Apartado 1.**
 2. ¿Qué significa «heredado» aquí, y qué partes tiene un proveedor? **Apartado 2.**
-3. Sigue los pasos desde `setState` en la raíz hasta el `build` del consumidor. ¿Por qué no se reconstruye el
-   intermedio? **Apartado 3.**
+3. Sigue los pasos desde `setState` en la raíz hasta el `build` del consumidor. ¿Por qué no se reconstruye el intermedio? **Apartado 3.**
 4. ¿Qué diferencia hay entre `dependOnInheritedWidgetOfExactType` y `getInheritedWidgetOfExactType`? **Apartado 4.**
 5. ¿Por qué un widget sin dependencia puede actualizarse, y por qué no debes fiarte de ello? **Apartado 5.**
 6. ¿Qué hace `updateShouldNotify`, y qué no puede impedir? **Apartado 6.**
@@ -1034,21 +928,12 @@ Intenta responder sin mirar; vuelve al apartado indicado si necesitas repasar.
 8. ¿Qué ocurre con una dependencia cuando se deja de leer? ¿Y con la de `SignalBuilder`? **Apartado 7.**
 9. ¿Qué tiene en común `DaisyThemeScope` con un `InheritedWidget` propio, y qué diferencia les separa? **Apartado 8.**
 
-Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques qué relación se establece entre el
-consumidor y el proveedor. La unidad 22 estudia `InheritedNotifier`: cómo avisar a los dependientes cuando el dato vive
-en un notifier y nadie entrega una descripción nueva.
+Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y expliques qué relación se establece entre el consumidor y el proveedor. La unidad 22 estudia `InheritedNotifier`: cómo avisar a los dependientes cuando el dato vive en un notifier y nadie entrega una descripción nueva.
 
 ## Para consultar si necesitas reforzar
 
-- [`InheritedWidget`](https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html): ejemplo oficial con `of` y
-  `maybeOf`.
-- [`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html)
-  y
-  [`getInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/getInheritedWidgetOfExactType.html):
-  cuándo usar cada una y desde qué métodos del ciclo de vida.
-- [`updateShouldNotify`](https://api.flutter.dev/flutter/widgets/InheritedWidget/updateShouldNotify.html): el contrato
-  de la política.
-- [`MediaQuery.sizeOf`](https://api.flutter.dev/flutter/widgets/MediaQuery/sizeOf.html): otro proveedor que usa el
-  ejemplo.
-- [Scope](../../../lib/themes/application/daisy_theme_scope.dart) y [pruebas del
-  scope](../../../test/themes/daisy_theme_scope_test.dart): comportamiento actual de DaisyUI.
+- [`InheritedWidget`](https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html): ejemplo oficial con `of` y `maybeOf`.
+- [`dependOnInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html) y [`getInheritedWidgetOfExactType`](https://api.flutter.dev/flutter/widgets/BuildContext/getInheritedWidgetOfExactType.html): cuándo usar cada una y desde qué métodos del ciclo de vida.
+- [`updateShouldNotify`](https://api.flutter.dev/flutter/widgets/InheritedWidget/updateShouldNotify.html): el contrato de la política.
+- [`MediaQuery.sizeOf`](https://api.flutter.dev/flutter/widgets/MediaQuery/sizeOf.html): otro proveedor que usa el ejemplo.
+- [Scope](../../../lib/themes/application/daisy_theme_scope.dart) y [pruebas del scope](../../../test/themes/daisy_theme_scope_test.dart): comportamiento actual de DaisyUI.
