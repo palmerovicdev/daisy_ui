@@ -272,17 +272,21 @@ Es una profundización del ecosistema Signals; nuestro flujo actual de temas no 
 
 - **Conceptos:** token de diseño, rol semántico, superficie, contenido, paleta, `DaisyThemeColorPair`, radios, tamaños, grosor de borde y unidades.
 - **Debes comprender:** por qué agrupamos colores por función y por qué existen pares de fondo y contenido. Qué representa cada dato de un tema.
-- **Práctica:** localizar los tokens que utilizan el texto y el contenedor de la vista previa, reproducida en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo), y el radio que usa `_ButtonContent` en el ejemplo actual, y calcular `md` a partir de `DaisyThemeSizeConfig.base`. Convertir un `RayOklch` a `Color` con `.toColor()`.
+- **Práctica:** localizar los tokens que utilizan el texto y el contenedor de la vista previa, reproducida en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo), y el radio que usa `_ButtonContent` en el ejemplo actual, y calcular `md` a partir de `DaisyThemeSizePresets.base`. Convertir un `RayOklch` a `Color` con `.toColor()`.
 - [ ] **Dominado cuando:** puedes elegir el token apropiado y distinguir los datos de DaisyUI de su aplicación explícita a widgets o a `ThemeData`.
 
 Profundización de color: componentes L, C y H de OKLCH, opacidad, conversión a RGB, límites de representación y contraste. Se estudian por separado, después de dominar el flujo reactivo.
 
+**Guía y materiales:** [26. Temas, tokens semánticos y colores](temarios/26-temas-tokens-semanticos-y-colores.md).
+
 ### 27. Modelos inmutables y Freezed
 
-- **Conceptos:** modelo, `@freezed`, anotación, `abstract class`, constructor `factory`, constructor `const`, constructor privado, mixin `with`, `copyWith` e igualdad generada.
-- **Debes comprender:** qué escribimos nosotros y qué produce Freezed. Cómo un nuevo modelo sustituye al anterior sin modificarlo y cómo su igualdad participa en las notificaciones.
+- **Conceptos:** modelo, `@freezed`, anotación, `abstract class`, constructor `factory`, constructor `const`, constructor privado, mixin `with`, `copyWith` e igualdad con Equatable y `props`.
+- **Debes comprender:** qué escribimos nosotros y qué produce Freezed; en DaisyUI, `equal: false` deja la igualdad a Equatable. Cómo un nuevo modelo sustituye al anterior sin modificarlo y cómo su igualdad participa en las notificaciones.
 - **Práctica:** crear una copia de un tema con otro borde, comprobar que el original se conserva y comparar una copia equivalente con una copia modificada.
 - [ ] **Dominado cuando:** puedes explicar la relación entre inmutabilidad, igualdad y cambio de estado.
+
+**Guía y materiales:** [27. Modelos inmutables y Freezed](temarios/27-modelos-inmutables-y-freezed.md).
 
 ### 28. Mapas, JSON y serialización anidada
 
@@ -291,12 +295,16 @@ Profundización de color: componentes L, C y H de OKLCH, opacidad, conversión a
 - **Práctica:** recorrer tema, colores y pares de color hasta los números. Probar el ciclo directo `fromJson(theme.toJson())` y el ciclo a través de texto JSON.
 - [ ] **Dominado cuando:** puedes localizar en qué nivel se quedó un objeto sin convertir y explicar cómo se conservan valores opcionales y números.
 
+**Guía y materiales:** [28. Mapas, JSON y serialización anidada](temarios/28-mapas-json-y-serializacion-anidada.md).
+
 ### 29. Generación de código y configuración
 
 - **Conceptos:** `build_runner`, Freezed, `json_serializable`, archivos `part`, archivos generados, `../../build.yaml` y `explicit_to_json`.
 - **Debes comprender:** cómo una definición de modelo y su configuración producen los serializadores. Por qué los archivos generados se regeneran en lugar de corregirse manualmente.
 - **Práctica:** relacionar una propiedad del modelo con su salida generada y ejecutar `dart run build_runner build` en una copia de práctica del proyecto.
 - [ ] **Dominado cuando:** puedes decidir qué archivo fuente cambiar para modificar el resultado generado.
+
+**Guía y materiales:** [29. Generación de código y configuración](temarios/29-generacion-de-codigo-y-configuracion.md).
 
 ## Bloque 7. Verificación y comprensión del recorrido completo
 
