@@ -20,7 +20,7 @@ Todos los comandos siguientes se ejecutan dentro de `daisy_ui_practica`, donde l
 
 Predice cada resultado antes de ejecutar. Los fragmentos identificados como tales no son archivos completos. Puedes estudiar los apartados 1–3 en una sesión, 4–5 en otra y terminar con 6–7 y el ejercicio final.
 
-Los ejemplos se contrastaron con Flutter 3.47.8, Dart 3.13.7, `build_runner` 2.17.1, `freezed` 4.0.3, `json_serializable` 6.15.2 y `source_gen` 4.x; consulta [pubspec.lock](../../../pubspec.lock). La salida de `build_runner` cambia entre versiones, por lo que las de esta guía orientan, no son un contrato.
+Los ejemplos se contrastaron con Flutter 3.47.8, Dart 3.13.7, `build_runner` 2.17.1, `freezed` 4.0.3, `json_serializable` 6.15.2 y `source_gen` 4.3.1; consulta [pubspec.lock](../../../pubspec.lock). La salida de `build_runner` cambia entre versiones, por lo que las de esta guía orientan, no son un contrato.
 
 ## 1. Un programa que escribe código
 
@@ -118,12 +118,12 @@ Un detalle que suele desconcertar: el archivo no existe la primera vez que escri
 
 ### Practica 2
 
-En la copia, en `part_demo/tema.codigo.dart`, cambia `tema._nombre` para que un tercer archivo `otro.dart`, sin `part`, intente leer `const Tema('x')._nombre`. ¿Compila ese tercer archivo, aunque importe `tema.dart`? ¿Y si quitas la línea `part of` de `tema.codigo.dart`?
+Crea `part_demo/otro.dart`, que importe `tema.dart` e intente imprimir `const Tema('x')._nombre`. ¿Compila? ¿Qué ocurre con `tema.dart` si quitas la línea `part of` de `tema.codigo.dart`?
 
 <details>
 <summary>Ver respuesta</summary>
 
-`otro.dart` no compila: importar una biblioteca da acceso a sus nombres públicos, y `_nombre` es privado de la biblioteca `tema.dart`. Sin `part of`, `tema.codigo.dart` deja de ser una parte de esa biblioteca: el `part` de `tema.dart` da error, porque el archivo al que apunta no se declara como parte suya.
+`otro.dart` no compila: importar una biblioteca da acceso a sus nombres públicos, y `_nombre` es privado de la biblioteca `tema.dart`. Sin `part of`, el `part` de `tema.dart` da error: el archivo al que apunta no se declara como parte suya.
 
 </details>
 
@@ -238,11 +238,10 @@ Lanza la generación dentro de la copia:
 dart run build_runner build
 ```
 
-La parte final de la salida es parecida a esta. El número de archivos escritos puede ser distinto la primera vez:
+La parte final de la salida es parecida a esta. Los recuentos dependen de cuántos archivos Dart tenga la copia:
 
 ```text
-  2s json_serializable on 48 inputs: 19 skipped, 5 output, 24 no-op; spent 2s analyzing
-  0s source_gen:combining_builder on 48 inputs: 19 skipped, 5 output, 24 no-op
+  0s source_gen:combining_builder on 46 inputs: 18 skipped, 5 output, 23 no-op
   Built with build_runner/aot in 16s; wrote 15 outputs.
 ```
 
@@ -256,7 +255,7 @@ dart run build_runner build
 `diff` no debería mostrar nada: la generación es **determinista**. A partir de las mismas fuentes, se obtiene el mismo código. Por eso el proyecto puede guardar los archivos generados en Git, como indica el [README](../../../README.md), y aun así quien los regenere no verá cambios. La segunda ejecución termina en un instante:
 
 ```text
-  0s source_gen:combining_builder on 48 inputs: 48 skipped
+  0s source_gen:combining_builder on 46 inputs: 46 skipped
   Built with build_runner/aot in 0s; wrote 0 outputs.
 ```
 
@@ -267,12 +266,12 @@ dart run build_runner build
 
 ### Practica 5
 
-Sin ejecutar: si mañana `git pull` trae un cambio en un comentario de `theme_radius.dart`, ¿crees que `build` procesará algo? ¿Y si traes un cambio en `build.yaml`? ¿Y si cambias un archivo sin anotaciones, como `daisy_theme_controller.dart`? Después pruébalo con el primero y el tercero.
+Predice y después prueba: añade una línea `// nota` al final de `theme_radius.dart` y genera. Haz lo mismo con `daisy_theme_controller.dart`, que no tiene anotaciones de Freezed. ¿En cuál se escriben archivos? ¿Cambia el contenido generado en alguno? Compruébalo con `diff -rq lib/themes/domain/theme/generated ../daisy_ui/lib/themes/domain/theme/generated`, y restaura los dos archivos con `cp` desde el original.
 
 <details>
 <summary>Ver respuesta</summary>
 
-Procesará los tres casos en cierta medida: la herramienta detecta el cambio de entrada y vuelve a evaluar, pero no siempre escribe. El comentario de documentación puede copiarse en la salida; un `//` normal no cambia el resultado, y la salida sigue siendo la misma. Un cambio en `build.yaml` provoca un trabajo más amplio, porque afecta a todos. El controlador no tiene anotaciones, así que los generadores se ejecutan sin producir ninguna salida para él. La forma de razonarlo: una entrada cambiada obliga a mirar, pero solo las entradas relevantes cambian los archivos.
+Con `theme_radius.dart`, la herramienta vuelve a ejecutar sus generadores e informa de archivos escritos (`wrote 6 outputs`), pero `diff` no muestra diferencias: un comentario `//` no cambia el resultado. Con el controlador, también analiza la entrada cambiada, pero termina con `wrote 0 outputs`, porque ningún generador produce nada para él. Una entrada cambiada obliga a mirar; solo lo que un generador lee puede cambiar la salida.
 
 </details>
 
@@ -281,7 +280,7 @@ Procesará los tres casos en cierta medida: la herramienta detecta el cambio de 
 **Experimento 1: editar un archivo generado.** En la copia, abre `lib/themes/domain/generated/theme.g.dart` y cambia `'border': instance.border` por `'borde': instance.border`. Ejecuta `dart run build_runner build`.
 
 ```text
-  0s source_gen:combining_builder on 48 inputs: 47 skipped, 1 fixed
+  0s source_gen:combining_builder on 46 inputs: 45 skipped, 1 fixed
   Built with build_runner/aot in 0s; wrote 1 output.
 ```
 
@@ -314,7 +313,7 @@ diff lib/themes/domain/generated/theme.g.dart ../daisy_ui/lib/themes/domain/gene
 
 Ha cambiado el formato de los datos y el campo sigue siendo `border`. Hay que tener cuidado: un JSON guardado antes con `border` ya no se podría leer. Deshaz el cambio con `cp ../daisy_ui/lib/themes/domain/theme.dart lib/themes/domain/theme.dart`, y genera de nuevo.
 
-**Experimento 3: quitar `explicit_to_json`.** Elimina las dos últimas líneas de `build.yaml` (`json_serializable:` y `options:` deben irse con `explicit_to_json`), genera y compara:
+**Experimento 3: quitar `explicit_to_json`.** Elimina las tres últimas líneas de `build.yaml` (`json_serializable:`, `options:` y `explicit_to_json: true`), genera y compara:
 
 ```shell
 dart run build_runner build
@@ -333,7 +332,7 @@ flutter test --no-pub test/themes/daisy_theme_json_test.dart
 >       'size': instance.size.toJson(),
 ```
 
-Es el fallo que escribimos a mano en el apartado 3 de la unidad 28, ahora producido por el generador. Las pruebas lo confirman:
+Es el fallo que escribimos a mano en el apartado 3 de la unidad 28, ahora producido por el generador. Las pruebas lo confirman; esto es un resumen de su salida:
 
 ```text
 Every built-in theme produces a JSON-only map and round trips directly [E]
@@ -365,7 +364,7 @@ Decide qué archivo cambiarías y si hay que generar: (a) `toString` debe mostra
 <details>
 <summary>Ver respuesta</summary>
 
-(a) Escribir tu propio `toString` en la clase pública y **quitar** `toStringOverride: true` de la anotación, para que Freezed no genere otro; hay que generar. (b) El getter `sm` de `theme_size.dart`; no hay que generar, porque no aparece en ningún archivo generado. (c) En `theme.dart`, cambiar `required String description` por `@Default('') String description`; hay que generar. `@Default` lo usa `DaisyButtonTheme`. (d) `sources` en `build.yaml`, aunque `example/` es un paquete propio y en realidad tendría que tener su propia configuración.
+(a) Escribir tu propio `toString` en la clase pública y **quitar** `toStringOverride: true` de la anotación, para que Freezed no genere otro; hay que generar. (b) El getter `sm` de `theme_size.dart`; no hay que generar, porque no aparece en ningún archivo generado. (c) En `theme.dart`, cambiar `required String description` por `@Default('') String description`; hay que generar. `@Default` lo usa `DaisyButtonTheme`. (d) `sources.exclude` en `build.yaml` es lo que los excluye. Aun así, `example/` es un paquete propio, de modo que lo natural sería generar desde su carpeta, con su propio `pubspec.yaml`.
 
 </details>
 
@@ -504,10 +503,12 @@ dart run build_runner build
 diff lib/themes/domain/theme/generated/theme_radius.g.dart ../daisy_ui/lib/themes/domain/theme/generated/theme_radius.g.dart
 ```
 
-El `diff` muestra estas líneas añadidas, junto con las existentes:
+El `diff` muestra estas líneas añadidas:
 
 ```text
-<   pills: (json['pill'] as num?)?.toInt() ?? DaisyThemeRadiusPreset.full,
+14d13
+<       pills: (json['pill'] as num?)?.toInt() ?? DaisyThemeRadiusPreset.full,
+22d20
 <       'pill': instance.pills,
 ```
 
@@ -551,7 +552,7 @@ flutter test --no-pub
 
 Pasan las dos órdenes. Los 35 temas siguen funcionando porque `pills` toma su valor predeterminado. Los JSON antiguos se pueden leer gracias a `?? DaisyThemeRadiusPreset.full`.
 
-Sin `pills` en `props`, la línea `expect(radio.copyWith(pills: 16), isNot(radio))` fallaría, y sería la única que lo detectara: el ciclo de ida y vuelta seguiría pasando, porque un `==` que no mira `pills` no puede notar que se ha perdido. Fíjate también en que el primer `expect` del ciclo es más débil que el último: por eso se añade `expect(recuperado.radius.pills, 16)`.
+Sin `pills` en `props`, fallaría `expect(radio.copyWith(pills: 16), isNot(radio))`. En cambio, `expect(recuperado, tema)` seguiría pasando aunque se perdiera el dato, porque un `==` que no mira `pills` no puede notarlo. Por eso la prueba añade `expect(recuperado.radius.pills, 16)`, que comprueba el valor directamente.
 
 Para restaurar la copia:
 
@@ -586,5 +587,5 @@ Puedes dar la unidad por comprendida cuando resuelvas el ejercicio final y, ante
 - [`build_runner`](https://pub.dev/packages/build_runner): comandos `build`, `watch` y `clean`.
 - [Freezed](https://pub.dev/packages/freezed) y [`json_serializable`](https://pub.dev/packages/json_serializable): opciones, como `explicit_to_json`.
 - [`build_config`](https://pub.dev/packages/build_config): el formato de `build.yaml`.
-- [`part` y bibliotecas en Dart](https://dart.dev/tools/pub/create-packages#organizing-a-package): cómo se organiza un paquete.
+- [Bibliotecas en Dart](https://dart.dev/language/libraries): qué es una biblioteca y qué límites impone `_`.
 - [build.yaml](../../../build.yaml), [pubspec.yaml](../../../pubspec.yaml), la sección *Code generation* del [README](../../../README.md) y los [modelos](../../../lib/themes/domain/theme.dart): configuración actual de DaisyUI.

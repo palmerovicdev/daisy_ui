@@ -277,7 +277,7 @@ Imprime `1.0`: `white` no indica opacidad, y `fromComponents` usa `1.0` por defe
 
 ## 5. Radios, tamaños, grosor de borde y unidades
 
-Además de colores, cada tema decide formas y medidas. Todas se expresan en **píxeles lógicos**, la unidad de Flutter que no depende de la densidad de la pantalla. Lo único que los diferencia es su forma de almacenarse:
+Además de colores, cada tema decide formas y medidas. Todas se expresan en **píxeles lógicos**, la unidad de Flutter que no depende de la densidad de la pantalla. Lo que cambia es cómo se guarda cada una:
 
 | Token | Dónde | Tipo | Para qué |
 |-------|-------|------|----------|

@@ -429,7 +429,7 @@ En dos temas: true
 
 Esto recuerda por qué nunca debes razonar con `identical` para decidir si un tema «ha cambiado»: dos valores con los mismos datos pueden ser o no el mismo objeto, según cómo se hayan creado. La pregunta útil es la de `==`.
 
-Una última precisión: estos modelos son inmutables **a fondo** porque sus campos son `String`, números y otros objetos inmutables. No hay listas ni mapas. Si un modelo tuviera un campo `List`, Freezed lo envolvería por defecto en una vista no modificable, según su opción `makeCollectionsUnmodifiable`, pero `final` no bastaría (unidad 8).
+Una última precisión: estos modelos son inmutables **a fondo** porque sus campos son `String`, números y otros objetos inmutables. No hay listas ni mapas. Si un modelo tuviera un campo `List`, `final` por sí solo no bastaría (unidad 8); Freezed lo envuelve por defecto en una vista no modificable, según su opción `makeCollectionsUnmodifiable`.
 
 ### Practica 5
 
@@ -458,7 +458,7 @@ abstract class DaisyThemeRadius with _$DaisyThemeRadius, Equatable {
 
 - **`equal: false`** le dice a Freezed que no genere `==` ni `hashCode`. Los archivos `.freezed.dart` de los temas no contienen ningún `operator ==`.
 - **`Equatable`** aporta esa regla. Su `==` comprueba que los dos objetos sean de la misma clase y que coincidan sus `props`, uno a uno; su `hashCode` también se calcula a partir de `props`. Ambos quedan coherentes entre sí, como exige la unidad 8.
-- **`toStringOverride: true`** fuerza a Freezed a generar `toString`. Sin esa opción no lo hace, porque Equatable ya define uno. El mensaje cambiaría de `DaisyThemeRadius(boxes: 8, fields: 4, selectors: 8)` a `_DaisyThemeRadius(8, 4, 8)`. La prueba `Generated toString keeps the readable theme representation` de [daisy_theme_equality_test.dart](../../../test/themes/daisy_theme_equality_test.dart) lo protege.
+- **`toStringOverride: true`** fuerza a Freezed a generar `toString`. Sin esa opción no lo hace, porque Equatable ya define uno. En una prueba, el mensaje cambiaría de `DaisyThemeRadius(boxes: 8, fields: 4, selectors: 8)` a `_DaisyThemeRadius(8, 4, 8)`. La prueba `Generated toString keeps the readable theme representation` de [daisy_theme_equality_test.dart](../../../test/themes/daisy_theme_equality_test.dart) lo protege.
 
 La igualdad anidada funciona por recursión: `DaisyThemeModel.props` incluye `colors`, cuyo `==` compara sus `props`, que incluyen `primary`, y así hasta `RayOklch`. Ese último tiene su propia regla, del paquete `prism`: compara los componentes con una pequeña tolerancia en lugar de exigir que coincidan todos sus bits.
 

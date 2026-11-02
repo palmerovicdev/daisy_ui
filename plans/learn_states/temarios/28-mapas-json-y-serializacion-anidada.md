@@ -197,10 +197,10 @@ void main() {
 }
 ```
 
-La salida es, en una máquina virtual de Dart:
+La salida es la siguiente al ejecutarlo con `dart run`. En DartPad, los nombres de `runtimeType` y el mensaje de error pueden ser distintos:
 
 ```text
-_Map<String, int>
+_Map<String, dynamic>
 Radios
 {"nombre":"claro","radios":{"cajas":8}}
 {"nombre":"claro","radios":{"cajas":8}}
@@ -546,7 +546,7 @@ La prueba no demuestra nada sobre el almacenamiento. El paquete no lee ni guarda
 
 ### Practica 7
 
-En esta prueba, ¿cuántos avisos produciría una segunda llamada a `controller.setTheme` con el mismo texto recién decodificado de nuevo? ¿Qué lanza `jsonDecode('no es json')`, y en qué paso de los anteriores? ¿Debería ese error cambiar el tema actual?
+Si decodificas otra vez el mismo texto y llamas de nuevo a `controller.setTheme`, ¿cuántos avisos nuevos se producen? ¿Qué lanza `jsonDecode('no es json')`, y en qué paso de los anteriores? ¿Debería ese error cambiar el tema actual?
 
 <details>
 <summary>Ver respuesta</summary>
@@ -636,7 +636,7 @@ La función repite la forma de `_expectJsonValue`, pero construye la ruta a medi
 
 En el caso profundo, `jsonEncode` funciona y produce el mismo texto que el tema sin alterar, porque llama a `RayOklch.toJson()`. `fromJson`, en cambio, lanza un `TypeError`: encuentra un `RayOklch` donde exige un mapa. Es el mismo fallo del apartado 3, en otro nivel, y la razón por la que `jsonEncode` no es una buena comprobación.
 
-`copiaProfunda` no se puede sustituir por `DaisyThemes.light.toJson()` y modificar el mapa sin más. Cada llamada a `toJson` crea mapas nuevos, de modo que sería posible, pero pasar por texto garantiza que el resultado no comparte nada y es exactamente lo que habría decodificado un programa externo.
+`copiaProfunda` pasa por texto para obtener lo mismo que habría decodificado un programa externo: un árbol nuevo de mapas que podemos modificar sin afectar a ningún otro.
 
 El último caso da un tema igual a `light`. El `1` se convierte en `1.0` mediante `(json['border'] as num).toDouble()`, y `primary.base300` ya era `null` en `light`, de modo que quitar la clave no cambia el resultado.
 
