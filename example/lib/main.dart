@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:daisy_ui/daisy_ui.dart';
 import 'package:daisy_ui/themes/presentation/action/button.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ class _ButtonExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.daisyTheme.colors.base.base,
       body: SafeArea(
         child: Column(
           children: [
@@ -58,35 +60,52 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.daisyTheme;
+    final base = theme.colors.base;
     return Container(
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 28),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xffeeeeee))),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: base.base300 ?? base.base,
+            width: theme.border,
+          ),
+        ),
       ),
       child: Row(
         children: [
           const Text('🌼', style: TextStyle(fontSize: 28)),
           const SizedBox(width: 8),
-          const Text(
+          Text(
             'daisyUI',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+            style: TextStyle(
+              color: base.content,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const Spacer(),
           if (MediaQuery.sizeOf(context).width >= 420)
             Container(
               height: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 3),
+                  bottom: BorderSide(
+                    color: theme.colors.primary.base,
+                    width: 3,
+                  ),
                 ),
               ),
-              child: const Center(
+              child: Center(
                 widthFactor: 1,
                 child: Text(
                   'Components',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: base.content,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -101,6 +120,8 @@ class _Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.daisyTheme;
+    final base = theme.colors.base;
     return SizedBox(
       width: 260,
       child: Padding(
@@ -108,20 +129,32 @@ class _Sidebar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Components', style: TextStyle(color: Colors.grey.shade600)),
-            const Divider(height: 40),
-            Text('Actions', style: TextStyle(color: Colors.grey.shade600)),
+            Text(
+              'Components',
+              style: TextStyle(color: base.content.withValues(alpha: 0.7)),
+            ),
+            Divider(
+              height: 40,
+              color: base.base300 ?? base.base,
+              thickness: theme.border,
+            ),
+            Text(
+              'Actions',
+              style: TextStyle(color: base.content.withValues(alpha: 0.7)),
+            ),
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xff171717),
-                borderRadius: BorderRadius.circular(6),
+                color: theme.colors.neutral.base,
+                borderRadius: BorderRadius.circular(
+                  theme.radius.fields.toDouble(),
+                ),
               ),
-              child: const Text(
+              child: Text(
                 'Button',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.colors.neutral.content),
               ),
             ),
           ],
@@ -136,6 +169,9 @@ class _ButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.daisyTheme;
+    final base = theme.colors.base;
+    final borderColor = base.base300 ?? base.base;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
       child: Align(
@@ -147,22 +183,33 @@ class _ButtonContent extends StatelessWidget {
             children: [
               Text(
                 'Components / Actions',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: base.content.withValues(alpha: 0.7)),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Button',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: base.content,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Pasa el ratón por encima y mantén pulsado el botón para probar su elevación.',
-                style: TextStyle(color: Colors.grey.shade700, height: 1.5),
+                style: TextStyle(
+                  color: base.content.withValues(alpha: 0.8),
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 40),
-              const Text(
+              Text(
                 'Elevación',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: base.content,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 20),
               Container(
@@ -171,41 +218,56 @@ class _ButtonContent extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xffe8e8e8)),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(6),
+                  border: Border.all(color: borderColor, width: theme.border),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(theme.radius.boxes.toDouble()),
                   ),
                 ),
-                child: const Text('Preview'),
+                child: Text('Preview', style: TextStyle(color: base.content)),
               ),
               Container(
                 height: 200,
                 width: double.infinity,
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xffe8e8e8)),
-                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: borderColor, width: theme.border),
+                  borderRadius: BorderRadius.circular(
+                    theme.radius.boxes.toDouble(),
+                  ),
                 ),
                 child: CustomPaint(
-                  painter: _StripesPainter(),
+                  painter: _StripesPainter(borderColor),
                   child: Center(
                     child: DaisyButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final randomIndex = Random().nextInt(
+                          DaisyThemes.values.length,
+                        );
+                        DaisyThemeService.setTheme(
+                          DaisyThemes.values[randomIndex],
+                        );
+                      },
                       child: Ink(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xfff4f4f4),
-                          border: Border.all(color: const Color(0xffe2e2e2)),
+                          color: base.base200 ?? base.base,
+                          border: Border.all(
+                            color: borderColor,
+                            width: theme.border,
+                          ),
                           borderRadius: BorderRadius.circular(
                             context.daisyTheme.radius.fields.toDouble(),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Button',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: base.content,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -221,10 +283,14 @@ class _ButtonContent extends StatelessWidget {
 }
 
 class _StripesPainter extends CustomPainter {
+  _StripesPainter(this.color);
+
+  final Color color;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xfff2f2f2)
+      ..color = color
       ..strokeWidth = 1;
     for (double x = -size.height; x < size.width; x += 20) {
       canvas.drawLine(
@@ -236,5 +302,6 @@ class _StripesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _StripesPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _StripesPainter oldDelegate) =>
+      color != oldDelegate.color;
 }
