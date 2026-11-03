@@ -21,7 +21,7 @@ _DaisyButtonTheme _$DaisyButtonThemeFromJson(Map<String, dynamic> json) =>
           $enumDecodeNullable(_$DaisyButtonModifierEnumMap, json['modifier']) ??
           DaisyButtonModifier.none,
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
-      hoverElevation: (json['hoverElevation'] as num?)?.toDouble() ?? 4,
+      hoverElevation: (json['hoverElevation'] as num?)?.toDouble() ?? 1,
       pressedElevation: (json['pressedElevation'] as num?)?.toDouble() ?? 0,
     );
 

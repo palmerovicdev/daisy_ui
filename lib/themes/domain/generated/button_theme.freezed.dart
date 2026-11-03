@@ -210,7 +210,7 @@ return $default(_that.type,_that.style,_that.size,_that.modifier,_that.elevation
 @JsonSerializable()
 
 class _DaisyButtonTheme extends DaisyButtonTheme {
-  const _DaisyButtonTheme({this.type = DaisyButtonType.filled, this.style = DaisyButtonStyle.neutral, this.size = DaisyButtonSize.md, this.modifier = DaisyButtonModifier.none, this.elevation = 0, this.hoverElevation = 4, this.pressedElevation = 0}): super._();
+  const _DaisyButtonTheme({this.type = DaisyButtonType.filled, this.style = DaisyButtonStyle.neutral, this.size = DaisyButtonSize.md, this.modifier = DaisyButtonModifier.none, this.elevation = 0, this.hoverElevation = 1, this.pressedElevation = 0}): super._();
   factory _DaisyButtonTheme.fromJson(Map<String, dynamic> json) => _$DaisyButtonThemeFromJson(json);
 
 @override@JsonKey() final  DaisyButtonType type;

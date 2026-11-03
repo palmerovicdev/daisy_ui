@@ -18,7 +18,7 @@ abstract class DaisyButtonTheme with _$DaisyButtonTheme, Equatable {
     @Default(DaisyButtonSize.md) DaisyButtonSize size,
     @Default(DaisyButtonModifier.none) DaisyButtonModifier modifier,
     @Default(0) double elevation,
-    @Default(4) double hoverElevation,
+    @Default(1) double hoverElevation,
     @Default(0) double pressedElevation,
   }) = _DaisyButtonTheme;
 
