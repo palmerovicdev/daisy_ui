@@ -29,6 +29,13 @@ final class DaisyThemeController {
 
   /// Releases the owned signal. Do not use this controller afterwards.
   void dispose() => _palette.dispose();
+
+  // TODO 2026-11-2, victorpalmero: Add effect to update the saved theme.
+
+  // TODO 2026-11-2, victorpalmero: Add default function to save the theme.
+  // TODO 2026-11-2, victorpalmero: Add default function to get the saved theme.
+  // TODO 2026-11-2, victorpalmero: Add optional callback to save the theme (with an id buider).
+  // TODO 2026-11-2, victorpalmero: Add optional callback to get the saved theme (with an id buider).
 }
 
 final class _ThemeListenable implements ValueListenable<DaisyThemeModel> {
