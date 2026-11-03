@@ -4,7 +4,7 @@
 
 ## Qué vas a aprender
 
-Hasta ahora hemos guardado un tema en una señal y observado sus cambios. Imagina que además queremos mostrar una etiqueta como `Tema: claro`. Esa etiqueta depende del tema elegido: si cambia el tema, queremos poder obtener el texto correspondiente sin mantener dos datos independientes que puedan contradecirse.
+Hasta ahora hemos guardado un tema en una señal y observado sus cambios. Imagina que además queremos mostrar una etiqueta como `Tema: claro`. La etiqueta depende del tema elegido. Si guardamos ambos como datos modificables, cada cambio del tema también tendría que actualizar la etiqueta; si algún camino se olvida, quedan en desacuerdo. En esta unidad veremos cómo declarar la etiqueta como un valor derivado: el tema sigue siendo la fuente de verdad y el texto se obtiene de él.
 
 Al terminar podrás distinguir un dato almacenado de uno derivado, crear un `computed`, seguir cuándo se calcula y cuándo se reutiliza su resultado, y observar sus cambios. También compararás un cálculo puntual, un derivado reactivo y una vista de lectura. Por último veremos qué ocurre con el controlador real de DaisyUI.
 
@@ -20,29 +20,41 @@ Los ejemplos se contrastaron con Flutter 3.47.8, `signals_flutter` 7.1.0, `signa
 
 ## 1. Un dato guardado y otro que se obtiene de él
 
-Supongamos que el usuario elige el tema `'claro'`. Ese nombre es un **dato almacenado**: la aplicación conserva la selección y puede cambiarla. El texto `'Tema: claro'` es un **dato derivado**: lo podemos obtener añadiendo `'Tema: '` al nombre actual.
+Supongamos que el usuario elige el tema `'claro'`. Ese nombre es el **dato almacenado**: la aplicación conserva la selección y puede cambiarla. El texto `'Tema: claro'` es un **dato derivado**: sale de añadir `'Tema: '` al nombre actual.
 
-Este fragmento muestra la idea con una lectura puntual; no es un programa completo:
+El riesgo aparece si guardamos también la etiqueta como otro dato modificable:
+
+```dart
+final tema = signal<String>('claro');
+final etiquetaGuardada = signal<String>('Tema: claro');
+
+tema.value = 'oscuro';
+// etiquetaGuardada.value todavía es 'Tema: claro'
+```
+
+Este fragmento es un ejemplo para razonar, no un programa completo. Cambiar `tema` no cambia por sí solo la segunda señal. Habría que acordarse de actualizarla en cada acción que cambie el tema. Si una acción se olvida, la aplicación conserva dos respuestas distintas sobre cuál es el tema actual. Ese estado duplicado y su sincronización manual son el problema que queremos evitar.
+
+Con `computed`, en vez de guardar una segunda copia mutable, declaramos la regla para obtener la etiqueta desde el tema. El tema queda como única fuente de verdad; Signals puede registrar que el cálculo depende de esa señal y obtener el resultado actualizado cuando haga falta. La función concreta aparece en el apartado 2.
+
+Este fragmento muestra solo una lectura puntual; no es un programa completo:
 
 ```dart
 final tema = signal<String>('claro');
 final texto = 'Tema: ${tema.value}';
 ```
 
-`texto` contiene el resultado de esa lectura concreta. Si luego cambiamos la señal, la variable `texto` no se vuelve a calcular por sí sola. Podríamos interpolar otra vez cuando necesitemos mostrarlo, por ejemplo dentro de un builder que ya observa el tema.
+`texto` contiene el resultado de esa lectura concreta. Si luego cambiamos la señal, el `String` no se vuelve a calcular por sí solo. Podríamos interpolar otra vez cuando necesitemos mostrarlo, por ejemplo dentro de un builder que ya observa el tema. `computed` sirve cuando queremos representar la derivación como un valor reactivo, no solamente guardar una lectura anterior.
 
-También podríamos guardar el tema y la etiqueta como dos datos modificables. Pero entonces cada camino que cambia el tema tendría que acordarse de actualizar la etiqueta. Si uno lo olvida, los dos valores pueden quedar incoherentes. Una derivación expresa de dónde sale el texto en lugar de convertirlo en otra selección independiente.
-
-Una analogía: una receta indica cómo preparar un plato a partir de ingredientes. Si cambian los ingredientes, podemos preparar el resultado correspondiente. La analogía no explica cómo se observan los cambios ni cuándo se repite el cálculo; esas son las decisiones que estudiaremos con `computed`.
+Una analogía: una receta indica cómo preparar un plato a partir de ingredientes. Si cambian los ingredientes, podemos preparar el resultado correspondiente sin guardar otra lista que tengamos que actualizar a mano. La analogía no explica cómo se observan los cambios ni cuándo se repite el cálculo; esas son las decisiones que estudiaremos con `computed`.
 
 ### Practica 1
 
-Si el usuario cambia el tema a `'oscuro'`, ¿qué dato se modifica directamente y cómo debería obtenerse la etiqueta `'Tema: oscuro'`?
+En el primer fragmento, si el tema cambia a `'oscuro'`, ¿qué señal contiene el valor nuevo y cuál queda desactualizada? ¿Qué debería ser la fuente de verdad para obtener la etiqueta correcta?
 
 <details>
 <summary>Ver respuesta</summary>
 
-Se modifica la señal que guarda el tema. La etiqueta se obtiene a partir del valor actual de esa fuente. El `String` que se leyó antes no cambia; para obtener el nuevo texto hace falta volver a calcularlo, ya sea de forma puntual o mediante un mecanismo derivado.
+`tema` contiene `'oscuro'`, pero `etiquetaGuardada` sigue conteniendo `'Tema: claro'`: las dos señales se contradicen. `tema` debería ser la fuente de verdad y la etiqueta debería obtenerse de su valor actual, en lugar de mantenerse como otro dato que cada acción tenga que sincronizar.
 
 </details>
 
