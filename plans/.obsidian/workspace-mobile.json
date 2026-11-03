@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "learn_states/temarios/13-propiedad-de-los-recursos-y-dispose.md",
+                "file": "learn_states/temarios/14-el-concepto-de-controller.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "13-propiedad-de-los-recursos-y-dispose"
+              "title": "14-el-concepto-de-controller"
             }
           }
         ]
@@ -173,6 +173,7 @@
   },
   "active": "ed93ff959a29bb12",
   "lastOpenFiles": [
+    "learn_states/temarios/13-propiedad-de-los-recursos-y-dispose.md",
     "learn_states/temarios/12-efectos-y-suscripciones.md",
     "learn_states/temarios/11-computed-estado-derivado.md",
     "learn_states/temarios/10-dependencias-reactivas-y-contextos-de-observacion.md",
