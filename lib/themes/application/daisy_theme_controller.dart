@@ -14,6 +14,7 @@ final class DaisyThemeController {
   }) : _palette = FlutterSignal<DaisyThemeModel>(initialTheme);
 
   final FlutterSignal<DaisyThemeModel> _palette;
+  void Function()? _subscriptionCanceler;
 
   late final ValueListenable<DaisyThemeModel> _theme = _ThemeListenable(
     _palette,
@@ -28,9 +29,21 @@ final class DaisyThemeController {
   void setTheme(DaisyThemeModel theme) => _palette.value = theme;
 
   /// Releases the owned signal. Do not use this controller afterwards.
-  void dispose() => _palette.dispose();
+  void dispose() {
+    _subscriptionCanceler?.call();
+    _subscriptionCanceler = null;
+    _palette.dispose();
+  }
 
-  // TODO 2026-11-2, victorpalmero: Add effect to update the saved theme.
+  /// Starts this controller's theme-change subscription.
+  ///
+  /// Repeated calls do not add another subscription. The subscription is
+  /// cancelled by [dispose]. Saving and restoring themes is not implemented.
+  void initialize() {
+    _subscriptionCanceler ??= _palette.subscribe((theme) {
+      // TODO 2026-11-2, victorpalmero: save the theme.
+    });
+  }
 
   // TODO 2026-11-2, victorpalmero: Add default function to save the theme.
   // TODO 2026-11-2, victorpalmero: Add default function to get the saved theme.

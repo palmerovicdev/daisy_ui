@@ -4,8 +4,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 void main() {
-  setUp(() => DaisyThemeService.setTheme(DaisyThemes.light));
+  setUp(() {
+    DaisyThemeService.initialize();
+    DaisyThemeService.setTheme(DaisyThemes.light);
+  });
   tearDown(() => DaisyThemeService.setTheme(DaisyThemes.light));
+
+  testWidgets('Unmounting a global scope leaves the service usable', (
+    tester,
+  ) async {
+    final originalTheme = DaisyThemeService.theme;
+
+    await tester.pumpWidget(DaisyThemeScope(child: const SizedBox.shrink()));
+    expect(identical(DaisyThemeService.theme, originalTheme), isTrue);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    DaisyThemeService.setTheme(DaisyThemes.dark);
+    expect(identical(DaisyThemeService.theme, originalTheme), isTrue);
+    expect(DaisyThemeService.theme.value, DaisyThemes.dark);
+  });
 
   testWidgets('A SignalBuilder can observe a theme controller directly', (
     tester,

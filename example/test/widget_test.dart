@@ -1,3 +1,4 @@
+import 'package:daisy_ui/daisy_ui.dart';
 import 'package:daisy_ui/themes/presentation/action/button.dart';
 import 'package:daisy_ui_example/main.dart';
 import 'package:flutter/gestures.dart';
@@ -5,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUpAll(DaisyThemeService.initialize);
+
   testWidgets('The preview animates the Daisy button elevation', (
     tester,
   ) async {

@@ -26,6 +26,27 @@ void main() {
     expect(controller.theme.value, DaisyThemes.light);
   });
 
+  test('Disposing a controller before initialization is safe', () {
+    final controller = DaisyThemeController();
+
+    expect(controller.dispose, returnsNormally);
+  });
+
+  test('Initializing repeatedly preserves updates and allows disposal', () {
+    final controller = DaisyThemeController();
+    controller.initialize();
+    controller.initialize();
+
+    var notifications = 0;
+    void listener() => notifications++;
+    controller.theme.addListener(listener);
+    controller.setTheme(DaisyThemes.dark);
+    expect(controller.theme.value, DaisyThemes.dark);
+    expect(notifications, 1);
+    controller.theme.removeListener(listener);
+    expect(controller.dispose, returnsNormally);
+  });
+
   test('Controllers retain their own initial theme and updates', () {
     final first = DaisyThemeController(initialTheme: DaisyThemes.dark);
     final second = DaisyThemeController(initialTheme: DaisyThemes.cupcake);

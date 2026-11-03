@@ -1,8 +1,9 @@
 import 'package:daisy_ui/themes/application/daisy_theme_controller.dart';
-import 'package:daisy_ui/themes/application/daisy_theme_service.dart';
 import 'package:daisy_ui/themes/domain/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+
+import 'daisy_theme_service.dart';
 
 /// Makes a theme available to descendants and rebuilds dependent widgets when
 /// it changes. Nested scopes use the nearest ancestor.
@@ -11,8 +12,10 @@ import 'package:flutter/widgets.dart';
 /// belong to a descendant of this scope.
 class DaisyThemeScope
     extends InheritedNotifier<ValueListenable<DaisyThemeModel>> {
-  /// Uses [controller] when supplied; otherwise observes the global service.
-  /// The caller retains ownership of [controller] and must dispose it.
+  /// Observes [controller], or the global [DaisyThemeService] if omitted.
+  ///
+  /// Initialize the global service before using it. The owner of a supplied
+  /// controller must dispose it after this scope unmounts.
   DaisyThemeScope({
     super.key,
     required super.child,
