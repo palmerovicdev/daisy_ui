@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:daisy_ui/daisy_ui.dart';
 import 'package:daisy_ui/themes/presentation/action/button.dart';
 import 'package:flutter/material.dart';
@@ -164,8 +162,15 @@ class _Sidebar extends StatelessWidget {
   }
 }
 
-class _ButtonContent extends StatelessWidget {
+class _ButtonContent extends StatefulWidget {
   const _ButtonContent();
+
+  @override
+  State<_ButtonContent> createState() => _ButtonContentState();
+}
+
+class _ButtonContentState extends State<_ButtonContent> {
+  int _counter = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -240,11 +245,10 @@ class _ButtonContent extends StatelessWidget {
                   child: Center(
                     child: DaisyButton(
                       onPressed: () {
-                        final randomIndex = Random().nextInt(
-                          DaisyThemes.values.length,
-                        );
+                        final index = _counter % DaisyThemes.values.length - 1;
+                        setState(() => _counter++);
                         DaisyThemeService.setTheme(
-                          DaisyThemes.values[randomIndex],
+                          DaisyThemes.values[index > 0 ? index : -index],
                         );
                       },
                       child: Ink(
