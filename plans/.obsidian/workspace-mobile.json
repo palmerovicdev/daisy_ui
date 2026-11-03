@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "learn_states/temarios/11-computed-estado-derivado.md",
+                "file": "learn_states/temarios/12-efectos-y-suscripciones.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "11-computed-estado-derivado"
+              "title": "12-efectos-y-suscripciones"
             }
           }
         ]
@@ -173,6 +173,7 @@
   },
   "active": "ed93ff959a29bb12",
   "lastOpenFiles": [
+    "learn_states/temarios/11-computed-estado-derivado.md",
     "learn_states/temarios/10-dependencias-reactivas-y-contextos-de-observacion.md",
     "learn_states/temarios/17-instancias-static-y-servicio-global.md",
     "learn_states/temarios/25-scopes-anidados-e-independencia.md"
