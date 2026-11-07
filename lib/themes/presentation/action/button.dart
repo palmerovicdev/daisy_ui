@@ -59,7 +59,7 @@ class _DaisyButtonState extends State<DaisyButton> {
 
     return TweenAnimationBuilder<double>(
       tween: Tween(end: elevation),
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 70),
       curve: Curves.easeOut,
       builder: (context, value, child) => Material(
         color: Colors.transparent,

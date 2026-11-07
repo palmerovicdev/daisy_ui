@@ -13,14 +13,16 @@ fvm install
 fvm flutter pub get
 ```
 
-Import the public API. This example also uses the standalone `material_ui`
-package, which applications must add to their own dependencies:
+Initialize the global theme service before starting the app, then place a
+`DaisyThemeScope` above the widgets that read the theme:
 
 ```dart
 import 'package:daisy_ui/daisy_ui.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  DaisyThemeService.initialize();
   runApp(
     DaisyThemeScope(
       child: MaterialApp(
@@ -50,6 +52,11 @@ descendant's `build` method to rebuild when the current theme changes:
 ```dart
 DaisyThemeService.setTheme(DaisyThemes.dark);
 ```
+
+`DaisyThemeService.initialize()` starts the global theme-change subscription;
+repeated calls do not add another subscription. Call it before `runApp` when
+using the global service. Initialization is not enforced at runtime, and
+saving or restoring the theme is not implemented yet.
 
 `DaisyThemeService.theme` is a read-only `ValueListenable<DaisyThemeModel>`.
 Change the global theme with `setTheme`; the underlying signal is private.
@@ -185,6 +192,7 @@ Pass a controller to give a subtree its own theme:
 
 ```dart
 final controller = DaisyThemeController(initialTheme: DaisyThemes.cupcake);
+controller.initialize();
 
 // Place above the widgets that read context.daisyTheme.
 DaisyThemeScope(controller: controller, child: const MyPreview());
@@ -192,14 +200,15 @@ DaisyThemeScope(controller: controller, child: const MyPreview());
 controller.setTheme(DaisyThemes.dark);
 ```
 
-Each consumer watches the nearest scope. Without a controller, a scope uses the
-global service. A controller's `theme` property also exposes a read-only
-`ValueListenable<DaisyThemeModel>`.
+Each consumer watches the nearest scope. Without a controller,
+`DaisyThemeScope` observes the global service. A controller's `theme` property
+also exposes a read-only `ValueListenable<DaisyThemeModel>`.
 
-Create each controller once in its owner's `initState`, and call
-`controller.dispose()` from that owner's `dispose`. Scopes borrow controllers
-and never dispose them. See the preview in [the example](example/lib/main.dart)
-for the complete lifecycle.
+Create and initialize each independent controller once in its owner's
+`initState`; initializing the global service does not initialize independent
+controllers. Call `controller.dispose()` from that owner's `dispose` after its
+scope is unmounted. Scopes borrow controllers and never dispose them. The
+controller's subscription currently does not save or restore themes.
 
 ## Serialization
 
@@ -212,7 +221,7 @@ final restored = DaisyThemeModel.fromJson(map);
 
 Encoding a theme with `jsonEncode(theme)` is also supported.
 
-The `example/` application demonstrates global theme changes and an independent
+The `example/` application demonstrates the global theme scope with a button
 preview:
 
 ```sh

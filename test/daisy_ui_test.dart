@@ -3,7 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  setUp(() => DaisyThemeService.setTheme(DaisyThemes.light));
+  setUp(() {
+    DaisyThemeService.initialize();
+    DaisyThemeService.setTheme(DaisyThemes.light);
+  });
   tearDown(() => DaisyThemeService.setTheme(DaisyThemes.light));
 
   testWidgets('Public package API propagates theme changes', (tester) async {

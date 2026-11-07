@@ -7,4 +7,6 @@
 * Encapsulate theme signals behind read-only listenables and add independent
   controllers for nested scopes.
 * Serialize nested theme tokens as JSON maps and cover direct map round trips.
-* Demonstrate and test independent application and preview themes.
+* Initialize the global theme service explicitly and use `DaisyThemeScope`
+  for global and independent themes; theme persistence is not implemented.
+* Demonstrate the global theme scope in the example application.

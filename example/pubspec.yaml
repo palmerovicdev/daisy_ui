@@ -3,8 +3,8 @@ description: "A Flutter example app for the daisy_ui package."
 publish_to: 'none'
 
 environment:
-  sdk: ^3.13.7
-  flutter: '>=3.47.8'
+  sdk: ^3.13.5
+  flutter: '>=3.47.7'
 
 dependencies:
   flutter:

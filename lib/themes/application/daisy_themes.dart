@@ -12,6 +12,44 @@ import 'package:prism_flutter/prism_flutter.dart';
 /// `danger` reuses `error`, which is the destructive role in DaisyUI.
 /// The model does not represent color-scheme, depth or noise tokens.
 abstract final class DaisyThemes {
+  static List<DaisyThemeModel> get values => [
+    light,
+    dark,
+    cupcake,
+    bumblebee,
+    emerald,
+    corporate,
+    synthwave,
+    retro,
+    cyberpunk,
+    valentine,
+    halloween,
+    garden,
+    forest,
+    aqua,
+    lofi,
+    pastel,
+    fantasy,
+    wireframe,
+    black,
+    luxury,
+    dracula,
+    cmyk,
+    autumn,
+    business,
+    acid,
+    lemonade,
+    night,
+    coffee,
+    winter,
+    dim,
+    nord,
+    sunset,
+    caramellatte,
+    abyss,
+    silk,
+  ];
+
   /// Light theme with white/zinc bases.
   ///
   /// Crisp white surfaces with indigo, pink and teal accents for a clean,
