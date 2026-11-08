@@ -63,6 +63,39 @@ Change the global theme with `setTheme`; the underlying signal is private.
 DaisyUI tokens are applied explicitly; they do not automatically configure
 Material's `ThemeData`.
 
+## Buttons
+
+`DaisyButton` owns its surface and interaction; pass its contents as `child`.
+It reads colors, field size, radius and border width from the nearest
+`DaisyThemeScope` and updates when that theme changes.
+
+```dart
+DaisyButton(
+  theme: const DaisyButtonTheme(
+    type: DaisyButtonType.outlined,
+    style: DaisyButtonStyle.primary,
+    size: DaisyButtonSize.md,
+    modifier: DaisyButtonModifier.wide,
+  ),
+  onPressed: () {},
+  child: const Text('Continue'),
+)
+```
+
+`type` selects filled, outlined, dashed, soft, ghost or link appearance;
+`style` selects a semantic color role. `size` selects the theme's field size:
+24, 32, 40, 48 or 56 logical pixels with the built-in scale. This is a minimum
+height for content-sized buttons and the side length of square/circle buttons,
+subject to parent constraints. `wide` is the default modifier, `block` fills
+bounded available width, and `none` adds no special shape. Circle buttons
+clip their content. Use a suitably sized touch target and verify contrast for
+custom themes and content.
+
+The button is disabled when `enabled` is false or both callbacks are null.
+Tap, long press, hover, keyboard activation and focus are handled by Flutter's
+interaction primitives. Explicit styles or decorations in `child` can
+intentionally override or cover the default foreground and surface.
+
 ## Theme tokens
 
 `context.daisyTheme` returns an immutable `DaisyThemeModel`. Its `id`, `name`

@@ -32,7 +32,7 @@ abstract class DaisyButtonTheme with _$DaisyButtonTheme, Equatable {
     @Default(DaisyButtonSize.md) DaisyButtonSize size,
 
     /// Layout or shape overlay. See [DaisyButtonModifier].
-    @Default(DaisyButtonModifier.none) DaisyButtonModifier modifier,
+    @Default(DaisyButtonModifier.wide) DaisyButtonModifier modifier,
 
     /// Resting Material elevation.
     @Default(0) double elevation,

@@ -2,7 +2,7 @@
 ///
 /// Does not change color or size tokens; it only reshapes padding or
 /// geometry (DaisyUI `btn-wide`, `btn-block`, `btn-square`, `btn-circle`).
-/// Default in [DaisyButtonTheme] is [none].
+/// Default in [DaisyButtonTheme] is [wide].
 enum DaisyButtonModifier {
   /// No extra layout or shape change.
   none,
