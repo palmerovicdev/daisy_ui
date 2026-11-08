@@ -1,7 +1,8 @@
+import 'package:daisy_ui/daisy_ui.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/extension/build_context.dart';
 import '../../domain/button/button_modifier.dart';
+import '../../domain/button/button_size.dart';
 import '../../domain/button_theme.dart';
 
 class DaisyButton extends StatefulWidget {
@@ -16,8 +17,8 @@ class DaisyButton extends StatefulWidget {
   });
 
   final bool enabled;
-  final Widget? child;
-  final DaisyButtonTheme? theme;
+  final Widget child;
+  final DaisyButtonTheme theme;
   final VoidCallback? onPressed;
   final VoidCallback? onLongPress;
   final ValueChanged<bool>? onHover;
@@ -46,16 +47,18 @@ class _DaisyButtonState extends State<DaisyButton> {
   @override
   Widget build(BuildContext context) {
     final th = context.daisyTheme;
-    final shape = widget.theme?.modifier == DaisyButtonModifier.circle
+    final shape = widget.theme.modifier == DaisyButtonModifier.circle
         ? CircleBorder()
         : RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(th.radius.fields.toDouble()),
           );
     final elevation = _isPressed
-        ? widget.theme?.pressedElevation ?? 0
+        ? widget.theme.pressedElevation
         : _isHovering
-        ? widget.theme?.hoverElevation ?? widget.theme?.elevation ?? 0
-        : widget.theme?.elevation ?? 0;
+        ? widget.theme.hoverElevation
+        : widget.theme.elevation;
+
+    Widget child = _setModifier(th, widget.theme, widget.child);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(end: elevation),
@@ -83,7 +86,7 @@ class _DaisyButtonState extends State<DaisyButton> {
             : null,
         customBorder: shape,
         mouseCursor: _isEnabled ? SystemMouseCursors.click : null,
-        child: widget.child,
+        child: child,
       ),
     );
   }
@@ -92,5 +95,53 @@ class _DaisyButtonState extends State<DaisyButton> {
     if (_isPressed != value) {
       setState(() => _isPressed = value);
     }
+  }
+
+  Widget _setModifier(
+    DaisyThemeModel theme,
+    DaisyButtonTheme buttonTheme,
+    Widget child,
+  ) {
+    final modifier = buttonTheme.modifier;
+
+    final size = switch (buttonTheme.size) {
+      DaisyButtonSize.xs => theme.size.fields.xs,
+      DaisyButtonSize.sm => theme.size.fields.sm,
+      DaisyButtonSize.md => theme.size.fields.md,
+      DaisyButtonSize.lg => theme.size.fields.lg,
+      DaisyButtonSize.xl => theme.size.fields.xl,
+    };
+
+    return switch (modifier) {
+      DaisyButtonModifier.wide => Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: buttonTheme.size.value,
+          horizontal: buttonTheme.size.value * 2,
+        ),
+        child: child,
+      ),
+      DaisyButtonModifier.block => SizedBox(
+        width: double.infinity,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: buttonTheme.size.value),
+          child: child,
+        ),
+      ),
+      DaisyButtonModifier.square => SizedBox(
+        width: size.toDouble(),
+        height: size.toDouble(),
+        child: child,
+      ),
+      DaisyButtonModifier.circle => Container(
+        width: size.toDouble(),
+        height: size.toDouble(),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: child,
+      ),
+      DaisyButtonModifier.none => child,
+    };
   }
 }
