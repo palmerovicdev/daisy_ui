@@ -315,6 +315,8 @@ Profundización de color: componentes L, C y H de OKLCH, opacidad, conversión a
 - **Práctica:** escribir una prueba de listeners, una de scopes independientes y una de serialización. Predecir qué falla si se registra dos veces un callback o se omite una limpieza.
 - [ ] **Dominado cuando:** puedes escoger la prueba que demuestra el comportamiento que estás afirmando.
 
+**Guía y materiales:** [30. Pruebas de estado, listeners y widgets](temarios/30-pruebas-de-estado-listeners-y-widgets.md).
+
 ### 31. Ejercicio final: explicar todo el flujo
 
 Recorre un cambio de tema utilizando los archivos reales de `lib/`. El ejemplo actual ya no tiene un botón que cambie el tema, de modo que para la interfaz usa la aplicación reproducida en el [apartado 8 de la unidad 25](temarios/25-scopes-anidados-e-independencia.md#8-el-ejemplo-anterior-completo). Distingue la preparación de la observación de lo que sucede después del cambio:
@@ -341,6 +343,8 @@ Variantes que debes resolver:
 
 - [ ] **Dominado cuando:** puedes explicar cada objeto, valor, relación y llamada sin utilizar «ocurre automáticamente» para saltarte un paso.
 
+**Guía y materiales:** [31. Ejercicio final: explicar todo el flujo](temarios/31-ejercicio-final-explicar-todo-el-flujo.md).
+
 ## Complemento final. API pública y organización del paquete
 
 ### 32. Imports, exports y límites del paquete
@@ -349,6 +353,8 @@ Variantes que debes resolver:
 - **Debes comprender:** cómo una aplicación consume `package:daisy_ui/daisy_ui.dart` y por qué publicar una API no requiere exponer toda la implementación.
 - **Práctica:** localizar qué símbolos se exportan y qué tipos pueden utilizar los consumidores. Relacionar cada dependencia del paquete con su responsabilidad.
 - [ ] **Dominado cuando:** puedes explicar cómo otra aplicación utiliza los temas a través de la API pública y qué límites de encapsulación ofrecen los tipos expuestos.
+
+**Guía y materiales:** [32. Imports, exports y límites del paquete](temarios/32-imports-exports-y-limites-del-paquete.md).
 
 ## Archivos para acompañar el estudio
 

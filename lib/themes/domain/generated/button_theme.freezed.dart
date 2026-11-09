@@ -16,7 +16,14 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DaisyButtonTheme {
 
- DaisyButtonType get type; DaisyButtonStyle get style; DaisyButtonSize get size; DaisyButtonModifier get modifier; double get elevation; double get hoverElevation; double get pressedElevation;
+/// How the button surface is drawn. See [DaisyButtonType].
+ DaisyButtonType get type;/// Which semantic color role feeds [type]. See [DaisyButtonStyle].
+ DaisyButtonStyle get style;/// Size step on the theme field scale. See [DaisyButtonSize].
+ DaisyButtonSize get size;/// Layout or shape overlay. See [DaisyButtonModifier].
+ DaisyButtonModifier get modifier;/// Resting Material elevation.
+ double get elevation;/// Elevation while the pointer hovers the button.
+ double get hoverElevation;/// Elevation while the button is pressed.
+ double get pressedElevation;
 /// Create a copy of DaisyButtonTheme
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -210,15 +217,22 @@ return $default(_that.type,_that.style,_that.size,_that.modifier,_that.elevation
 @JsonSerializable()
 
 class _DaisyButtonTheme extends DaisyButtonTheme {
-  const _DaisyButtonTheme({this.type = DaisyButtonType.filled, this.style = DaisyButtonStyle.neutral, this.size = DaisyButtonSize.md, this.modifier = DaisyButtonModifier.none, this.elevation = 0, this.hoverElevation = 1, this.pressedElevation = 0}): super._();
+  const _DaisyButtonTheme({this.type = DaisyButtonType.filled, this.style = DaisyButtonStyle.neutral, this.size = DaisyButtonSize.md, this.modifier = DaisyButtonModifier.wide, this.elevation = 0, this.hoverElevation = 1, this.pressedElevation = 0}): super._();
   factory _DaisyButtonTheme.fromJson(Map<String, dynamic> json) => _$DaisyButtonThemeFromJson(json);
 
+/// How the button surface is drawn. See [DaisyButtonType].
 @override@JsonKey() final  DaisyButtonType type;
+/// Which semantic color role feeds [type]. See [DaisyButtonStyle].
 @override@JsonKey() final  DaisyButtonStyle style;
+/// Size step on the theme field scale. See [DaisyButtonSize].
 @override@JsonKey() final  DaisyButtonSize size;
+/// Layout or shape overlay. See [DaisyButtonModifier].
 @override@JsonKey() final  DaisyButtonModifier modifier;
+/// Resting Material elevation.
 @override@JsonKey() final  double elevation;
+/// Elevation while the pointer hovers the button.
 @override@JsonKey() final  double hoverElevation;
+/// Elevation while the button is pressed.
 @override@JsonKey() final  double pressedElevation;
 
 /// Create a copy of DaisyButtonTheme

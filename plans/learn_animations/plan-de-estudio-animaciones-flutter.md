@@ -24,6 +24,8 @@ Cada unidad puede ocupar varias sesiones. El plan es un mapa de lo que estudiare
 
 ### 1. Estado, tiempo y valores intermedios
 
+[Guía de la unidad](temarios/01-estado-tiempo-valores-intermedios.md)
+
 - **Conceptos:** estado inicial y destino, cambio instantáneo, transición, duración, fotograma y valor actual.
 - **Comprender:** una animación representa valores a lo largo del tiempo; el destino puede cambiar mientras se está llegando a él.
 - **Práctica:** describir y dibujar el recorrido de `0` a `4` y qué sucede si vuelve a `0` a mitad.
@@ -31,12 +33,16 @@ Cada unidad puede ocupar varias sesiones. El plan es un mapa de lo que estudiare
 
 ### 2. Interpolación y `Tween`
 
+[Guía de la unidad](temarios/02-interpolacion-y-tween.md)
+
 - **Conceptos:** interpolación, progreso normalizado, `begin`, `end`, `Tween<T>`, `lerp`, `evaluate`, valores nulos y tipos interpolables.
 - **Comprender:** un `Tween` transforma un progreso en un valor; por sí solo no hace avanzar el tiempo. Los tipos concretos pueden necesitar tweens específicos.
 - **Práctica:** calcular valores lineales entre dos números y explorar `ColorTween`.
 - [ ] **Dominado cuando:** puedes explicar qué aporta el `Tween` y qué otra pieza necesita para animarse.
 
 ### 3. Duración, curvas y percepción
+
+[Guía de la unidad](temarios/03-duracion-curvas-percepcion.md)
 
 - **Conceptos:** duración, progreso temporal frente a progreso transformado, `Curve`, `Curves.linear`, `easeIn`, `easeOut`, `easeInOut`, curvas con rebote y posibles valores fuera del intervalo.
 - **Comprender:** la curva cambia cómo se reparte el avance en el tiempo; algunas curvas pueden sobrepasar los límites esperados y ciertas propiedades restringen sus valores.

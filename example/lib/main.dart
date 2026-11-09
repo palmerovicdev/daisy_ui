@@ -1,5 +1,4 @@
 import 'package:daisy_ui/daisy_ui.dart';
-import 'package:daisy_ui/themes/presentation/action/button.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -170,13 +169,54 @@ class _ButtonContent extends StatefulWidget {
 }
 
 class _ButtonContentState extends State<_ButtonContent> {
-  int _counter = 1;
+  int _themeIndex = 0;
+
+  void _cycleTheme() {
+    final next = (_themeIndex + 1) % DaisyThemes.values.length;
+    setState(() => _themeIndex = next);
+    DaisyThemeService.setTheme(DaisyThemes.values[next]);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.daisyTheme;
     final base = theme.colors.base;
-    final borderColor = base.base300 ?? base.base;
+
+    Widget exampleButton(
+      String label, {
+      DaisyButtonType type = DaisyButtonType.filled,
+      DaisyButtonStyle style = DaisyButtonStyle.neutral,
+      DaisyButtonSize size = DaisyButtonSize.md,
+      DaisyButtonModifier modifier = DaisyButtonModifier.none,
+      bool enabled = true,
+      bool active = false,
+      Widget? child,
+    }) => DaisyButton(
+      theme: DaisyButtonTheme(
+        type: type,
+        style: style,
+        size: size,
+        modifier: modifier,
+      ),
+      enabled: enabled,
+      active: active,
+      onPressed: enabled ? _cycleTheme : null,
+      child: child ?? Text(label),
+    );
+
+    List<Widget> colorButtons(DaisyButtonType type, {bool active = false}) => [
+      for (final style in DaisyButtonStyle.values)
+        exampleButton(
+          style.name[0].toUpperCase() + style.name.substring(1),
+          type: type,
+          style: style,
+          active: active,
+        ),
+    ];
+
+    Widget section(String title, List<Widget> children) =>
+        _ButtonPreviewSection(title: title, children: children);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
       child: Align(
@@ -188,7 +228,7 @@ class _ButtonContentState extends State<_ButtonContent> {
             children: [
               Text(
                 'Components / Actions',
-                style: TextStyle(color: base.content.withValues(alpha: 0.7)),
+                style: TextStyle(color: base.content.withValues(alpha: .7)),
               ),
               const SizedBox(height: 16),
               Text(
@@ -201,87 +241,278 @@ class _ButtonContentState extends State<_ButtonContent> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Pasa el ratón por encima y mantén pulsado el botón para probar su elevación.',
+                'Explore button variants. Tap a button to change the theme.',
                 style: TextStyle(
-                  color: base.content.withValues(alpha: 0.8),
+                  color: base.content.withValues(alpha: .8),
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 40),
-              Text(
-                'Elevación',
-                style: TextStyle(
-                  color: base.content,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(height: 32),
+              section('Default button', [exampleButton('Default')]),
+              section('Button sizes', [
+                for (final size in DaisyButtonSize.values)
+                  _SizedThemeButton(
+                    key: ValueKey('sizes-wide-${size.name}'),
+                    size: size,
+                    onPressed: _cycleTheme,
+                    modifier: DaisyButtonModifier.wide,
+                  ),
+              ]),
+              section('Square button sizes', [
+                for (final size in DaisyButtonSize.values)
+                  _SizedThemeButton(
+                    key: ValueKey('sizes-square-${size.name}'),
+                    size: size,
+                    onPressed: _cycleTheme,
+                    modifier: DaisyButtonModifier.square,
+                  ),
+              ]),
+              section('Responsive button', [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = MediaQuery.sizeOf(context).width;
+                    final size = width < 640
+                        ? DaisyButtonSize.xs
+                        : width < 768
+                        ? DaisyButtonSize.sm
+                        : width < 1024
+                        ? DaisyButtonSize.md
+                        : width < 1280
+                        ? DaisyButtonSize.lg
+                        : DaisyButtonSize.xl;
+                    return exampleButton('Responsive', size: size);
+                  },
                 ),
+              ]),
+              section('Button colors', colorButtons(DaisyButtonType.filled)),
+              section('Soft buttons', colorButtons(DaisyButtonType.soft)),
+              section(
+                'Outline buttons',
+                colorButtons(DaisyButtonType.outlined),
               ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: borderColor, width: theme.border),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(theme.radius.boxes.toDouble()),
+              section('Dash buttons', colorButtons(DaisyButtonType.dashed)),
+              section('Neutral outline and dash', [
+                exampleButton('Outline', type: DaisyButtonType.outlined),
+                exampleButton('Dash', type: DaisyButtonType.dashed),
+              ]),
+              section(
+                'Active buttons',
+                colorButtons(DaisyButtonType.filled, active: true),
+              ),
+              section('Ghost and link buttons', [
+                exampleButton('Ghost', type: DaisyButtonType.ghost),
+                exampleButton('Link', type: DaisyButtonType.link),
+              ]),
+              section('Wide button', [
+                exampleButton('Wide', modifier: DaisyButtonModifier.wide),
+              ]),
+              section('Disabled buttons', [
+                exampleButton('Disabled', enabled: false),
+              ]),
+              section('Square and circle buttons', [
+                exampleButton(
+                  'Like',
+                  modifier: DaisyButtonModifier.square,
+                  child: const Icon(
+                    Icons.favorite_border,
+                    semanticLabel: 'Like',
                   ),
                 ),
-                child: Text('Preview', style: TextStyle(color: base.content)),
-              ),
-              Container(
-                height: 200,
-                width: double.infinity,
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  border: Border.all(color: borderColor, width: theme.border),
-                  borderRadius: BorderRadius.circular(
-                    theme.radius.boxes.toDouble(),
+                exampleButton(
+                  'Like',
+                  modifier: DaisyButtonModifier.circle,
+                  child: const Icon(
+                    Icons.favorite_border,
+                    semanticLabel: 'Like',
                   ),
                 ),
-                child: CustomPaint(
-                  painter: _StripesPainter(borderColor),
-                  child: Center(
-                    child: DaisyButton(
-                      onPressed: () {
-                        final index = _counter % DaisyThemes.values.length - 1;
-                        setState(() => _counter++);
-                        DaisyThemeService.setTheme(
-                          DaisyThemes.values[index > 0 ? index : -index],
-                        );
-                      },
-                      child: Ink(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: base.base200 ?? base.base,
-                          border: Border.all(
-                            color: borderColor,
-                            width: theme.border,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            context.daisyTheme.radius.fields.toDouble(),
-                          ),
-                        ),
-                        child: Text(
-                          'Button',
-                          style: TextStyle(
-                            color: base.content,
-                            fontWeight: FontWeight.w600,
-                          ),
+              ]),
+              section('Button with icon', [
+                exampleButton(
+                  'Like',
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.favorite_border, size: 18),
+                      SizedBox(width: 8),
+                      Text('Like'),
+                    ],
+                  ),
+                ),
+                exampleButton(
+                  'Like',
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Like'),
+                      SizedBox(width: 8),
+                      Icon(Icons.favorite_border, size: 18),
+                    ],
+                  ),
+                ),
+              ]),
+              section('Block button', [
+                SizedBox(
+                  width: double.infinity,
+                  child: exampleButton(
+                    'Block',
+                    modifier: DaisyButtonModifier.block,
+                  ),
+                ),
+              ]),
+              section('Button with loading spinner', [
+                exampleButton(
+                  'Loading',
+                  modifier: DaisyButtonModifier.square,
+                  child: const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(value: .7, strokeWidth: 2),
+                  ),
+                ),
+                exampleButton(
+                  'Loading',
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          value: .7,
+                          strokeWidth: 2,
                         ),
                       ),
-                    ),
+                      SizedBox(width: 8),
+                      Text('Loading'),
+                    ],
                   ),
                 ),
-              ),
+              ]),
+              section('Login buttons', [
+                for (final provider in [
+                  'Email',
+                  'GitHub',
+                  'Google',
+                  'Facebook',
+                  'X',
+                  'Kakao',
+                  'Apple',
+                  'Amazon',
+                  'Microsoft',
+                  'LINE',
+                  'Slack',
+                  'LinkedIn',
+                  'VK',
+                  'WeChat',
+                  'MetaMask',
+                ])
+                  exampleButton(
+                    'Login with $provider',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.login, size: 18),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text('Login with $provider')),
+                      ],
+                    ),
+                  ),
+              ]),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ButtonPreviewSection extends StatelessWidget {
+  const _ButtonPreviewSection({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.daisyTheme;
+    final borderColor = theme.colors.base.base300 ?? theme.colors.base.base;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: theme.colors.base.content,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor, width: theme.border),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(theme.radius.boxes.toDouble()),
+              ),
+            ),
+            child: Text(
+              'Preview',
+              style: TextStyle(color: theme.colors.base.content),
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor, width: theme.border),
+              borderRadius: BorderRadius.circular(
+                theme.radius.boxes.toDouble(),
+              ),
+            ),
+            child: CustomPaint(
+              painter: _StripesPainter(borderColor),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 40,
+                ),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: children,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SizedThemeButton extends StatelessWidget {
+  const _SizedThemeButton({
+    super.key,
+    required this.size,
+    required this.onPressed,
+    required this.modifier,
+  });
+
+  final DaisyButtonSize size;
+  final VoidCallback onPressed;
+  final DaisyButtonModifier modifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return DaisyButton(
+      theme: DaisyButtonTheme(size: size, modifier: modifier),
+      onPressed: onPressed,
+      child: Text(size.name),
     );
   }
 }
