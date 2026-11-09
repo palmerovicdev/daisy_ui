@@ -233,21 +233,50 @@ class _ButtonColors {
         role.content,
         role.base,
       ),
-      DaisyButtonType.soft => _ButtonColors(
-        Color.alphaBlend(role.base.withValues(alpha: .15), palette.base.base),
-        role.base,
-        role.base,
-      ),
+      DaisyButtonType.soft => _softColors(role.base, palette.base.base),
       DaisyButtonType.outlined ||
       DaisyButtonType.dashed ||
       DaisyButtonType.ghost ||
       DaisyButtonType.link => _ButtonColors(
         Colors.transparent,
-        role.base,
+        _readableForeground(role.base, palette.base.base),
         role.base,
       ),
     };
   }
+}
+
+_ButtonColors _softColors(Color role, Color base) {
+  final background = Color.alphaBlend(role.withValues(alpha: .15), base);
+  final foreground = _readableForeground(role, background);
+  return _ButtonColors(background, foreground, foreground);
+}
+
+// Keep the role hue where possible, adjusting toward the most legible endpoint
+// only when its color would be difficult to read on the expected surface.
+Color _readableForeground(Color color, Color background) {
+  double contrast(Color foreground) {
+    final first = foreground.computeLuminance();
+    final second = background.computeLuminance();
+    return (first > second ? first + .05 : second + .05) /
+        (first < second ? first + .05 : second + .05);
+  }
+
+  if (contrast(color) >= 4.5) return color;
+  final target = contrast(Colors.black) > contrast(Colors.white)
+      ? Colors.black
+      : Colors.white;
+  var low = 0.0;
+  var high = 1.0;
+  for (var i = 0; i < 16; i++) {
+    final middle = (low + high) / 2;
+    if (contrast(Color.lerp(color, target, middle)!) >= 4.5) {
+      high = middle;
+    } else {
+      low = middle;
+    }
+  }
+  return Color.lerp(color, target, high)!;
 }
 
 /// Paints dashes along the same outline used for clipping and ink effects.

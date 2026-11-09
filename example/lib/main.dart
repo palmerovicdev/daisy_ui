@@ -215,7 +215,11 @@ class _ButtonContentState extends State<_ButtonContent> {
     ];
 
     Widget section(String title, List<Widget> children) =>
-        _ButtonPreviewSection(title: title, children: children);
+        _ButtonPreviewSection(
+          key: ValueKey('section-$title'),
+          title: title,
+          children: children,
+        );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
@@ -367,7 +371,7 @@ class _ButtonContentState extends State<_ButtonContent> {
                   child: const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(value: .7, strokeWidth: 2),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
                 exampleButton(
@@ -378,10 +382,7 @@ class _ButtonContentState extends State<_ButtonContent> {
                       SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(
-                          value: .7,
-                          strokeWidth: 2,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       SizedBox(width: 8),
                       Text('Loading'),
@@ -389,7 +390,7 @@ class _ButtonContentState extends State<_ButtonContent> {
                   ),
                 ),
               ]),
-              section('Login buttons', [
+              section('Login buttons (unbranded examples)', [
                 for (final provider in [
                   'Email',
                   'GitHub',
@@ -428,7 +429,11 @@ class _ButtonContentState extends State<_ButtonContent> {
 }
 
 class _ButtonPreviewSection extends StatelessWidget {
-  const _ButtonPreviewSection({required this.title, required this.children});
+  const _ButtonPreviewSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
 
   final String title;
   final List<Widget> children;

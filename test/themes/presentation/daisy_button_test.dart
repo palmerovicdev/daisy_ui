@@ -56,9 +56,15 @@ void main() {
       ),
     );
     expect(tester.widget<Material>(surface()).color, Colors.transparent);
+    final foreground = DefaultTextStyle.of(tester.element(find.text('Action')))
+        .style
+        .color!;
+    final background = DaisyThemes.light.colors.base.base;
+    final l1 = foreground.computeLuminance();
+    final l2 = background.computeLuminance();
     expect(
-      DefaultTextStyle.of(tester.element(find.text('Action'))).style.color,
-      DaisyThemes.light.colors.error.base,
+      (l1 > l2 ? l1 + .05 : l2 + .05) / (l1 < l2 ? l1 + .05 : l2 + .05),
+      greaterThanOrEqualTo(4.5),
     );
   });
 
@@ -276,4 +282,64 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<Material>(surface()).color, isNot(normal));
   });
+
+  testWidgets('active appearance is ignored when disabled', (tester) async {
+    Widget button(bool active) => host(
+      DaisyButton(
+        active: active,
+        enabled: false,
+        onPressed: () {},
+        child: const Text('Action'),
+      ),
+    );
+    await tester.pumpWidget(button(false));
+    final disabled = tester.widget<Material>(surface()).color;
+    await tester.pumpWidget(button(true));
+    expect(tester.widget<Material>(surface()).color, disabled);
+  });
+
+  testWidgets(
+    'soft and transparent variants are legible on theme base surfaces',
+    (tester) async {
+      for (final theme in DaisyThemes.values) {
+        DaisyThemeService.setTheme(theme);
+        for (final type in [
+          DaisyButtonType.soft,
+          DaisyButtonType.outlined,
+          DaisyButtonType.dashed,
+          DaisyButtonType.ghost,
+          DaisyButtonType.link,
+        ]) {
+          for (final style in DaisyButtonStyle.values) {
+            await tester.pumpWidget(
+              host(
+                DaisyButton(
+                  theme: DaisyButtonTheme(type: type, style: style),
+                  onPressed: () {},
+                  child: const Text('Action'),
+                ),
+              ),
+            );
+            final surfaceColor = tester.widget<Material>(surface()).color!;
+            final background = type == DaisyButtonType.soft
+                ? surfaceColor
+                : theme.colors.base.base;
+            final foreground = DefaultTextStyle.of(
+              tester.element(find.text('Action')),
+            ).style.color!;
+            final l1 = background.computeLuminance();
+            final l2 = foreground.computeLuminance();
+            final contrast =
+                (l1 > l2 ? l1 + .05 : l2 + .05) /
+                (l1 < l2 ? l1 + .05 : l2 + .05);
+            expect(
+              contrast,
+              greaterThanOrEqualTo(4.5),
+              reason: '${theme.id} ${type.name} ${style.name}',
+            );
+          }
+        }
+      }
+    },
+  );
 }

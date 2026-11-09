@@ -91,6 +91,8 @@ bounded available width, and `none` adds no special shape. Circle buttons
 clip their content. Use a suitably sized touch target and verify contrast for
 custom themes and content.
 
+Set `active: true` to keep the active appearance visible without a press.
+This is a visual state; callers manage any selected or toggle semantics.
 The button is disabled when `enabled` is false or both callbacks are null.
 Tap, long press, hover, keyboard activation and focus are handled by Flutter's
 interaction primitives. Explicit styles or decorations in `child` can
